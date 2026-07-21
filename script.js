@@ -8,7 +8,89 @@
 // DADOS
 // ============================================
 
+// ===============================
+// FIREBASE
+// ===============================
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+
+import {
+    getAuth,
+    signInWithEmailAndPassword,
+    signOut,
+    onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+import {
+    getFirestore,
+    collection,
+    addDoc,
+    deleteDoc,
+    updateDoc,
+    doc,
+    onSnapshot
+} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyDszFM_wU6LDvlsf1lXYzmInRnAgMEdp7w",
+    authDomain: "english-check-a82ef.firebaseapp.com",
+    projectId: "english-check-a82ef",
+    storageBucket: "english-check-a82ef.firebasestorage.app",
+    messagingSenderId: "524538268036",
+    appId: "1:524538268036:web:0d8bd3e1cd81a910cbb5d1"
+};
+
+const app = initializeApp(firebaseConfig);
+
+const auth = getAuth(app);
+
+const db = getFirestore(app);
+
 let alunos = [];
+
+// ============================================
+// AUTENTICAÇÃO
+// ============================================
+
+onAuthStateChanged(auth, (user) => {
+
+    if (user) {
+
+        document
+            .getElementById("loginPage")
+            .style
+            .display = "none";
+
+        document
+            .getElementById("app")
+            .style
+            .display = "block";
+
+        atualizarDashboard();
+
+    } else {
+
+        document
+            .getElementById("app")
+            .style
+            .display = "none";
+
+        document
+            .getElementById("loginPage")
+            .style
+            .display = "flex";
+
+        document
+            .getElementById("username")
+            .value = "";
+
+        document
+            .getElementById("password")
+            .value = "";
+
+    }
+
+});
 
 
 // ============================================
@@ -17,31 +99,44 @@ let alunos = [];
 
 document
     .getElementById("loginButton")
-    .addEventListener("click", function () {
+    .addEventListener("click", async function () {
 
-        const username =
-            document
+        const email = document
             .getElementById("username")
             .value
             .trim();
 
-        const password =
-            document
+        const password = document
             .getElementById("password")
             .value
             .trim();
 
         const mensagem =
-            document
-            .getElementById("loginMessage");
+            document.getElementById("loginMessage");
 
+        try {
 
-        if (
-            username === "professor"
-            &&
-            password === "1234"
-        ) {
+            await signInWithEmailAndPassword(
+                auth,
+                email,
+                password
+            );
 
+            mensagem.innerHTML = "";
+
+        }
+
+        catch (error) {
+
+            mensagem.innerHTML =
+                "Email ou palavra-passe incorretos ❌";
+
+            mensagem.style.color = "red";
+
+        }
+
+    });
+      
             document
                 .getElementById("loginPage")
                 .style
@@ -79,28 +174,9 @@ document
 
 document
     .getElementById("logoutButton")
-    .addEventListener("click", function () {
+    .addEventListener("click", async function () {
 
-        document
-            .getElementById("app")
-            .style
-            .display = "none";
-
-
-        document
-            .getElementById("loginPage")
-            .style
-            .display = "flex";
-
-
-        document
-            .getElementById("username")
-            .value = "";
-
-
-        document
-            .getElementById("password")
-            .value = "";
+        await signOut(auth);
 
     });
 
