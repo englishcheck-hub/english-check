@@ -1,0 +1,1816 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>English Check</title>
+
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #eef2ff;
+            color: #1e293b;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 8px;
+            background: #1e3a8a;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #172554;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 12px;
+            margin-top: 6px;
+            margin-bottom: 15px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .login-page {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .login-box {
+            width: 100%;
+            max-width: 400px;
+            padding: 35px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+        }
+
+        .login-box h1 {
+            text-align: center;
+            color: #1e3a8a;
+        }
+
+        .login-box p {
+            text-align: center;
+        }
+
+        .app {
+            display: none;
+        }
+
+        .topbar {
+            background: #1e3a8a;
+            color: white;
+            padding: 18px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .topbar h1 {
+            margin: 0;
+        }
+
+        .logout-button {
+            width: auto;
+            background: #dc2626;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 25px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .stat-card h2 {
+            color: #1e3a8a;
+        }
+
+        .section {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .section h2 {
+            margin-top: 0;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .student-card {
+            border: 1px solid #e2e8f0;
+            padding: 18px;
+            margin-top: 15px;
+            border-radius: 10px;
+        }
+
+        .student-card h3 {
+            margin-top: 0;
+        }
+
+        .alert {
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            background: #fef3c7;
+        }
+
+        .expired {
+            background: #fee2e2;
+        }
+
+        .good {
+            background: #dcfce7;
+        }
+
+        .danger-button {
+            background: #dc2626;
+        }
+
+        @media (max-width: 800px) {
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+        }
+
+        @media (max-width: 600px) {
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .topbar {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- LOGIN -->
+
+    <div class="login-page" id="loginPage">
+
+        <div class="login-box">
+
+            <h1>English Check</h1>
+
+            <p>Gestão de Aulas de Código da Estrada</p>
+
+
+            <label>
+
+                Username
+
+            </label>
+
+            <input
+
+                id="username"
+
+                placeholder="Username"
+
+            >
+
+
+            <label>
+
+                Password
+
+            </label>
+
+            <input
+
+                id="password"
+
+                type="password"
+
+                placeholder="Password"
+
+            >
+
+
+            <button id="loginButton">
+
+                Entrar
+
+            </button>
+
+
+            <p id="loginMessage"></p>
+
+        </div>
+
+    </div>
+
+
+    <!-- APLICAÇÃO -->
+
+    <div class="app" id="app">
+
+
+        <div class="topbar">
+
+            <h1>English Check</h1>
+
+
+            <button
+
+                class="logout-button"
+
+                id="logoutButton"
+
+            >
+
+                Sair
+
+            </button>
+
+        </div>
+
+
+        <div class="container">
+
+
+            <!-- ESTATÍSTICAS -->
+
+            <div class="stats">
+
+
+                <div class="stat-card">
+
+                    👨‍🎓 Alunos Ativos
+
+                    <h2 id="totalStudents">
+
+                        0
+
+                    </h2>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    📚 Aulas Realizadas
+
+                    <h2 id="totalLessons">
+
+                        0
+
+                    </h2>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    ⚠️ Alertas
+
+                    <h2 id="totalAlerts">
+
+                        0
+
+                    </h2>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    ✅ Exames Aprovados
+
+                    <h2 id="totalApproved">
+
+                        0
+
+                    </h2>
+
+                </div>
+
+
+            </div>
+
+
+            <!-- ALERTAS -->
+
+            <div class="section">
+
+                <h2>
+
+                    🔔 Alertas de Validade
+
+                </h2>
+
+
+                <p>
+
+                    Mostra as licenças e códigos que terminam nos próximos 3 meses.
+
+                </p>
+
+
+                <div id="alertsList">
+
+                    Não existem alertas.
+
+                </div>
+
+            </div>
+
+
+            <!-- ADICIONAR ALUNO -->
+
+            <div class="section">
+
+
+                <h2>
+
+                    ➕ Adicionar Aluno
+
+                </h2>
+
+
+                <div class="form-grid">
+
+
+                    <div>
+
+                        <label>
+
+                            N.º de aluno
+
+                        </label>
+
+
+                        <input
+
+                            id="studentNumber"
+
+                            placeholder="Exemplo: 001"
+
+                        >
+
+                    </div>
+
+
+                    <div>
+
+                        <label>
+
+                            Nome completo
+
+                        </label>
+
+
+                        <input
+
+                            id="studentName"
+
+                            placeholder="Nome do aluno"
+
+                        >
+
+                    </div>
+
+
+                    <div>
+
+                        <label>
+
+                            Validade da licença de aprendizagem
+
+                        </label>
+
+
+                        <input
+
+                            id="licenceExpiry"
+
+                            type="date"
+
+                        >
+
+                    </div>
+
+
+                    <div>
+
+                        <label>
+
+                            Estado do exame de código
+
+                        </label>
+
+
+                        <select id="examStatus">
+
+
+                            <option value="Por fazer">
+
+                                Por fazer
+
+                            </option>
+
+
+                            <option value="Aprovado">
+
+                                Aprovado
+
+                            </option>
+
+
+                            <option value="Reprovado">
+
+                                Reprovado
+
+                            </option>
+
+
+                        </select>
+
+                    </div>
+
+
+                    <div>
+
+                        <label>
+
+                            Validade do código
+
+                        </label>
+
+
+                        <input
+
+                            id="codeExpiry"
+
+                            type="date"
+
+                        >
+
+                    </div>
+
+
+                    <div>
+
+                        <label>
+
+                            QR Code / Código do aluno
+
+                        </label>
+
+
+                        <input
+
+                            id="qrCode"
+
+                            placeholder="Exemplo: ALUNO-001"
+
+                        >
+
+                    </div>
+
+
+                    <div>
+
+                        <label>
+
+                            Estado do aluno
+
+                        </label>
+
+
+                        <select id="studentStatus">
+
+
+                            <option value="Ativo">
+
+                                Ativo
+
+                            </option>
+
+
+                            <option value="Inativo">
+
+                                Inativo
+
+                            </option>
+
+
+                        </select>
+
+                    </div>
+
+
+                </div>
+
+
+                <button id="addStudentButton">
+
+                    Adicionar Aluno
+
+                </button>
+
+
+            </div>
+
+
+            <!-- LISTA DE ALUNOS -->
+
+            <div class="section">
+
+
+                <h2>
+
+                    👨‍🎓 Lista de Alunos
+
+                </h2>
+
+
+                <input
+
+                    id="searchStudent"
+
+                    placeholder="Pesquisar por nome ou número"
+
+                >
+
+
+                <div id="studentsList">
+
+                    Ainda não existem alunos.
+
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+    <!-- JAVASCRIPT -->
+
+    <script>
+
+
+        let students = [];
+
+
+        const loginButton =
+
+            document.getElementById(
+
+                "loginButton"
+
+            );
+
+
+        loginButton.addEventListener(
+
+            "click",
+
+            function() {
+
+
+                const username =
+
+                    document
+
+                    .getElementById(
+
+                        "username"
+
+                    )
+
+                    .value;
+
+
+                const password =
+
+                    document
+
+                    .getElementById(
+
+                        "password"
+
+                    )
+
+                    .value;
+
+
+                const message =
+
+                    document
+
+                    .getElementById(
+
+                        "loginMessage"
+
+                    );
+
+
+                if (
+
+                    username === "professor"
+
+                    &&
+
+                    password === "1234"
+
+                ) {
+
+
+                    document
+
+                    .getElementById(
+
+                        "loginPage"
+
+                    )
+
+                    .style
+
+                    .display = "none";
+
+
+                    document
+
+                    .getElementById(
+
+                        "app"
+
+                    )
+
+                    .style
+
+                    .display = "block";
+
+
+                    updateDashboard();
+
+
+                } else {
+
+
+                    message.innerHTML =
+
+                        "Username ou password incorretos ❌";
+
+
+                    message.style.color =
+
+                        "red";
+
+                }
+
+            }
+
+        );
+
+
+        document
+
+        .getElementById(
+
+            "logoutButton"
+
+        )
+
+        .addEventListener(
+
+            "click",
+
+            function() {
+
+
+                document
+
+                .getElementById(
+
+                    "app"
+
+                )
+
+                .style
+
+                .display = "none";
+
+
+                document
+
+                .getElementById(
+
+                    "loginPage"
+
+                )
+
+                .style
+
+                .display = "flex";
+
+            }
+
+        );
+
+
+        document
+
+        .getElementById(
+
+            "addStudentButton"
+
+        )
+
+        .addEventListener(
+
+            "click",
+
+            function() {
+
+
+                const studentNumber =
+
+                    document
+
+                    .getElementById(
+
+                        "studentNumber"
+
+                    )
+
+                    .value;
+
+
+                const studentName =
+
+                    document
+
+                    .getElementById(
+
+                        "studentName"
+
+                    )
+
+                    .value;
+
+
+                const licenceExpiry =
+
+                    document
+
+                    .getElementById(
+
+                        "licenceExpiry"
+
+                    )
+
+                    .value;
+
+
+                const examStatus =
+
+                    document
+
+                    .getElementById(
+
+                        "examStatus"
+
+                    )
+
+                    .value;
+
+
+                const codeExpiry =
+
+                    document
+
+                    .getElementById(
+
+                        "codeExpiry"
+
+                    )
+
+                    .value;
+
+
+                const qrCode =
+
+                    document
+
+                    .getElementById(
+
+                        "qrCode"
+
+                    )
+
+                    .value;
+
+
+                const studentStatus =
+
+                    document
+
+                    .getElementById(
+
+                        "studentStatus"
+
+                    )
+
+                    .value;
+
+
+                if (
+
+                    studentNumber === ""
+
+                    ||
+
+                    studentName === ""
+
+                ) {
+
+
+                    alert(
+
+                        "Preenche o número e o nome do aluno."
+
+                    );
+
+
+                    return;
+
+                }
+
+
+                const student = {
+
+
+                    id: Date.now(),
+
+
+                    number: studentNumber,
+
+
+                    name: studentName,
+
+
+                    licenceExpiry: licenceExpiry,
+
+
+                    lessons: 0,
+
+
+                    examStatus: examStatus,
+
+
+                    codeExpiry: codeExpiry,
+
+
+                    qrCode: qrCode,
+
+
+                    status: studentStatus
+
+                };
+
+
+                students.push(student);
+
+
+                clearForm();
+
+
+                updateDashboard();
+
+
+                alert(
+
+                    "Aluno adicionado com sucesso ✅"
+
+                );
+
+            }
+
+        );
+
+
+        document
+
+        .getElementById(
+
+            "searchStudent"
+
+        )
+
+        .addEventListener(
+
+            "input",
+
+            function() {
+
+                displayStudents();
+
+            }
+
+        );
+
+
+        function clearForm() {
+
+
+            document
+
+            .getElementById(
+
+                "studentNumber"
+
+            )
+
+            .value = "";
+
+
+            document
+
+            .getElementById(
+
+                "studentName"
+
+            )
+
+            .value = "";
+
+
+            document
+
+            .getElementById(
+
+                "licenceExpiry"
+
+            )
+
+            .value = "";
+
+
+            document
+
+            .getElementById(
+
+                "examStatus"
+
+            )
+
+            .value = "Por fazer";
+
+
+            document
+
+            .getElementById(
+
+                "codeExpiry"
+
+            )
+
+            .value = "";
+
+
+            document
+
+            .getElementById(
+
+                "qrCode"
+
+            )
+
+            .value = "";
+
+
+            document
+
+            .getElementById(
+
+                "studentStatus"
+
+            )
+
+            .value = "Ativo";
+
+        }
+
+
+        function displayStudents() {
+
+
+            const list =
+
+                document
+
+                .getElementById(
+
+                    "studentsList"
+
+                );
+
+
+            const search =
+
+                document
+
+                .getElementById(
+
+                    "searchStudent"
+
+                )
+
+                .value
+
+                .toLowerCase();
+
+
+            const filteredStudents =
+
+                students.filter(
+
+                    function(student) {
+
+
+                        return (
+
+                            student.name
+
+                            .toLowerCase()
+
+                            .includes(
+
+                                search
+
+                            )
+
+                            ||
+
+                            student.number
+
+                            .toLowerCase()
+
+                            .includes(
+
+                                search
+
+                            )
+
+                        );
+
+                    }
+
+                );
+
+
+            if (
+
+                filteredStudents.length === 0
+
+            ) {
+
+
+                list.innerHTML =
+
+                    "Não existem alunos.";
+
+                return;
+
+            }
+
+
+            list.innerHTML = "";
+
+
+            filteredStudents.forEach(
+
+                function(student) {
+
+
+                    const card =
+
+                        document
+
+                        .createElement(
+
+                            "div"
+
+                        );
+
+
+                    card.className =
+
+                        "student-card";
+
+
+                    card.innerHTML = `
+
+                        <h3>
+
+                            ${student.name}
+
+                        </h3>
+
+
+                        <p>
+
+                            <strong>
+
+                                N.º de aluno:
+
+                            </strong>
+
+                            ${student.number}
+
+                        </p>
+
+
+                        <p>
+
+                            <strong>
+
+                                Validade da licença:
+
+                            </strong>
+
+                            ${formatDate(
+
+                                student.licenceExpiry
+
+                            )}
+
+                        </p>
+
+
+                        <p>
+
+                            <strong>
+
+                                Aulas realizadas:
+
+                            </strong>
+
+                            ${student.lessons}
+
+                        </p>
+
+
+                        <p>
+
+                            <strong>
+
+                                Exame de código:
+
+                            </strong>
+
+                            ${student.examStatus}
+
+                        </p>
+
+
+                        <p>
+
+                            <strong>
+
+                                Validade do código:
+
+                            </strong>
+
+                            ${formatDate(
+
+                                student.codeExpiry
+
+                            )}
+
+                        </p>
+
+
+                        <p>
+
+                            <strong>
+
+                                QR Code:
+
+                            </strong>
+
+                            ${student.qrCode || "Não registado"}
+
+                        </p>
+
+
+                        <p>
+
+                            <strong>
+
+                                Estado:
+
+                            </strong>
+
+                            ${student.status}
+
+                        </p>
+
+
+                        <button
+
+                            class="add-lesson-button"
+
+                            data-id="${student.id}"
+
+                        >
+
+                            ➕ Registar Aula
+
+                        </button>
+
+
+                        <button
+
+                            class="danger-button delete-button"
+
+                            data-id="${student.id}"
+
+                        >
+
+                            🗑️ Apagar Aluno
+
+                        </button>
+
+                    `;
+
+
+                    list.appendChild(card);
+
+                }
+
+            );
+
+
+            document
+
+            .querySelectorAll(
+
+                ".add-lesson-button"
+
+            )
+
+            .forEach(
+
+                function(button) {
+
+
+                    button.addEventListener(
+
+                        "click",
+
+                        function() {
+
+
+                            const id =
+
+                                Number(
+
+                                    button
+
+                                    .getAttribute(
+
+                                        "data-id"
+
+                                    )
+
+                                );
+
+
+                            const student =
+
+                                students.find(
+
+                                    function(student) {
+
+
+                                        return (
+
+                                            student.id === id
+
+                                        );
+
+                                    }
+
+                                );
+
+
+                            if (student) {
+
+
+                                student.lessons++;
+
+
+                                updateDashboard();
+
+
+                                alert(
+
+                                    "Aula registada ✅"
+
+                                );
+
+                            }
+
+                        }
+
+                    );
+
+                }
+
+            );
+
+
+            document
+
+            .querySelectorAll(
+
+                ".delete-button"
+
+            )
+
+            .forEach(
+
+                function(button) {
+
+
+                    button.addEventListener(
+
+                        "click",
+
+                        function() {
+
+
+                            const id =
+
+                                Number(
+
+                                    button
+
+                                    .getAttribute(
+
+                                        "data-id"
+
+                                    )
+
+                                );
+
+
+                            students =
+
+                                students.filter(
+
+                                    function(student) {
+
+
+                                        return (
+
+                                            student.id !== id
+
+                                        );
+
+                                    }
+
+                                );
+
+
+                            updateDashboard();
+
+                        }
+
+                    );
+
+                }
+
+            );
+
+        }
+
+
+        function updateDashboard() {
+
+
+            const activeStudents =
+
+                students.filter(
+
+                    function(student) {
+
+
+                        return (
+
+                            student.status ===
+
+                            "Ativo"
+
+                        );
+
+                    }
+
+                );
+
+
+            document
+
+            .getElementById(
+
+                "totalStudents"
+
+            )
+
+            .innerText =
+
+                activeStudents.length;
+
+
+            document
+
+            .getElementById(
+
+                "totalLessons"
+
+            )
+
+            .innerText =
+
+                students.reduce(
+
+                    function(total, student) {
+
+
+                        return (
+
+                            total +
+
+                            student.lessons
+
+                        );
+
+                    },
+
+                    0
+
+                );
+
+
+            document
+
+            .getElementById(
+
+                "totalApproved"
+
+            )
+
+            .innerText =
+
+                students.filter(
+
+                    function(student) {
+
+
+                        return (
+
+                            student.examStatus ===
+
+                            "Aprovado"
+
+                        );
+
+                    }
+
+                ).length;
+
+
+            displayAlerts();
+
+
+            displayStudents();
+
+        }
+
+
+        function displayAlerts() {
+
+
+            const alertsList =
+
+                document
+
+                .getElementById(
+
+                    "alertsList"
+
+                );
+
+
+            const today =
+
+                new Date();
+
+
+            const threeMonthsFromNow =
+
+                new Date();
+
+
+            threeMonthsFromNow
+
+                .setMonth(
+
+                    today.getMonth() + 3
+
+                );
+
+
+            let alerts = [];
+
+
+            students.forEach(
+
+                function(student) {
+
+
+                    checkDate(
+
+                        student,
+
+                        student.licenceExpiry,
+
+                        "Licença de aprendizagem"
+
+                    );
+
+
+                    checkDate(
+
+                        student,
+
+                        student.codeExpiry,
+
+                        "Validade do código"
+
+                    );
+
+                }
+
+            );
+
+
+            function checkDate(
+
+                student,
+
+                dateValue,
+
+                dateName
+
+            ) {
+
+
+                if (
+
+                    !dateValue
+
+                ) {
+
+                    return;
+
+                }
+
+
+                const expiryDate =
+
+                    new Date(
+
+                        dateValue
+
+                    );
+
+
+                if (
+
+                    expiryDate < today
+
+                ) {
+
+
+                    alerts.push(`
+
+                        <div class="alert expired">
+
+                            🔴
+
+                            <strong>
+
+                                ${student.name}
+
+                            </strong>
+
+                            <br>
+
+                            ${dateName}
+
+                            já terminou.
+
+                        </div>
+
+                    `);
+
+                }
+
+
+                else if (
+
+                    expiryDate <=
+
+                    threeMonthsFromNow
+
+                ) {
+
+
+                    alerts.push(`
+
+                        <div class="alert">
+
+                            ⚠️
+
+                            <strong>
+
+                                ${student.name}
+
+                            </strong>
+
+                            <br>
+
+                            ${dateName}
+
+                            termina em breve:
+
+                            ${formatDate(
+
+                                dateValue
+
+                            )}
+
+                        </div>
+
+                    `);
+
+                }
+
+            }
+
+
+            if (
+
+                alerts.length === 0
+
+            ) {
+
+
+                alertsList.innerHTML =
+
+                    `
+
+                    <div class="alert good">
+
+                        ✅ Não existem validades a terminar nos próximos 3 meses.
+
+                    </div>
+
+                    `;
+
+            } else {
+
+
+                alertsList.innerHTML =
+
+                    alerts.join("");
+
+            }
+
+
+            document
+
+            .getElementById(
+
+                "totalAlerts"
+
+            )
+
+            .innerText =
+
+                alerts.length;
+
+        }
+
+
+        function formatDate(dateValue) {
+
+
+            if (
+
+                !dateValue
+
+            ) {
+
+                return "Não definida";
+
+            }
+
+
+            const date =
+
+                new Date(
+
+                    dateValue
+
+                );
+
+
+            return date.toLocaleDateString(
+
+                "pt-PT"
+
+            );
+
+        }
+
+
+    </script>
+
+
+</body>
+
+</html>
