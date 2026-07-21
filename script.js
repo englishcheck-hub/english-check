@@ -110,7 +110,6 @@ onAuthStateChanged(auth, (user) => {
 
 });
 
-
 // ============================================
 // LOGIN
 // ============================================
@@ -129,8 +128,8 @@ document
             .value
             .trim();
 
-        const mensagem =
-            document.getElementById("loginMessage");
+        const mensagem = document
+            .getElementById("loginMessage");
 
         try {
 
@@ -154,36 +153,50 @@ document
         }
 
     });
-      
-            document
-                .getElementById("loginPage")
-                .style
-                .display = "none";
 
 
-            document
-                .getElementById("app")
-                .style
-                .display = "block";
+// ============================================
+// ESTADO DA AUTENTICAÇÃO
+// ============================================
+
+onAuthStateChanged(auth, (user) => {
+
+    if (user) {
+
+        document
+            .getElementById("loginPage")
+            .style
+            .display = "none";
+
+        document
+            .getElementById("app")
+            .style
+            .display = "block";
+
+        atualizarDashboard();
+
+    }
+
+    else {
+
+        document
+            .getElementById("loginPage")
+            .style
+            .display = "flex";
+
+        document
+            .getElementById("app")
+            .style
+            .display = "none";
+
+    }
+
+});
 
 
-            mensagem.innerHTML = "";
-
-
-            atualizarDashboard();
-
-        }
-
-        else {
-
-            mensagem.innerHTML =
-                "Username ou password incorretos ❌";
-
-            mensagem.style.color = "red";
-
-        }
-
-    });
+// ============================================
+// LOGOUT
+// ============================================
 
 
 // ============================================
