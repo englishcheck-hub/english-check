@@ -47,7 +47,8 @@ const auth = getAuth(app);
 
 const db = getFirestore(app);
 
-let alunos = [];onSnapshot(collection(db, "alunos"), (snapshot) => {
+let alunos = [];
+onSnapshot(collection(db, "alunos"), (snapshot) => {
 
     alunos = [];
 
