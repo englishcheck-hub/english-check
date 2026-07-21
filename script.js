@@ -47,7 +47,23 @@ const auth = getAuth(app);
 
 const db = getFirestore(app);
 
-let alunos = [];
+let alunos = [];onSnapshot(collection(db, "alunos"), (snapshot) => {
+
+    alunos = [];
+
+    snapshot.forEach((doc) => {
+
+        alunos.push({
+            id: doc.id,
+            ...doc.data()
+        });
+
+    });
+
+    atualizarDashboard();
+
+});
+
 
 // ============================================
 // AUTENTICAÇÃO
@@ -188,8 +204,7 @@ document
 
 document
     .getElementById("addStudentButton")
-    .addEventListener("click", function () {
-
+    .addEventListener("click", async function () {
 
         const numero =
             document
@@ -287,8 +302,7 @@ document
         };
 
 
-        alunos.push(aluno);
-
+        await addDoc(collection(db, "alunos"), aluno);
 
         limparFormulario();
 
