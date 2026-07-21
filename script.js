@@ -28,7 +28,8 @@ import {
     deleteDoc,
     updateDoc,
     doc,
-    onSnapshot
+    onSnapshot,
+    getDocs
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 const firebaseConfig = {
