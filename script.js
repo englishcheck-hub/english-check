@@ -625,7 +625,7 @@ function adicionarEventosDosBotoes() {
 
             "click",
 
-            function () {
+            async function () {
 
 
                 const id =
@@ -659,20 +659,13 @@ function adicionarEventosDosBotoes() {
 
                 if (aluno) {
 
+    await updateDoc(doc(db, "alunos", aluno.id), {
+        aulasRealizadas: aluno.aulasRealizadas + 1
+    });
 
-                    aluno.aulasRealizadas++;
+    alert("Aula registada com sucesso ✅");
 
-
-                    atualizarDashboard();
-
-
-                    alert(
-
-                        "Aula registada com sucesso ✅"
-
-                    );
-
-                }
+}
 
             }
 
