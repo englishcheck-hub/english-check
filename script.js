@@ -698,7 +698,7 @@ function adicionarEventosDosBotoes() {
 
             "click",
 
-            function () {
+            async function () {
 
 
                 const id =
@@ -732,21 +732,7 @@ function adicionarEventosDosBotoes() {
                 }
 
 
-                alunos =
-
-                    alunos.filter(function (aluno) {
-
-
-                        return (
-
-                            aluno.id !== id
-
-                        );
-
-                    });
-
-
-                atualizarDashboard();
+                await deleteDoc(doc(db, "alunos", aluno.id));
 
             }
 
