@@ -31,7 +31,6 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-            alert("Script carregado");
 let alunos = []; onSnapshot(collection(db,"alunos"), (snapshot) => {
     alunos = [];
     snapshot.forEach((doc) => {
@@ -59,6 +58,8 @@ const utilizadores = [
 ];
 
 document.getElementById("loginButton").addEventListener("click", function () {
+
+    alert("Botão clicado");
 
     const username = document.getElementById("username").value.trim();
     const password = document.getElementById("password").value.trim();
