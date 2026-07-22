@@ -44,6 +44,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 const auth = getAuth(app);
+console.log("Firebase iniciado com sucesso");
 
 const db = getFirestore(app);
 
@@ -131,18 +132,32 @@ document
         const mensagem = document
             .getElementById("loginMessage");
 
+        document
+    .getElementById("loginButton")
+    .addEventListener("click", async function () {
+
+        const email = document.getElementById("username").value.trim();
+        const password = document.getElementById("password").value.trim();
+
+        alert("Botão clicado");
+
         try {
 
-    const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-    );
+            const userCredential = await signInWithEmailAndPassword(
+                auth,
+                email,
+                password
+            );
 
-    alert("Login efetuado!");
+            alert("Login efetuado!");
 
-}
-catch (error) {
+        } catch (error) {
+
+            alert(error.code + "\n" + error.message);
+
+        }
+
+    });
 
     alert(error.code + "\n" + error.message);
 
