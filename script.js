@@ -31,7 +31,8 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-let alunos = []; onsnapshot(collection(db,"alunos"), (snapshot) => {
+            alert("Script carregado");
+let alunos = []; onSnapshot(collection(db,"alunos"), (snapshot) => {
     alunos = [];
     snapshot.forEach((doc) => {
         alunos.push({
