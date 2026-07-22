@@ -3,23 +3,11 @@
 // GESTÃO DE AULAS DE CÓDIGO DA ESTRADA
 // ============================================
 
-
 // ============================================
-// DADOS
-// ============================================
-
-// ===============================
 // FIREBASE
-// ===============================
+// ============================================
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-
-import {
-    getAuth,
-    signInWithEmailAndPassword,
-    signOut,
-    onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
 import {
     getFirestore,
@@ -28,131 +16,61 @@ import {
     deleteDoc,
     updateDoc,
     doc,
-    onSnapshot,
-    getDocs
+    onSnapshot
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDszFM_wU6LDvlsf1lXYzmInRnAgMEdp7w",
-  authDomain: "english-check-a82ef.firebaseapp.com",
-  projectId: "english-check-a82ef",
-  storageBucket: "english-check-a82ef.firebasestorage.app",
-  messagingSenderId: "524538268036",
-  appId: "1:524538268036:web:0d8bd3e1cd81a910cbb5d1",
-  measurementId: "G-F1WCZ9E7KR"
+    apiKey: "AIzaSyDszFM_wU6LDvlsf1lXYzmInRnAgMEdp7w",
+    authDomain: "english-check-a82ef.firebaseapp.com",
+    projectId: "english-check-a82ef",
+    storageBucket: "english-check-a82ef.firebasestorage.app",
+    messagingSenderId: "524538268036",
+    appId: "1:524538268036:web:0d8bd3e1cd81a910cbb5d1",
+    measurementId: "G-F1WCZ9E7KR"
 };
+
 const app = initializeApp(firebaseConfig);
 
-const auth = getAuth(app);
-console.log("Firebase iniciado com sucesso");
-
 const db = getFirestore(app);
-
-let alunos = [];
-onSnapshot(collection(db, "alunos"), (snapshot) => {
-
-    alunos = [];
-
-    snapshot.forEach((doc) => {
-
-        alunos.push({
-            id: doc.id,
-            ...doc.data()
-        });
-
-    });
-
-    atualizarDashboard();
-
-});
-
-
-// ============================================
-// AUTENTICAÇÃO
-// ============================================
-
-onAuthStateChanged(auth, (user) => {
-
-    if (user) {
-
-        document
-            .getElementById("loginPage")
-            .style
-            .display = "none";
-
-        document
-            .getElementById("app")
-            .style
-            .display = "block";
-
-        atualizarDashboard();
-
-    } else {
-
-        document
-            .getElementById("app")
-            .style
-            .display = "none";
-
-        document
-            .getElementById("loginPage")
-            .style
-            .display = "flex";
-
-        document
-            .getElementById("username")
-            .value = "";
-
-        document
-            .getElementById("password")
-            .value = "";
-
-    }
-
-});
 
 // ============================================
 // LOGIN
 // ============================================
 
-document
-    .getElementById("loginButton")
-    .addEventListener("click", async function () {
+const utilizadores = [
+    {
+        username: "andria",
+        password: "druxa2099"
+    },
+    {
+        username: "joaof",
+        password: "lumiar2026"
+    }
+];
 
-        const email = document
-            .getElementById("username")
-            .value
-            .trim();
+document.getElementById("loginButton").addEventListener("click", function () {
 
-        const password = document
-            .getElementById("password")
-            .value
-            .trim();
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value.trim();
 
-        const mensagem = document
-            .getElementById("loginMessage");
+    const utilizador = utilizadores.find(u =>
+        u.username === username && u.password === password
+    );
 
-        try {
+    if (utilizador) {
 
-            await signInWithEmailAndPassword(
-                auth,
-                email,
-                password
-            );
+        document.getElementById("loginPage").style.display = "none";
+        document.getElementById("app").style.display = "block";
+        document.getElementById("loginMessage").innerHTML = "";
 
-            mensagem.innerHTML = "";
+    } else {
 
-        } catch (error) {
+        document.getElementById("loginMessage").innerHTML = "Utilizador ou palavra-passe incorretos.";
+        document.getElementById("loginMessage").style.color = "red";
 
-            alert(error.code);
+    }
 
-            mensagem.innerHTML = error.code;
-            mensagem.style.color = "red";
-
-        }
-
-    });
-
+});
 
 // ============================================
 // LOGOUT
@@ -160,12 +78,16 @@ document
 
 document
     .getElementById("logoutButton")
-    .addEventListener("click", async function () {
+    .addEventListener("click", function () {
 
-        await signOut(auth);
+        document.getElementById("app").style.display = "none";
+        document.getElementById("loginPage").style.display = "flex";
+
+        document.getElementById("username").value = "";
+        document.getElementById("password").value = "";
+        document.getElementById("loginMessage").innerHTML = "";
 
     });
-
 
 // ============================================
 // ADICIONAR ALUNO
