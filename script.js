@@ -33,14 +33,14 @@ import {
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyDszFM_wU6LDvlsf1lXYzmInRnAgMEdp7w",
-    authDomain: "english-check-a82ef.firebaseapp.com",
-    projectId: "english-check-a82ef",
-    storageBucket: "english-check-a82ef.firebasestorage.app",
-    messagingSenderId: "524538268036",
-    appId: "1:524538268036:web:0d8bd3e1cd81a910cbb5d1"
+  apiKey: "AIzaSyDszFM_wU6LDvlsf1lXYzmInRnAgMEdp7w",
+  authDomain: "english-check-a82ef.firebaseapp.com",
+  projectId: "english-check-a82ef",
+  storageBucket: "english-check-a82ef.firebasestorage.app",
+  messagingSenderId: "524538268036",
+  appId: "1:524538268036:web:0d8bd3e1cd81a910cbb5d1",
+  measurementId: "G-F1WCZ9E7KR"
 };
-
 const app = initializeApp(firebaseConfig);
 
 const auth = getAuth(app);
