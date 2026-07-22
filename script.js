@@ -156,50 +156,6 @@ document
 
 
 // ============================================
-// ESTADO DA AUTENTICAÇÃO
-// ============================================
-
-onAuthStateChanged(auth, (user) => {
-
-    if (user) {
-
-        document
-            .getElementById("loginPage")
-            .style
-            .display = "none";
-
-        document
-            .getElementById("app")
-            .style
-            .display = "block";
-
-        atualizarDashboard();
-
-    }
-
-    else {
-
-        document
-            .getElementById("loginPage")
-            .style
-            .display = "flex";
-
-        document
-            .getElementById("app")
-            .style
-            .display = "none";
-
-    }
-
-});
-
-
-// ============================================
-// LOGOUT
-// ============================================
-
-
-// ============================================
 // LOGOUT
 // ============================================
 
@@ -738,7 +694,7 @@ function adicionarEventosDosBotoes() {
                 }
 
 
-                await deleteDoc(doc(db, "alunos", aluno.id));
+                await deleteDoc(doc(db, "alunos", id));
 
             }
 
