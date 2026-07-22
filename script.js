@@ -59,8 +59,6 @@ const utilizadores = [
 
 document.getElementById("loginButton").addEventListener("click", function () {
 
-    alert("Botão clicado");
-
     const username = document.getElementById("username").value.trim();
     const password = document.getElementById("password").value.trim();
 
@@ -111,6 +109,8 @@ document
 document
     .getElementById("addStudentButton")
     .addEventListener("click", async function () {
+
+        alert("Adicionar aluno clicado");
 
         const numero =
             document
