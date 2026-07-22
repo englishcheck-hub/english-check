@@ -533,31 +533,14 @@ function adicionarEventosDosBotoes() {
             async function () {
 
 
-                const id =
-
-                    Number(
-
-                        botao
-
-                        .getAttribute(
-
-                            "data-id"
-
-                        )
-
-                    );
-
+                const id = botao.getAttribute("data-id");
 
                 const aluno =
 
                     alunos.find(function (aluno) {
 
 
-                        return (
-
-                            aluno.id === id
-
-                        );
+                        return aluno.id === id;
 
                     });
 
@@ -599,39 +582,17 @@ function adicionarEventosDosBotoes() {
             async function () {
 
 
-                const id =
+                const id = botao.getAttribute("data-id");
 
-                    Number(
+const confirmar = confirm(
+    "Tens a certeza que queres apagar este aluno?"
+);
 
-                        botao
+if (!confirmar) {
+    return;
+}
 
-                        .getAttribute(
-
-                            "data-id"
-
-                        )
-
-                    );
-
-
-                const confirmar =
-
-                    confirm(
-
-                        "Tens a certeza que queres apagar este aluno?"
-
-                    );
-
-
-                if (!confirmar) {
-
-                    return;
-
-                }
-
-
-                await deleteDoc(doc(db, "alunos", id));
-
+await deleteDoc(doc(db, "alunos", id));
             }
 
         );
