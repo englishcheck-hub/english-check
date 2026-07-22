@@ -129,24 +129,6 @@ document
             .value
             .trim();
 
-        // ============================================
-// LOGIN
-// ============================================
-
-document
-    .getElementById("loginButton")
-    .addEventListener("click", async function () {
-
-        const email = document
-            .getElementById("username")
-            .value
-            .trim();
-
-        const password = document
-            .getElementById("password")
-            .value
-            .trim();
-
         const mensagem = document
             .getElementById("loginMessage");
 
