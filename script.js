@@ -129,49 +129,45 @@ document
             .value
             .trim();
 
-        const mensagem = document
-            .getElementById("loginMessage");
+        // ============================================
+// LOGIN
+// ============================================
 
-        document
+document
     .getElementById("loginButton")
     .addEventListener("click", async function () {
 
-        const email = document.getElementById("username").value.trim();
-        const password = document.getElementById("password").value.trim();
+        const email = document
+            .getElementById("username")
+            .value
+            .trim();
 
-        alert("Botão clicado");
+        const password = document
+            .getElementById("password")
+            .value
+            .trim();
+
+        const mensagem = document
+            .getElementById("loginMessage");
 
         try {
 
-            const userCredential = await signInWithEmailAndPassword(
+            await signInWithEmailAndPassword(
                 auth,
                 email,
                 password
             );
 
-            alert("Login efetuado!");
+            mensagem.innerHTML = "";
 
         } catch (error) {
 
-            alert(error.code + "\n" + error.message);
+            alert(error.code);
+
+            mensagem.innerHTML = error.code;
+            mensagem.style.color = "red";
 
         }
-
-    });
-
-    alert(error.code + "\n" + error.message);
-
-}
-
-        catch (error) {
-
-    alert(error.code);
-
-    mensagem.innerHTML = error.code;
-
-    mensagem.style.color = "red";
-
-}
 
     });
 
