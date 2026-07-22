@@ -208,7 +208,21 @@ document
         };
 
 
-        await addDoc(collection(db, "alunos"), aluno);
+        try {
+
+    await addDoc(collection(db, "alunos"), aluno);
+
+    alert("Aluno gravado no Firebase!");
+
+    limparFormulario();
+    atualizarDashboard();
+
+} catch (erro) {
+
+    alert("ERRO: " + erro.message);
+    console.log(erro);
+
+}
 
         limparFormulario();
 
