@@ -133,15 +133,20 @@ document
 
         try {
 
-            await signInWithEmailAndPassword(
-                auth,
-                email,
-                password
-            );
+    const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+    );
 
-            mensagem.innerHTML = "";
+    alert("Login efetuado!");
 
-        }
+}
+catch (error) {
+
+    alert(error.code + "\n" + error.message);
+
+}
 
         catch (error) {
 
