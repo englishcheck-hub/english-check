@@ -70,16 +70,20 @@ document.getElementById("loginButton").addEventListener("click", function () {
 
     if (utilizador) {
 
-        document.getElementById("loginPage").style.display = "none";
-        document.getElementById("app").style.display = "block";
-        document.getElementById("loginMessage").innerHTML = "";
+    alert("Login correto!");
 
-    } else {
+    document.getElementById("loginPage").style.display = "none";
+    document.getElementById("app").style.display = "block";
+    document.getElementById("loginMessage").innerHTML = "";
 
-        document.getElementById("loginMessage").innerHTML = "Utilizador ou palavra-passe incorretos.";
-        document.getElementById("loginMessage").style.color = "red";
+} else {
 
-    }
+    alert("Login errado!");
+
+    document.getElementById("loginMessage").innerHTML = "Utilizador ou palavra-passe incorretos.";
+    document.getElementById("loginMessage").style.color = "red";
+
+}
 
 });
 
