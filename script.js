@@ -33,6 +33,17 @@ const app = initializeApp(firebaseConfig);
 
 const db = getFirestore(app);
 
+let alunos = []; onsnapshot(collection(db,"alunos"), (snapshot) => {
+    alunos = [];
+    snapshot.forEach((doc) => {
+        alunos.push({
+            id: dic.id,
+            ...doc.data()
+        });
+    });
+    atualizarDashboard();
+});    
+
 // ============================================
 // LOGIN
 // ============================================
