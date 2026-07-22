@@ -145,12 +145,13 @@ document
 
         catch (error) {
 
-            mensagem.innerHTML =
-                "Email ou palavra-passe incorretos ❌";
+    alert(error.code);
 
-            mensagem.style.color = "red";
+    mensagem.innerHTML = error.code;
 
-        }
+    mensagem.style.color = "red";
+
+}
 
     });
 
