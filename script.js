@@ -110,8 +110,6 @@ document
     .getElementById("addStudentButton")
     .addEventListener("click", async function () {
 
-        alert("Adicionar aluno clicado");
-
         const numero =
             document
             .getElementById("studentNumber")
@@ -540,12 +538,9 @@ function adicionarEventosDosBotoes() {
     botoesAula.forEach(function (botao) {
 
 
-        botao.addEventListener(
+        botao.addEventListener("click",async function () {
 
-            "click",
-
-            async function () {
-
+             alert("Botão Registra Aula Clicado");
 
                 const id = botao.getAttribute("data-id");
 
