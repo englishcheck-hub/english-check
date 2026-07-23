@@ -544,14 +544,15 @@ function adicionarEventosDosBotoes() {
 
                 const id = botao.getAttribute("data-id");
 
-                const aluno =
+                alert("ID do botão: " + id);
 
-                    alunos.find(function (aluno) {
+alert("Número de alunos: " + alunos.length);
 
+const aluno = alunos.find(function (aluno) {
+    return aluno.id === id;
+});
 
-                        return aluno.id === id;
-
-                    });
+alert("Aluno encontrado: " + (aluno ? "SIM" : "NÃO"));
 
 
                 if (aluno) {
