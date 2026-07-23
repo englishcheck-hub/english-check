@@ -176,40 +176,28 @@ document
 
         const aluno = {
 
+    numero: numero,
 
-            id: Date.now(),
+    nome: nome,
 
+    validadeLicenca: validadeLicenca,
 
-            numero: numero,
+    aulasRealizadas: 0,
 
+    estadoExame: estadoExame,
 
-            nome: nome,
+    validadeCodigo: validadeCodigo,
 
+    qrCode: qrCode,
 
-            validadeLicenca: validadeLicenca,
+    estado: estadoAluno
 
+};
 
-            aulasRealizadas: 0,
-
-
-            estadoExame: estadoExame,
-
-
-            validadeCodigo: validadeCodigo,
-
-
-            qrCode: qrCode,
-
-
-            estado: estadoAluno
-
-        };
-
-
-        try {
+try {
 
     await addDoc(collection(db, "alunos"), aluno);
-
+    
     alert("Aluno gravado no Firebase!");
 
     limparFormulario();
