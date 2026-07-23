@@ -499,93 +499,79 @@ function mostrarAlunos() {
 
 function adicionarEventosDosBotoes() {
 
-
-    const botoesAula =
-
-        document
-        .querySelectorAll(
-
-            ".add-lesson-button"
-
-        );
-
+    const botoesAula = document.querySelectorAll(".add-lesson-button");
 
     botoesAula.forEach(function (botao) {
 
+        botao.addEventListener("click", async function () {
 
-        botao.addEventListener("click",async function () {
+            alert("Botão Registar Aula Clicado");
 
-             alert("Botão Registra Aula Clicado");
+            const docid = botao.getAttribute("data-docid");
 
-                const docid = botao.getAttribute("data-docid");
-
-            alert("ID do botão: " + id);
-
+            alert("ID do botão: " + docid);
             alert("Número de alunos: " + alunos.length);
 
-                const aluno = alunos.find(function (aluno) {
-                    return aluno.id === docid;
-});
+            const aluno = alunos.find(function (aluno) {
+                return aluno.id === docid;
+            });
 
-alert("Aluno encontrado: " + (aluno ? "SIM" : "NÃO"));
+            alert("Aluno encontrado: " + (aluno ? "SIM" : "NÃO"));
 
-                if (aluno) {
+            if (!aluno) {
+                return;
+            }
 
-    alert("ID do aluno: " + aluno.id);
+            try {
 
-await updateDoc(doc(db, "alunos", aluno.docid), {
-    aulasRealizadas: aluno.aulasRealizadas + 1
-});
+                await updateDoc(doc(db, "alunos", docid), {
+                    aulasRealizadas: aluno.aulasRealizadas + 1
+                });
 
-alert("Aula registada com sucesso ✅");
-}
+                alert("Aula registada com sucesso ✅");
+
+            } catch (error) {
+
+                alert("Erro: " + error.message);
 
             }
 
-        );
+        });
 
     });
 
 
-    const botoesApagar =
-
-        document
-        .querySelectorAll(
-
-            ".delete-button"
-
-        );
-
+    const botoesApagar = document.querySelectorAll(".delete-button");
 
     botoesApagar.forEach(function (botao) {
 
+        botao.addEventListener("click", async function () {
 
-        botao.addEventListener(
+            const docid = botao.getAttribute("data-docid");
 
-            "click",
+            const confirmar = confirm("Tens a certeza que queres apagar este aluno?");
 
-            async function () {
-
-
-                const docid = botao.getAttribute("data-docid");
-
-const confirmar = confirm(
-    "Tens a certeza que queres apagar este aluno?"
-);
-
-if (!confirmar) {
-    return;
-}
-
-await deleteDoc(doc(db, "alunos", id));
+            if (!confirmar) {
+                return;
             }
 
-        );
+            try {
+
+                await deleteDoc(doc(db, "alunos", docid));
+
+                alert("Aluno apagado com sucesso ✅");
+
+            } catch (error) {
+
+                alert("Erro: " + error.message);
+
+            }
+
+        });
 
     });
 
 }
-
 
 // ============================================
 // ATUALIZAR DASHBOARD
