@@ -468,30 +468,17 @@ function mostrarAlunos() {
             </p>
 
 
-            <button
+<button
+    class="add-lesson-button"
+    data-docid="${aluno.id}">
+    ➕ Registar Aula
+</button>
 
-                class="add-lesson-button"
-
-                data-id="${aluno.id}"
-
-            >
-
-                ➕ Registar Aula
-
-            </button>
-
-
-            <button
-
-                class="danger-button delete-button"
-
-                data-id="${aluno.id}"
-
-            >
-
-                🗑️ Apagar Aluno
-
-            </button>
+<button
+    class="danger-button delete-button"
+    data-docid="${aluno.id}">
+    🗑️ Apagar Aluno
+</button>
 
         `;
 
@@ -530,14 +517,14 @@ function adicionarEventosDosBotoes() {
 
              alert("Botão Registra Aula Clicado");
 
-                const id = botao.getAttribute("data-id");
+                const docid = botao.getAttribute("data-docid");
 
             alert("ID do botão: " + id);
 
             alert("Número de alunos: " + alunos.length);
 
                 const aluno = alunos.find(function (aluno) {
-                    return aluno.id === id;
+                    return aluno.id === docid;
 });
 
 alert("Aluno encontrado: " + (aluno ? "SIM" : "NÃO"));
@@ -546,7 +533,7 @@ alert("Aluno encontrado: " + (aluno ? "SIM" : "NÃO"));
 
     alert("ID do aluno: " + aluno.id);
 
-await updateDoc(doc(db, "alunos", aluno.id), {
+await updateDoc(doc(db, "alunos", aluno.docid), {
     aulasRealizadas: aluno.aulasRealizadas + 1
 });
 
@@ -580,7 +567,7 @@ alert("Aula registada com sucesso ✅");
             async function () {
 
 
-                const id = botao.getAttribute("data-id");
+                const docid = botao.getAttribute("data-docid");
 
 const confirmar = confirm(
     "Tens a certeza que queres apagar este aluno?"
