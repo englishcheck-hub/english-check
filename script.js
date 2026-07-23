@@ -556,12 +556,13 @@ function adicionarEventosDosBotoes() {
 
                 if (aluno) {
 
-    await updateDoc(doc(db, "alunos", aluno.id), {
-        aulasRealizadas: aluno.aulasRealizadas + 1
-    });
+    alert("ID do aluno: " + aluno.id);
 
-    alert("Aula registada com sucesso ✅");
+await updateDoc(doc(db, "alunos", aluno.id), {
+    aulasRealizadas: aluno.aulasRealizadas + 1
+});
 
+alert("Aula registada com sucesso ✅");
 }
 
             }
