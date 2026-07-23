@@ -481,7 +481,6 @@ function mostrarAlunos() {
 
 }
 
-
 // ============================================
 // BOTÕES DOS ALUNOS
 // ============================================
@@ -492,40 +491,35 @@ function adicionarEventosDosBotoes() {
 
     botoesAula.forEach(function (botao) {
 
-        botao.addEventListener("click", async function () {
+        botao.onclick = async function () {
 
-            alert("Botão Registar Aula Clicado");
-
-            const docid = botao.getAttribute("data-docid");
-
-            alert("ID do botão: " + docid);
-            alert("Número de alunos: " + alunos.length);
+            const docid = this.getAttribute("data-docid");
 
             const aluno = alunos.find(function (aluno) {
                 return aluno.id === docid;
             });
 
-            alert("Aluno encontrado: " + (aluno ? "SIM" : "NÃO"));
-
             if (!aluno) {
+                alert("Aluno não encontrado.");
                 return;
             }
 
             try {
 
                 await updateDoc(doc(db, "alunos", docid), {
-                    aulasRealizadas: aluno.aulasRealizadas + 1
+                    aulasRealizadas: (aluno.aulasRealizadas || 0) + 1
                 });
 
                 alert("Aula registada com sucesso ✅");
 
             } catch (error) {
 
-                alert("Erro: " + error.message);
+                alert("Erro ao registar aula: " + error.message);
+                console.error(error);
 
             }
 
-        });
+        };
 
     });
 
@@ -534,9 +528,9 @@ function adicionarEventosDosBotoes() {
 
     botoesApagar.forEach(function (botao) {
 
-        botao.addEventListener("click", async function () {
+        botao.onclick = async function () {
 
-            const docid = botao.getAttribute("data-docid");
+            const docid = this.getAttribute("data-docid");
 
             const confirmar = confirm("Tens a certeza que queres apagar este aluno?");
 
@@ -552,11 +546,12 @@ function adicionarEventosDosBotoes() {
 
             } catch (error) {
 
-                alert("Erro: " + error.message);
+                alert("Erro ao apagar aluno: " + error.message);
+                console.error(error);
 
             }
 
-        });
+        };
 
     });
 
