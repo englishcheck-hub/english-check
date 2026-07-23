@@ -68,15 +68,11 @@ document.getElementById("loginButton").addEventListener("click", function () {
 
     if (utilizador) {
 
-    alert("Login correto!");
-
     document.getElementById("loginPage").style.display = "none";
     document.getElementById("app").style.display = "block";
     document.getElementById("loginMessage").innerHTML = "";
 
 } else {
-
-    alert("Login errado!");
 
     document.getElementById("loginMessage").innerHTML = "Utilizador ou palavra-passe incorretos.";
     document.getElementById("loginMessage").style.color = "red";
@@ -174,22 +170,15 @@ document
         }
 
 
-        const aluno = {
+    const aluno = {
 
     numero: numero,
-
     nome: nome,
-
     validadeLicenca: validadeLicenca,
-
     aulasRealizadas: 0,
-
     estadoExame: estadoExame,
-
     validadeCodigo: validadeCodigo,
-
     qrCode: qrCode,
-
     estado: estadoAluno
 
 };
@@ -197,11 +186,11 @@ document
 try {
 
     await addDoc(collection(db, "alunos"), aluno);
-    
-    alert("Aluno gravado no Firebase!");
 
     limparFormulario();
     atualizarDashboard();
+
+    alert("Aluno adicionado com sucesso ✅");
 
 } catch (erro) {
 
