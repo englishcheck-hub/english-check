@@ -583,49 +583,33 @@
 
     <h2>📚 Nova Aula</h2>
 
-    <div class="form-grid">
+    <label>ID da Aula</label>
+    <input id="lessonId" placeholder="Ex.: C12 ou M1">
 
-        <div>
-            <label>Data</label>
-            <input type="date" id="lessonDate">
-        </div>
+    <label>Matéria</label>
+    <input id="lessonSubject" placeholder="Ex.: Prioridades">
 
-        <div>
-            <label>Hora</label>
-            <input type="time" id="lessonTime">
-        </div>
+    <label>Data</label>
+    <input id="lessonDate" type="date">
 
-        <div>
-            <label>Lição</label>
-            <input
-                id="lessonCode"
-                placeholder="Ex.: 12 ou M1">
-        </div>
-
-        <div>
-            <label>N.º do Aluno</label>
-            <input
-                id="lessonStudent"
-                placeholder="Ex.: 001">
-        </div>
-
-    </div>
+    <label>N.º do aluno</label>
+    <input id="lessonStudentNumber" placeholder="Ex.: 001">
 
     <button id="addStudentToLesson">
-        ➕ Adicionar aluno à aula
+        Adicionar aluno à aula
     </button>
 
-    <h3>Alunos presentes</h3>
-
     <div id="lessonStudents">
-        Ainda não existem alunos nesta aula.
+        Nenhum aluno adicionado.
     </div>
 
     <button id="saveLesson">
-        💾 Guardar Aula
+        Guardar Aula
     </button>
 
 </div>
+            
+            
             <!-- LISTA DE ALUNOS -->
 
             <div class="section">
