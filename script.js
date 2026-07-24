@@ -16,7 +16,8 @@ import {
     deleteDoc,
     updateDoc,
     doc,
-    onSnapshot
+    onSnapshot,
+    arrayUnion
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -801,20 +802,29 @@ function formatarData(data) {
             "pt-PT"
 
         );
+}
+
+// ============================================
+// ADICIONAR ALUNO À AULA
+// ============================================
+
 // ============================================
 // ADICIONAR ALUNO À AULA
 // ============================================
 
 document.getElementById("addStudentToLesson").addEventListener("click", function () {
 
-    const numero = document.getElementById("lessonStudent").value.trim();
+    const numero = document
+        .getElementById("lessonStudent")
+        .value
+        .trim();
 
     if (numero === "") {
         alert("Introduz o número do aluno.");
         return;
     }
 
-    const aluno = alunos.find(function(a) {
+    const aluno = alunos.find(function (a) {
         return a.numero === numero;
     });
 
@@ -823,7 +833,7 @@ document.getElementById("addStudentToLesson").addEventListener("click", function
         return;
     }
 
-    const existe = alunosDaAula.find(function(a) {
+    const existe = alunosDaAula.find(function (a) {
         return a.id === aluno.id;
     });
 
@@ -839,7 +849,6 @@ document.getElementById("addStudentToLesson").addEventListener("click", function
     atualizarListaDaAula();
 
 });
-
 
 // ============================================
 // LISTA DOS ALUNOS DA AULA
