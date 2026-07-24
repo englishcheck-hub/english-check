@@ -805,48 +805,6 @@ function formatarData(data) {
 }
 
 // ============================================
-// ADICIONAR ALUNO À AULA
-// ============================================
-
-document.getElementById("addStudentToLesson").addEventListener("click", function () {
-
-    const numero = document
-        .getElementById("lessonStudent")
-        .value
-        .trim();
-
-    if (numero === "") {
-        alert("Introduz o número do aluno.");
-        return;
-    }
-
-    const aluno = alunos.find(function (a) {
-        return a.numero === numero;
-    });
-
-    if (!aluno) {
-        alert("Aluno não encontrado.");
-        return;
-    }
-
-    const existe = alunosDaAula.find(function (a) {
-        return a.id === aluno.id;
-    });
-
-    if (existe) {
-        alert("Este aluno já foi adicionado à aula.");
-        return;
-    }
-
-    alunosDaAula.push(aluno);
-
-    document.getElementById("lessonStudent").value = "";
-
-    atualizarListaDaAula();
-
-});
-
-// ============================================
 // LISTA DOS ALUNOS DA AULA
 // ============================================
 
