@@ -808,10 +808,6 @@ function formatarData(data) {
 // ADICIONAR ALUNO À AULA
 // ============================================
 
-// ============================================
-// ADICIONAR ALUNO À AULA
-// ============================================
-
 document.getElementById("addStudentToLesson").addEventListener("click", function () {
 
     const numero = document
