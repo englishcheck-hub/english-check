@@ -812,6 +812,39 @@ function atualizarListaDaAula() {
 
     const lista = document.getElementById("lessonStudents");
 
+    if (!lista) {
+        return;
+    }
+
+    if (alunosDaAula.length === 0) {
+
+        lista.innerHTML = "Ainda não existem alunos nesta aula.";
+        return;
+
+    }
+
+    lista.innerHTML = "";
+
+    alunosDaAula.forEach(function (aluno) {
+
+        lista.innerHTML += `
+            <div class="student-card">
+                <strong>${aluno.numero}</strong> - ${aluno.nome}
+            </div>
+        `;
+
+    });
+
+}
+
+// ============================================
+// LISTA DOS ALUNOS DA AULA
+// ============================================
+
+function atualizarListaDaAula() {
+
+    const lista = document.getElementById("lessonStudents");
+
     if (alunosDaAula.length === 0) {
 
         lista.innerHTML = "Ainda não existem alunos nesta aula.";
