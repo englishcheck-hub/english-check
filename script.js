@@ -861,3 +861,67 @@ document.getElementById("addStudentToLesson").addEventListener("click", function
     atualizarListaDaAula();
 
 });
+
+// ============================================
+// GUARDAR AULA
+// ============================================
+
+document.getElementById("saveLesson").addEventListener("click", async function () {
+
+    const idAula = document.getElementById("lessonId").value.trim();
+    const materia = document.getElementById("lessonSubject").value.trim();
+    const data = document.getElementById("lessonDate").value;
+
+    if (idAula === "" || materia === "" || data === "") {
+        alert("Preenche o ID da aula, a matéria e a data.");
+        return;
+    }
+
+    if (alunosDaAula.length === 0) {
+        alert("Ainda não adicionaste nenhum aluno.");
+        return;
+    }
+
+    try {
+
+        // Guarda a aula
+        await addDoc(collection(db, "aulas"), {
+
+            idAula: idAula,
+            materia: materia,
+            data: data,
+            alunos: alunosDaAula.map(a => a.numero)
+
+        });
+
+        // Atualiza todos os alunos
+        for (const aluno of alunosDaAula) {
+
+            await updateDoc(doc(db, "alunos", aluno.id), {
+
+                aulasRealizadas: (aluno.aulasRealizadas || 0) + 1,
+
+                historicoAulas: arrayUnion(idAula)
+
+            });
+
+        }
+
+        alert("Aula guardada com sucesso ✅");
+
+        alunosDaAula = [];
+
+        atualizarListaDaAula();
+
+        document.getElementById("lessonId").value = "";
+        document.getElementById("lessonSubject").value = "";
+        document.getElementById("lessonDate").value = "";
+
+    } catch (erro) {
+
+        alert("Erro: " + erro.message);
+        console.error(erro);
+
+    }
+
+});
