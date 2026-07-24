@@ -31,16 +31,29 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-let alunos = []; onSnapshot(collection(db,"alunos"), (snapshot) => {
+
+// Lista de todos os alunos
+let alunos = [];
+
+// Lista de alunos da aula que está a ser criada
+let alunosDaAula = [];
+
+onSnapshot(collection(db, "alunos"), (snapshot) => {
+
     alunos = [];
-    snapshot.forEach((doc) => {
+
+    snapshot.forEach((documento) => {
+
         alunos.push({
-            id: doc.id,
-            ...doc.data()
+            id: documento.id,
+            ...documento.data()
         });
+
     });
+
     atualizarDashboard();
-});    
+
+});
 
 // ============================================
 // LOGIN
@@ -892,5 +905,72 @@ function formatarData(data) {
             "pt-PT"
 
         );
+// ============================================
+// ADICIONAR ALUNO À AULA
+// ============================================
 
+document.getElementById("addStudentToLesson").addEventListener("click", function () {
+
+    const numero = document.getElementById("lessonStudent").value.trim();
+
+    if (numero === "") {
+        alert("Introduz o número do aluno.");
+        return;
+    }
+
+    const aluno = alunos.find(function(a) {
+        return a.numero === numero;
+    });
+
+    if (!aluno) {
+        alert("Aluno não encontrado.");
+        return;
+    }
+
+    const existe = alunosDaAula.find(function(a) {
+        return a.id === aluno.id;
+    });
+
+    if (existe) {
+        alert("Este aluno já foi adicionado à aula.");
+        return;
+    }
+
+    alunosDaAula.push(aluno);
+
+    document.getElementById("lessonStudent").value = "";
+
+    atualizarListaDaAula();
+
+});
+
+
+// ============================================
+// LISTA DOS ALUNOS DA AULA
+// ============================================
+
+function atualizarListaDaAula() {
+
+    const lista = document.getElementById("lessonStudents");
+
+    if (alunosDaAula.length === 0) {
+
+        lista.innerHTML = "Ainda não existem alunos nesta aula.";
+        return;
+
+    }
+
+    lista.innerHTML = "";
+
+    alunosDaAula.forEach(function(aluno) {
+
+        lista.innerHTML += `
+            <div class="student-card">
+                <strong>${aluno.numero}</strong> - ${aluno.nome}
+            </div>
+        `;
+
+    });
+
+}
 }
