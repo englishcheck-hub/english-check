@@ -305,207 +305,86 @@ document
 
 function mostrarAlunos() {
 
+    const lista = document.getElementById("studentsList");
 
-    const lista =
-        document
-        .getElementById("studentsList");
-
-
-    const pesquisa =
-        document
+    const pesquisa = document
         .getElementById("searchStudent")
         .value
         .toLowerCase()
         .trim();
 
+    const alunosFiltrados = alunos.filter(function (aluno) {
 
-    const alunosFiltrados =
+        return (
+            aluno.nome.toLowerCase().includes(pesquisa) ||
+            aluno.numero.toLowerCase().includes(pesquisa)
+        );
 
-        alunos.filter(function (aluno) {
+    });
 
+    if (alunosFiltrados.length === 0) {
 
-            return (
-
-                aluno.nome
-                .toLowerCase()
-                .includes(pesquisa)
-
-                ||
-
-                aluno.numero
-                .toLowerCase()
-                .includes(pesquisa)
-
-            );
-
-        });
-
-
-    if (
-
-        alunosFiltrados.length === 0
-
-    ) {
-
-        lista.innerHTML =
-            "Ainda não existem alunos.";
-
+        lista.innerHTML = "Ainda não existem alunos.";
         return;
 
     }
 
-
     lista.innerHTML = "";
-
 
     alunosFiltrados.forEach(function (aluno) {
 
+        const cartao = document.createElement("div");
 
-        const cartao =
-            document
-            .createElement("div");
+        cartao.className = "student-card";
 
+        let historico = "Sem aulas registadas";
 
-        cartao.className =
-            "student-card";
+        if (aluno.historicoAulas && aluno.historicoAulas.length > 0) {
 
+            historico = aluno.historicoAulas.join("<br>");
+
+        }
 
         cartao.innerHTML = `
 
+            <h3>👨‍🎓 ${aluno.nome}</h3>
 
-            <h3>
+            <p><strong>N.º de aluno:</strong> ${aluno.numero}</p>
 
-                👨‍🎓 ${aluno.nome}
+            <p><strong>Validade da licença:</strong> ${formatarData(aluno.validadeLicenca)}</p>
 
-            </h3>
+            <p><strong>Aulas realizadas:</strong> ${aluno.aulasRealizadas}</p>
 
+            <p><strong>Estado do exame:</strong> ${aluno.estadoExame}</p>
 
-            <p>
+            <p><strong>Validade do código:</strong> ${formatarData(aluno.validadeCodigo)}</p>
 
-                <strong>
+            <p><strong>QR Code:</strong> ${aluno.qrCode || "Não registado"}</p>
 
-                    N.º de aluno:
-
-                </strong>
-
-                ${aluno.numero}
-
-            </p>
-
+            <p><strong>Estado:</strong> ${aluno.estado}</p>
 
             <p>
-
-                <strong>
-
-                    Validade da licença:
-
-                </strong>
-
-                ${formatarData(
-
-                    aluno.validadeLicenca
-
-                )}
-
+                <strong>Histórico de aulas:</strong><br>
+                ${historico}
             </p>
 
+            <button
+                class="add-lesson-button"
+                data-docid="${aluno.id}">
+                ➕ Registar Aula
+            </button>
 
-            <p>
-
-                <strong>
-
-                    Aulas realizadas:
-
-                </strong>
-
-                ${aluno.aulasRealizadas}
-
-            </p>
-
-
-            <p>
-
-                <strong>
-
-                    Estado do exame:
-
-                </strong>
-
-                ${aluno.estadoExame}
-
-            </p>
-
-
-            <p>
-
-                <strong>
-
-                    Validade do código:
-
-                </strong>
-
-                ${formatarData(
-
-                    aluno.validadeCodigo
-
-                )}
-
-            </p>
-
-
-            <p>
-
-                <strong>
-
-                    QR Code:
-
-                </strong>
-
-                ${
-
-                    aluno.qrCode
-
-                    ||
-
-                    "Não registado"
-
-                }
-
-            </p>
-
-
-            <p>
-
-                <strong>
-
-                    Estado:
-
-                </strong>
-
-                ${aluno.estado}
-
-            </p>
-
-
-<button
-    class="add-lesson-button"
-    data-docid="${aluno.id}">
-    ➕ Registar Aula
-</button>
-
-<button
-    class="danger-button delete-button"
-    data-docid="${aluno.id}">
-    🗑️ Apagar Aluno
-</button>
+            <button
+                class="danger-button delete-button"
+                data-docid="${aluno.id}">
+                🗑️ Apagar Aluno
+            </button>
 
         `;
-
 
         lista.appendChild(cartao);
 
     });
-
 
     adicionarEventosDosBotoes();
 
@@ -989,5 +868,4 @@ function atualizarListaDaAula() {
 
     });
 
-}
 }
