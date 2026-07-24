@@ -782,26 +782,14 @@ function mostrarAlertas() {
 
 function formatarData(data) {
 
-
     if (!data) {
-
         return "Não definida";
-
     }
 
+    const dataFormatada = new Date(data);
 
-    const dataFormatada =
+    return dataFormatada.toLocaleDateString("pt-PT");
 
-        new Date(data);
-
-
-    return dataFormatada
-
-        .toLocaleDateString(
-
-            "pt-PT"
-
-        );
 }
 
 // ============================================
@@ -823,7 +811,7 @@ function atualizarListaDaAula() {
 
     lista.innerHTML = "";
 
-    alunosDaAula.forEach(function(aluno) {
+    alunosDaAula.forEach(function (aluno) {
 
         lista.innerHTML += `
             <div class="student-card">
