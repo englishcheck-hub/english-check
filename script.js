@@ -817,15 +817,13 @@ function atualizarListaDaAula() {
     }
 
     if (alunosDaAula.length === 0) {
-
         lista.innerHTML = "Ainda não existem alunos nesta aula.";
         return;
-
     }
 
     lista.innerHTML = "";
 
-    alunosDaAula.forEach(function (aluno) {
+    alunosDaAula.forEach(function(aluno) {
 
         lista.innerHTML += `
             <div class="student-card">
