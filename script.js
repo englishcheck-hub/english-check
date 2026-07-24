@@ -32,12 +32,14 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Lista de todos os alunos
+// Base de dados em memória
 let alunos = [];
+let aulas = [];
 
-// Lista de alunos da aula que está a ser criada
+// Alunos da aula que está a ser criada
 let alunosDaAula = [];
 
+// Ler alunos
 onSnapshot(collection(db, "alunos"), (snapshot) => {
 
     alunos = [];
@@ -55,6 +57,21 @@ onSnapshot(collection(db, "alunos"), (snapshot) => {
 
 });
 
+// Ler aulas
+onSnapshot(collection(db, "aulas"), (snapshot) => {
+
+    aulas = [];
+
+    snapshot.forEach((documento) => {
+
+        aulas.push({
+            id: documento.id,
+            ...documento.data()
+        });
+
+    });
+
+});
 // ============================================
 // LOGIN
 // ============================================
