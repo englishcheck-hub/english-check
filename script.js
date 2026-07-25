@@ -548,10 +548,8 @@ function atualizarDashboard() {
 
 
     mostrarAlertas();
-
-
     mostrarAlunos();
-
+    mostrarAulas();
 }
 
 
@@ -927,3 +925,72 @@ document.getElementById("saveLesson").addEventListener("click", async function (
     }
 
 });
+
+// ============================================
+// MOSTRAR AULAS
+// ============================================
+
+function mostrarAulas() {
+
+    const lista = document.getElementById("lessonsList");
+
+    if (aulas.length === 0) {
+
+        lista.innerHTML = "Ainda não existem aulas.";
+        return;
+
+    }
+
+    lista.innerHTML = "";
+
+    aulas.forEach(function (aula) {
+
+        let alunosTexto = "";
+
+        aula.alunos.forEach(function(numero){
+
+            const aluno = alunos.find(function(a){
+                return a.numero === numero;
+            });
+
+            if(aluno){
+
+                alunosTexto += "• " + aluno.numero + " - " + aluno.nome + "<br>";
+
+            }else{
+
+                alunosTexto += "• " + numero + "<br>";
+
+            }
+
+        });
+
+        lista.innerHTML += `
+
+            <div class="student-card">
+
+                <h3>📚 ${aula.idAula}</h3>
+
+                <p><strong>Matéria:</strong> ${aula.materia}</p>
+
+                <p><strong>Data:</strong> ${formatarData(aula.data)}</p>
+
+                <p><strong>Alunos presentes:</strong><br>${alunosTexto}</p>
+
+                <button class="editLessonButton" data-id="${aula.id}">
+                    ✏️ Editar Aula
+                </button>
+
+                <button class="deleteLessonButton danger-button" data-id="${aula.id}">
+                    🗑️ Apagar Aula
+                </button>
+
+            </div>
+
+        `;
+
+    });
+
+    adicionarEventosDasAulas();
+
+}
