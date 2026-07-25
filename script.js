@@ -72,7 +72,10 @@ onSnapshot(collection(db, "aulas"), (snapshot) => {
 
     });
 
+    mostrarAulas();
+
 });
+
 // ============================================
 // LOGIN
 // ============================================
@@ -927,70 +930,49 @@ document.getElementById("saveLesson").addEventListener("click", async function (
 });
 
 // ============================================
-// MOSTRAR AULAS
+// EVENTOS DAS AULAS
 // ============================================
 
-function mostrarAulas() {
+function adicionarEventosDasAulas() {
 
-    const lista = document.getElementById("lessonsList");
+    // APAGAR AULA
+    document.querySelectorAll(".deleteLessonButton").forEach(function(botao){
 
-    if (aulas.length === 0) {
+        botao.onclick = async function(){
 
-        lista.innerHTML = "Ainda não existem aulas.";
-        return;
+            const id = this.getAttribute("data-id");
 
-    }
+            const confirmar = confirm("Pretendes apagar esta aula?");
 
-    lista.innerHTML = "";
+            if(!confirmar){
+                return;
+            }
 
-    aulas.forEach(function (aula) {
+            try{
 
-        let alunosTexto = "";
+                await deleteDoc(doc(db, "aulas", id));
 
-        aula.alunos.forEach(function(numero){
+                alert("Aula apagada com sucesso ✅");
 
-            const aluno = alunos.find(function(a){
-                return a.numero === numero;
-            });
+            }catch(erro){
 
-            if(aluno){
-
-                alunosTexto += "• " + aluno.numero + " - " + aluno.nome + "<br>";
-
-            }else{
-
-                alunosTexto += "• " + numero + "<br>";
+                alert("Erro ao apagar aula: " + erro.message);
 
             }
 
-        });
-
-        lista.innerHTML += `
-
-            <div class="student-card">
-
-                <h3>📚 ${aula.idAula}</h3>
-
-                <p><strong>Matéria:</strong> ${aula.materia}</p>
-
-                <p><strong>Data:</strong> ${formatarData(aula.data)}</p>
-
-                <p><strong>Alunos presentes:</strong><br>${alunosTexto}</p>
-
-                <button class="editLessonButton" data-id="${aula.id}">
-                    ✏️ Editar Aula
-                </button>
-
-                <button class="deleteLessonButton danger-button" data-id="${aula.id}">
-                    🗑️ Apagar Aula
-                </button>
-
-            </div>
-
-        `;
+        };
 
     });
 
-    adicionarEventosDasAulas();
+    // EDITAR AULA
+    document.querySelectorAll(".editLessonButton").forEach(function(botao){
+
+        botao.onclick = function(){
+
+            alert("A edição das aulas será adicionada no próximo passo.");
+
+        };
+
+    });
 
 }
