@@ -42,7 +42,10 @@ let aulas = [];
 let alunosDaAula = [];
 let aulaEmEdicao = null;
 
-// Ler alunos
+// ============================================
+// LER ALUNOS
+// ============================================
+
 onSnapshot(collection(db, "alunos"), (snapshot) => {
 
     alunos = [];
@@ -60,10 +63,12 @@ onSnapshot(collection(db, "alunos"), (snapshot) => {
 
 });
 
-// Ler aulas
-onSnapshot(collection(db, "aulas"), (snapshot) => {
 
-    alert("onSnapshot das aulas executado");
+// ============================================
+// LER AULAS
+// ============================================
+
+onSnapshot(collection(db, "aulas"), (snapshot) => {
 
     aulas = [];
 
@@ -76,51 +81,83 @@ onSnapshot(collection(db, "aulas"), (snapshot) => {
 
     });
 
-    alert("Foram lidas " + aulas.length + " aulas");
+    console.log("Aulas carregadas:", aulas);
 
-    mostrarAulas();
+    if (typeof mostrarAulas === "function") {
+        mostrarAulas();
+    }
 
 });
+
 
 // ============================================
 // LOGIN
 // ============================================
 
 const utilizadores = [
+
     {
         username: "andria",
         password: "druxa2099"
     },
+
     {
         username: "joaof",
         password: "lumiar2026"
     }
+
 ];
 
-document.getElementById("loginButton").addEventListener("click", function () {
 
-    const username = document.getElementById("username").value.trim();
-    const password = document.getElementById("password").value.trim();
+const loginButton = document.getElementById("loginButton");
 
-    const utilizador = utilizadores.find(u =>
-        u.username === username && u.password === password
-    );
 
-    if (utilizador) {
+if (loginButton) {
 
-    document.getElementById("loginPage").style.display = "none";
-    document.getElementById("app").style.display = "block";
-    document.getElementById("loginMessage").innerHTML = "";
 
-} else {
+    loginButton.addEventListener("click", function () {
 
-    document.getElementById("loginMessage").innerHTML = "Utilizador ou palavra-passe incorretos.";
-    document.getElementById("loginMessage").style.color = "red";
+
+        const username = document.getElementById("username").value.trim();
+
+        const password = document.getElementById("password").value.trim();
+
+
+        const utilizador = utilizadores.find(function(u){
+
+            return u.username === username &&
+                   u.password === password;
+
+        });
+
+
+        if (utilizador) {
+
+
+            document.getElementById("loginPage").style.display = "none";
+
+            document.getElementById("app").style.display = "block";
+
+            document.getElementById("loginMessage").innerHTML = "";
+
+
+        } else {
+
+
+            document.getElementById("loginMessage").innerHTML =
+            "Utilizador ou palavra-passe incorretos.";
+
+
+            document.getElementById("loginMessage").style.color = "red";
+
+
+        }
+
+
+    });
+
 
 }
-
-});
-
 // ============================================
 // LOGOUT
 // ============================================
