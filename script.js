@@ -17,7 +17,8 @@ import {
     updateDoc,
     doc,
     onSnapshot,
-    arrayUnion
+    arrayUnion,
+    arrayRemove
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -1028,6 +1029,37 @@ function adicionarEventosDasAulas() {
 
             try{
 
+                // Encontrar a aula
+                const aula = aulas.find(function(a){
+                    return a.id === id;
+                });
+
+                // Atualizar todos os alunos dessa aula
+                if(aula){
+
+                    for(const numero of aula.alunos){
+
+                        const aluno = alunos.find(function(a){
+                            return a.numero === numero;
+                        });
+
+                        if(aluno){
+
+                            await updateDoc(doc(db, "alunos", aluno.id), {
+
+                                aulasRealizadas: Math.max((aluno.aulasRealizadas || 1) - 1, 0),
+
+                                historicoAulas: arrayRemove(aula.idAula)
+
+                            });
+
+                        }
+
+                    }
+
+                }
+
+                // Apagar a aula
                 await deleteDoc(doc(db, "aulas", id));
 
                 alert("Aula apagada com sucesso ✅");
