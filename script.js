@@ -352,7 +352,7 @@ function mostrarAlunos() {
         console.log("Não encontrou studentsList");
         return;
     }
-    
+
     const pesquisa = document
         .getElementById("searchStudent")
         .value
@@ -386,9 +386,7 @@ function mostrarAlunos() {
         let historico = "Sem aulas registadas";
 
         if (aluno.historicoAulas && aluno.historicoAulas.length > 0) {
-
             historico = aluno.historicoAulas.join("<br>");
-
         }
 
         cartao.innerHTML = `
@@ -405,8 +403,8 @@ function mostrarAlunos() {
 
             <p><strong>Validade do código:</strong> ${formatarData(aluno.validadeCodigo)}</p>
 
-            <p><strong>QR Code:</strong> ${aluno.qrCode || "Não registado"}</p>
-            <div id="qrcode-§{aluno.id}"></div>
+            <p><strong>QR Code:</strong></p>
+            <div id="qrcode-${aluno.id}"></div>
 
             <p><strong>Estado:</strong> ${aluno.estado}</p>
 
@@ -431,28 +429,24 @@ function mostrarAlunos() {
 
         lista.appendChild(cartao);
 
+        if (aluno.idAluno) {
 
-if (aluno.idAluno) {
+            const qrContainer = document.getElementById("qrcode-" + aluno.id);
 
-    const qrContainer = document.getElementById("qrcode-" + aluno.id);
+            if (qrContainer && typeof QRCode !== "undefined") {
 
-    if (qrContainer) {
+                new QRCode(qrContainer, {
+                    text: aluno.idAluno,
+                    width: 150,
+                    height: 150
+                });
 
-        qrContainer.innerHTML = "A criar QR...";
+            }
 
-        new QRCode(qrContainer, {
-            text: aluno.idAluno,
-            width: 150,
-            height: 150
-        });
+        }
 
-    } else {
+    });
 
-        alert("Não encontrou espaço do QR para " + aluno.nome);
-
-    }
-
-}
     adicionarEventosDosBotoes();
 
 }
