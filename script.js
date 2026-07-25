@@ -426,7 +426,22 @@ function mostrarAlunos() {
 
         lista.appendChild(cartao);
 
-    });
+
+if (aluno.idAluno) {
+
+    new QRCode(
+        document.getElementById("qrcode-" + aluno.id),
+        {
+            text: aluno.idAluno,
+            width: 150,
+            height: 150
+        }
+    );
+
+}
+
+
+});
 
     adicionarEventosDosBotoes();
 
