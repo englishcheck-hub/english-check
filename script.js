@@ -401,6 +401,7 @@ function mostrarAlunos() {
             <p><strong>Validade do código:</strong> ${formatarData(aluno.validadeCodigo)}</p>
 
             <p><strong>QR Code:</strong> ${aluno.qrCode || "Não registado"}</p>
+            <div id="qrcode-§{aluno.id}"></div>
 
             <p><strong>Estado:</strong> ${aluno.estado}</p>
 
