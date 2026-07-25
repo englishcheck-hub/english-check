@@ -438,7 +438,7 @@ if (aluno.idAluno) {
 
     if (qrContainer) {
 
-        console.log("Criar QR para:", aluno.nome, aluno.idaluno"
+        qrContainer.innerHTML = "A criar QR...";
 
         new QRCode(qrContainer, {
             text: aluno.idAluno,
@@ -446,13 +446,13 @@ if (aluno.idAluno) {
             height: 150
         });
 
+    } else {
+
+        alert("Não encontrou espaço do QR para " + aluno.nome);
+
     }
 
 }
-
-
-});
-
     adicionarEventosDosBotoes();
 
 }
