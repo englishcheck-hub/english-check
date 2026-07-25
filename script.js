@@ -406,9 +406,7 @@ function mostrarAlunos() {
             <p><strong>QR Code:</strong></p>
 
 <img
-    src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(aluno.idAluno || aluno.id)}"
-    alt="QR Code do aluno"
->
+    src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=TESTE">
             <p><strong>Estado:</strong> ${aluno.estado}</p>
 
             <p>
