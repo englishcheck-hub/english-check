@@ -61,6 +61,8 @@ onSnapshot(collection(db, "alunos"), (snapshot) => {
 // Ler aulas
 onSnapshot(collection(db, "aulas"), (snapshot) => {
 
+    alert("onSnapshot das aulas executado");
+
     aulas = [];
 
     snapshot.forEach((documento) => {
@@ -72,10 +74,11 @@ onSnapshot(collection(db, "aulas"), (snapshot) => {
 
     });
 
+    alert("Foram lidas " + aulas.length + " aulas");
+
     mostrarAulas();
 
 });
-
 
 // ============================================
 // LOGIN
