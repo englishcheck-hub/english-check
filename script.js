@@ -891,75 +891,52 @@ document.getElementById("saveLesson").addEventListener("click", async function (
 
     try {
 
-        // Verifica se estamos a editar uma aula
-if (aulaEmEdicao) {
+        // Editar aula existente
+        if (aulaEmEdicao) {
 
-    await updateDoc(doc(db, "aulas", aulaEmEdicao.id), {
+            await updateDoc(doc(db, "aulas", aulaEmEdicao.id), {
 
-        idAula: idAula,
-        materia: materia,
-        data: data,
-        alunos: alunosDaAula.map(a => a.numero)
-
-    });
-
-    console.log("Aula atualizada:", idAula);
-
-} else {
-
-    await addDoc(collection(db, "aulas"), {
-
-        idAula: idAula,
-        materia: materia,
-        data: data,
-        alunos: alunosDaAula.map(a => a.numero)
-
-    });
-
-    console.log("Aula criada:", idAula);
-
-}
-        idAula: idAula,
-        materia: materia,
-        data: data,
-        alunos: alunosDaAula.map(a => a.numero)
-
-    });
-
-    console.log("Aula atualizada:", idAula);
-
-} else {
-
-    await addDoc(collection(db, "aulas"), {
-
-        idAula: idAula,
-        materia: materia,
-        data: data,
-        alunos: alunosDaAula.map(a => a.numero)
-
-    });
-
-    console.log("Aula criada:", idAula);
-
-}
-        
-        // Atualiza todos os alunos
-        for (const aluno of alunosDaAula) {
-
-            await updateDoc(doc(db, "alunos", aluno.id), {
-
-                aulasRealizadas: (aluno.aulasRealizadas || 0) + 1,
-
-                historicoAulas: arrayUnion(idAula)
+                idAula: idAula,
+                materia: materia,
+                data: data,
+                alunos: alunosDaAula.map(a => a.numero)
 
             });
+
+            console.log("Aula atualizada:", idAula);
+
+        } else {
+
+            // Criar nova aula
+            await addDoc(collection(db, "aulas"), {
+
+                idAula: idAula,
+                materia: materia,
+                data: data,
+                alunos: alunosDaAula.map(a => a.numero)
+
+            });
+
+            console.log("Aula criada:", idAula);
+
+            // Atualiza os alunos apenas quando a aula é nova
+            for (const aluno of alunosDaAula) {
+
+                await updateDoc(doc(db, "alunos", aluno.id), {
+
+                    aulasRealizadas: (aluno.aulasRealizadas || 0) + 1,
+
+                    historicoAulas: arrayUnion(idAula)
+
+                });
+
+            }
 
         }
 
         alert("Aula guardada com sucesso ✅");
 
         alunosDaAula = [];
-
         aulaEmEdicao = null;
 
         atualizarListaDaAula();
