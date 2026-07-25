@@ -438,6 +438,8 @@ if (aluno.idAluno) {
 
     if (qrContainer) {
 
+        console.log("Criar QR para:", aluno.nome, aluno.idaluno"
+
         new QRCode(qrContainer, {
             text: aluno.idAluno,
             width: 150,
