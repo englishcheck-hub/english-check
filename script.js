@@ -1214,6 +1214,8 @@ if (scanButton) {
 
             function (decodedText) {
 
+                alert (decodedText);
+
                 html5QrCode.stop();
 
                 reader.style.display = "none";
