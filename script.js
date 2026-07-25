@@ -40,6 +40,7 @@ let aulas = [];
 
 // Alunos da aula que está a ser criada
 let alunosDaAula = [];
+let aulaEmEdicao = null;
 
 // Ler alunos
 onSnapshot(collection(db, "alunos"), (snapshot) => {
@@ -890,15 +891,34 @@ document.getElementById("saveLesson").addEventListener("click", async function (
 
     try {
 
-        // Verifica se estamos a editar uma aula existente
-const aulaExistente = aulas.find(function(a){
-    return a.idAula === idAula;
-});
+        // Verifica se estamos a editar uma aula
+if (aulaEmEdicao) {
 
-if (aulaExistente) {
+    await updateDoc(doc(db, "aulas", aulaEmEdicao.id), {
 
-    await updateDoc(doc(db, "aulas", aulaExistente.id), {
+        idAula: idAula,
+        materia: materia,
+        data: data,
+        alunos: alunosDaAula.map(a => a.numero)
 
+    });
+
+    console.log("Aula atualizada:", idAula);
+
+} else {
+
+    await addDoc(collection(db, "aulas"), {
+
+        idAula: idAula,
+        materia: materia,
+        data: data,
+        alunos: alunosDaAula.map(a => a.numero)
+
+    });
+
+    console.log("Aula criada:", idAula);
+
+}
         idAula: idAula,
         materia: materia,
         data: data,
@@ -939,6 +959,8 @@ if (aulaExistente) {
         alert("Aula guardada com sucesso ✅");
 
         alunosDaAula = [];
+
+        aulaEmEdicao = null;
 
         atualizarListaDaAula();
 
@@ -1117,6 +1139,8 @@ document.querySelectorAll(".editLessonButton").forEach(function(botao){
         const aula = aulas.find(function(a){
             return a.id === id;
         });
+
+        aulaEmEdicao = aula;
 
         if(!aula){
             alert("Aula não encontrada.");
