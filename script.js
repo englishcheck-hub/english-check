@@ -1214,19 +1214,33 @@ if (scanButton) {
 
             function (decodedText) {
 
-                alert (decodedText);
-
                 html5QrCode.stop();
 
                 reader.style.display = "none";
 
+                decodedText = decodedText.trim();
+
+                alert("QR lido: " + decodedText);
+
+                console.log("QR lido:", decodedText);
+                console.log("Alunos:", alunos);
+
                 const aluno = alunos.find(function (a) {
-                    return (a.idAluno || a.id) === decodedText;
+
+                    return (
+                        a.idAluno === decodedText ||
+                        a.id === decodedText ||
+                        a.numero === decodedText ||
+                        a.qrCode === decodedText
+                    );
+
                 });
 
                 if (!aluno) {
+
                     alert("Aluno não encontrado.");
                     return;
+
                 }
 
                 const existe = alunosDaAula.find(function (a) {
@@ -1234,24 +1248,22 @@ if (scanButton) {
                 });
 
                 if (existe) {
+
                     alert("Este aluno já foi adicionado.");
                     return;
+
                 }
 
                 alunosDaAula.push(aluno);
-
                 atualizarListaDaAula();
-
                 alert("Aluno adicionado: " + aluno.nome);
-
             },
 
             function () {
-                // ignora erros enquanto procura o QR
+                // Ignora erros enquanto procura o QR
             }
-
-        );
-
+            );
     });
 
 }
+            
