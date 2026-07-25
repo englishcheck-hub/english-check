@@ -348,6 +348,11 @@ function mostrarAlunos() {
 
     const lista = document.getElementById("studentsList");
 
+    if (!lista) {
+        console.log("Não encontrou studentsList");
+        return;
+    }
+    
     const pesquisa = document
         .getElementById("searchStudent")
         .value
