@@ -868,6 +868,8 @@ document.getElementById("addStudentToLesson").addEventListener("click", function
 
 document.getElementById("saveLesson").addEventListener("click", async function () {
 
+    alert("Botão Guardar Aula clicado");
+
     const idAula = document.getElementById("lessonId").value.trim();
     const materia = document.getElementById("lessonSubject").value.trim();
     const data = document.getElementById("lessonDate").value;
