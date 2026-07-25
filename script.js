@@ -1147,3 +1147,5 @@ document.querySelectorAll(".editLessonButton").forEach(function(botao){
     };
 
 });
+    
+}
