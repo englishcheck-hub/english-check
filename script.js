@@ -1045,14 +1045,23 @@ function adicionarEventosDasAulas() {
 
                         if(aluno){
 
-                            await updateDoc(doc(db, "alunos", aluno.id), {
+                            try {
 
-                                aulasRealizadas: Math.max((aluno.aulasRealizadas || 1) - 1, 0),
+    await updateDoc(doc(db, "alunos", aluno.id), {
 
-                                historicoAulas: arrayRemove(aula.idAula)
+        aulasRealizadas: Math.max((aluno.aulasRealizadas || 1) - 1, 0),
 
-                            });
+        historicoAulas: arrayRemove(aula.idAula)
 
+    });
+
+    alert("Atualizou: " + aluno.nome);
+
+} catch (e) {
+
+    alert("Erro no aluno " + aluno.nome + ": " + e.message);
+
+}
                         }
 
                     }
