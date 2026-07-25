@@ -959,8 +959,8 @@ function mostrarAulas() {
 
         let alunosTexto = "";
 
-        aula.alunos.forEach(function(numero){
-
+        (aula.alunos || []).forEach(function(numero){
+            
             const aluno = alunos.find(function(a){
                 return a.numero === numero;
             });
