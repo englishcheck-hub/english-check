@@ -429,14 +429,17 @@ function mostrarAlunos() {
 
 if (aluno.idAluno) {
 
-    new QRCode(
-        document.getElementById("qrcode-" + aluno.id),
-        {
+    const qrContainer = document.getElementById("qrcode-" + aluno.id);
+
+    if (qrContainer) {
+
+        new QRCode(qrContainer, {
             text: aluno.idAluno,
             width: 150,
             height: 150
-        }
-    );
+        });
+
+    }
 
 }
 
