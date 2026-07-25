@@ -1186,3 +1186,70 @@ document.querySelectorAll(".editLessonButton").forEach(function(botao){
 });
     
 }
+
+// ============================================
+// LER QR CODE
+// ============================================
+
+const scanButton = document.getElementById("scanQRCodeButton");
+
+if (scanButton) {
+
+    scanButton.addEventListener("click", function () {
+
+        const reader = document.getElementById("reader");
+
+        reader.style.display = "block";
+
+        const html5QrCode = new Html5Qrcode("reader");
+
+        html5QrCode.start(
+
+            { facingMode: "environment" },
+
+            {
+                fps: 10,
+                qrbox: 250
+            },
+
+            function (decodedText) {
+
+                html5QrCode.stop();
+
+                reader.style.display = "none";
+
+                const aluno = alunos.find(function (a) {
+                    return (a.idAluno || a.id) === decodedText;
+                });
+
+                if (!aluno) {
+                    alert("Aluno não encontrado.");
+                    return;
+                }
+
+                const existe = alunosDaAula.find(function (a) {
+                    return a.id === aluno.id;
+                });
+
+                if (existe) {
+                    alert("Este aluno já foi adicionado.");
+                    return;
+                }
+
+                alunosDaAula.push(aluno);
+
+                atualizarListaDaAula();
+
+                alert("Aluno adicionado: " + aluno.nome);
+
+            },
+
+            function () {
+                // ignora erros enquanto procura o QR
+            }
+
+        );
+
+    });
+
+}
