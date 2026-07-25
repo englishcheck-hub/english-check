@@ -262,7 +262,11 @@ document
 
 try {
 
-    await addDoc(collection(db, "alunos"), aluno);
+    const novoAluno = await addDoc(collection(db, "alunos"), aluno);
+
+    await updateDoc(doc(db, "alunos", novoAluno.id), {
+        idAluno: novoAluno.id
+    });
 
     limparFormulario();
     atualizarDashboard();
@@ -275,7 +279,6 @@ try {
     console.log(erro);
 
 }
-
         limparFormulario();
 
 
