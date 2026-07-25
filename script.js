@@ -76,6 +76,7 @@ onSnapshot(collection(db, "aulas"), (snapshot) => {
 
 });
 
+
 // ============================================
 // LOGIN
 // ============================================
@@ -869,8 +870,6 @@ document.getElementById("addStudentToLesson").addEventListener("click", function
 
 document.getElementById("saveLesson").addEventListener("click", async function () {
 
-    alert("Botão Guardar Aula clicado");
-
     const idAula = document.getElementById("lessonId").value.trim();
     const materia = document.getElementById("lessonSubject").value.trim();
     const data = document.getElementById("lessonDate").value;
@@ -888,15 +887,18 @@ document.getElementById("saveLesson").addEventListener("click", async function (
     try {
 
         // Guarda a aula
-        await addDoc(collection(db, "aulas"), {
+       await addDoc(collection(db, "aulas"), {
 
-            idAula: idAula,
-            materia: materia,
-            data: data,
-            alunos: alunosDaAula.map(a => a.numero)
+    idAula: idAula,
+    materia: materia,
+    data: data,
+    alunos: alunosDaAula.map(a => a.numero)
 
-        });
+});
 
+console.log("Aula gravada:", idAula);
+
+        
         // Atualiza todos os alunos
         for (const aluno of alunosDaAula) {
 
@@ -928,6 +930,79 @@ document.getElementById("saveLesson").addEventListener("click", async function (
     }
 
 });
+
+// ============================================
+// MOSTRAR AULAS
+// ============================================
+
+function mostrarAulas() {
+
+    console.log("Aulas:", aulas);
+
+    const lista = document.getElementById("lessonsList");
+
+    if (!lista) return;
+
+    if (aulas.length === 0) {
+
+        lista.innerHTML = "Ainda não existem aulas.";
+        return;
+
+    }
+
+    lista.innerHTML = "";
+
+    aulas.forEach(function (aula) {
+
+        let alunosTexto = "";
+
+        aula.alunos.forEach(function(numero){
+
+            const aluno = alunos.find(function(a){
+                return a.numero === numero;
+            });
+
+            if(aluno){
+
+                alunosTexto += "• " + aluno.numero + " - " + aluno.nome + "<br>";
+
+            }else{
+
+                alunosTexto += "• " + numero + "<br>";
+
+            }
+
+        });
+
+        lista.innerHTML += `
+
+            <div class="student-card">
+
+                <h3>📚 ${aula.idAula}</h3>
+
+                <p><strong>Matéria:</strong> ${aula.materia}</p>
+
+                <p><strong>Data:</strong> ${formatarData(aula.data)}</p>
+
+                <p><strong>Alunos presentes:</strong><br>${alunosTexto}</p>
+
+                <button class="editLessonButton" data-id="${aula.id}">
+                    ✏️ Editar Aula
+                </button>
+
+                <button class="deleteLessonButton danger-button" data-id="${aula.id}">
+                    🗑️ Apagar Aula
+                </button>
+
+            </div>
+
+        `;
+
+    });
+
+    adicionarEventosDasAulas();
+
+}
 
 // ============================================
 // EVENTOS DAS AULAS
