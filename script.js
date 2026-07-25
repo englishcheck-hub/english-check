@@ -890,18 +890,38 @@ document.getElementById("saveLesson").addEventListener("click", async function (
 
     try {
 
-        // Guarda a aula
-       await addDoc(collection(db, "aulas"), {
-
-    idAula: idAula,
-    materia: materia,
-    data: data,
-    alunos: alunosDaAula.map(a => a.numero)
-
+        // Verifica se estamos a editar uma aula existente
+const aulaExistente = aulas.find(function(a){
+    return a.idAula === idAula;
 });
 
-console.log("Aula gravada:", idAula);
+if (aulaExistente) {
 
+    await updateDoc(doc(db, "aulas", aulaExistente.id), {
+
+        idAula: idAula,
+        materia: materia,
+        data: data,
+        alunos: alunosDaAula.map(a => a.numero)
+
+    });
+
+    console.log("Aula atualizada:", idAula);
+
+} else {
+
+    await addDoc(collection(db, "aulas"), {
+
+        idAula: idAula,
+        materia: materia,
+        data: data,
+        alunos: alunosDaAula.map(a => a.numero)
+
+    });
+
+    console.log("Aula criada:", idAula);
+
+}
         
         // Atualiza todos os alunos
         for (const aluno of alunosDaAula) {
@@ -1088,14 +1108,42 @@ await updateDoc(doc(db, "alunos", aluno.id), {
     });
 
     // EDITAR AULA
-    document.querySelectorAll(".editLessonButton").forEach(function(botao){
+document.querySelectorAll(".editLessonButton").forEach(function(botao){
 
-        botao.onclick = function(){
+    botao.onclick = function(){
 
-            alert("A edição das aulas será adicionada no próximo passo.");
+        const id = this.getAttribute("data-id");
 
-        };
+        const aula = aulas.find(function(a){
+            return a.id === id;
+        });
 
-    });
+        if(!aula){
+            alert("Aula não encontrada.");
+            return;
+        }
 
-}
+        document.getElementById("lessonId").value = aula.idAula;
+        document.getElementById("lessonSubject").value = aula.materia;
+        document.getElementById("lessonDate").value = aula.data;
+
+        alunosDaAula = [];
+
+        aula.alunos.forEach(function(numero){
+
+            const aluno = alunos.find(function(a){
+                return a.numero === numero;
+            });
+
+            if(aluno){
+                alunosDaAula.push(aluno);
+            }
+
+        });
+
+        atualizarListaDaAula();
+
+        alert("Aula carregada para edição. Depois altera os dados e clica em Guardar Aula.");
+    };
+
+});
