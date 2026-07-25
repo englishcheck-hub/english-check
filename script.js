@@ -404,8 +404,11 @@ function mostrarAlunos() {
             <p><strong>Validade do código:</strong> ${formatarData(aluno.validadeCodigo)}</p>
 
             <p><strong>QR Code:</strong></p>
-            <div id="qrcode-${aluno.id}"></div>
 
+<img
+    src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(aluno.idAluno || aluno.id)}"
+    alt="QR Code do aluno"
+>
             <p><strong>Estado:</strong> ${aluno.estado}</p>
 
             <p>
@@ -428,22 +431,6 @@ function mostrarAlunos() {
         `;
 
         lista.appendChild(cartao);
-
-        if (aluno.idAluno) {
-
-            const qrContainer = document.getElementById("qrcode-" + aluno.id);
-
-            if (qrContainer && typeof QRCode !== "undefined") {
-
-                new QRCode(qrContainer, {
-                    text: aluno.idAluno,
-                    width: 150,
-                    height: 150
-                });
-
-            }
-
-        }
 
     });
 
