@@ -1047,14 +1047,18 @@ function adicionarEventosDasAulas() {
 
                             try {
 
-    await updateDoc(doc(db, "alunos", aluno.id), {
+    const novoHistorico = (aluno.historicoAulas || []).filter(function(item) {
+    return item !== aula.idAula;
+});
 
-        aulasRealizadas: Math.max((aluno.aulasRealizadas || 1) - 1, 0),
+await updateDoc(doc(db, "alunos", aluno.id), {
 
-        historicoAulas: arrayRemove(aula.idAula)
+    aulasRealizadas: Math.max((aluno.aulasRealizadas || 1) - 1, 0),
 
-    });
+    historicoAulas: novoHistorico
 
+});
+                                
     alert("Atualizou: " + aluno.nome);
 
 } catch (e) {
