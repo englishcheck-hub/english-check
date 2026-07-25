@@ -279,15 +279,6 @@ try {
     console.log(erro);
 
 }
-        limparFormulario();
-
-
-        atualizarDashboard();
-
-
-        alert(
-            "Aluno adicionado com sucesso ✅"
-        );
 
     });
 
