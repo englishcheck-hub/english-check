@@ -611,12 +611,19 @@ botoesResultado.forEach(function (botao) {
 
         alunoResultadoExame = aluno;
 
-        alert("Em seguida vamos abrir o registo do resultado de exame para " + aluno.nome);
+        document.getElementById("examDate").value =
+            new Date().toISOString().split("T")[0];
+
+        document.getElementById("examResult").value =
+            "Aprovado";
+
+        document.getElementById("examModal").style.display =
+            "flex";
 
     };
 
 });
-
+    
     // EDITAR ALUNO
     const botoesEditar = document.querySelectorAll(".edit-button");
 
@@ -1588,3 +1595,13 @@ function mostrarEstadoReprovacao(aluno) {
     return html;
 
 }
+
+// ============================================
+// FECHAR MODAL DO EXAME
+// ============================================
+
+document.getElementById("cancelExamResult").onclick = function () {
+
+    document.getElementById("examModal").style.display = "none";
+
+};
