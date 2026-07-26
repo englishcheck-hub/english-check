@@ -69,8 +69,6 @@ onSnapshot(collection(db, "alunos"), (snapshot) => {
 
     atualizarDashboard();
 
-    mostrarAlunos();
-
 });
 
 // ============================================
@@ -408,15 +406,13 @@ function mostrarAlunos() {
         .trim();
 
     const alunosFiltrados = alunos.filter(function (aluno) {
-        console.log(alunos);
 
-        return (
-            aluno.nome.toLowerCase().includes(pesquisa) ||
-            aluno.numero.toLowerCase().includes(pesquisa)
-        );
+    return (
+        (aluno.nome || "").toLowerCase().includes(pesquisa) ||
+        (aluno.numero || "").toLowerCase().includes(pesquisa)
+    );
 
-    });
-
+});
     if (alunosFiltrados.length === 0) {
 
         lista.innerHTML = "Ainda não existem alunos.";
