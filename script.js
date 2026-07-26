@@ -180,82 +180,183 @@ document
     });
 
 // ============================================
-// ADICIONAR ALUNO
+// ADICIONAR / EDITAR ALUNO
 // ============================================
 
 document
-    .getElementById("addStudentButton")
-    .addEventListener("click", async function () {
+.getElementById("addStudentButton")
+.addEventListener("click", async function () {
 
-        const numero = document.getElementById("studentNumber").value.trim();
-        const nome = document.getElementById("studentName").value.trim();
-        const validadeLicenca = document.getElementById("licenceExpiry").value;
-        const estadoExame = document.getElementById("examStatus").value;
-        const validadeCodigo = document.getElementById("codeExpiry").value;
-        const qrCode = document.getElementById("qrCode").value.trim();
-        const estadoAluno = document.getElementById("studentStatus").value;
 
-        if (numero === "" || nome === "") {
+const numero = document.getElementById("studentNumber").value.trim();
+const nome = document.getElementById("studentName").value.trim();
+const validadeLicenca = document.getElementById("licenceExpiry").value;
+const estadoExame = document.getElementById("examStatus").value;
+const validadeCodigo = document.getElementById("codeExpiry").value;
+const qrCode = document.getElementById("qrCode").value.trim();
+const estadoAluno = document.getElementById("studentStatus").value;
 
-            alert("Preenche o número e o nome do aluno.");
-            return;
 
-        }
+if(numero === "" || nome === ""){
 
-        const aluno = {
+alert("Preenche o número e o nome do aluno.");
+return;
 
-            numero: numero,
-            nome: nome,
-            validadeLicenca: validadeLicenca,
-            estadoExame: estadoExame,
-            validadeCodigo: validadeCodigo,
-            qrCode: qrCode,
-            estado: estadoAluno
+}
 
-        };
 
-        try {
+const aluno = {
 
-            console.log(alunoEmEdicao);
-alert(alunoEmEdicao ? "Modo EDITAR" : "Modo NOVO");
+numero,
+nome,
+validadeLicenca,
+estadoExame,
+validadeCodigo,
+qrCode,
+estado: estadoAluno,
 
-            if (alunoEmEdicao) {
+};
 
-                // EDITAR
-                await updateDoc(doc(db, "alunos", alunoEmEdicao.id), aluno);
 
-                alert("Aluno atualizado com sucesso ✅");
+try {
 
-                alunoEmEdicao = null;
 
-                document.getElementById("addStudentButton").innerText = "Adicionar Aluno";
+if(alunoEmEdicao){
 
-            } else {
 
-                // NOVO ALUNO
-                aluno.aulasRealizadas = 0;
+if(
+estadoExame === "Reprovado" &&
+alunoEmEdicao.estadoExame !== "Reprovado"
+){
 
-                const novoAluno = await addDoc(collection(db, "alunos"), aluno);
 
-                await updateDoc(doc(db, "alunos", novoAluno.id), {
-                    idAluno: novoAluno.id
-                });
+aluno.ultimaReprovacao =
+new Date().toISOString().split("T")[0];
 
-                alert("Aluno adicionado com sucesso ✅");
 
-            }
+aluno.aulasNaUltimaReprovacao =
+alunoEmEdicao.aulasRealizadas || 0;
 
-            limparFormulario();
-            atualizarDashboard();
 
-        } catch (erro) {
+aluno.aulasReprovacaoFeitas = 0;
 
-            alert("ERRO: " + erro.message);
-            console.log(erro);
 
-        }
+aluno.historicoExames =
+alunoEmEdicao.historicoExames || [];
 
-    });
+
+aluno.historicoExames.push({
+
+data: aluno.ultimaReprovacao,
+
+resultado:"Reprovado",
+
+aulasConcluidas:false
+
+});
+
+
+}
+
+else {
+
+
+aluno.ultimaReprovacao =
+alunoEmEdicao.ultimaReprovacao || null;
+
+
+aluno.aulasNaUltimaReprovacao =
+alunoEmEdicao.aulasNaUltimaReprovacao || 0;
+
+
+aluno.aulasReprovacaoFeitas =
+alunoEmEdicao.aulasReprovacaoFeitas || 0;
+
+
+aluno.historicoExames =
+alunoEmEdicao.historicoExames || [];
+
+
+}
+
+
+
+await updateDoc(
+doc(db,"alunos",alunoEmEdicao.id),
+aluno
+);
+
+
+alert("Aluno atualizado com sucesso ✅");
+
+
+alunoEmEdicao = null;
+
+
+document.getElementById("addStudentButton").innerText =
+"Adicionar Aluno";
+
+
+
+}
+
+else{
+
+
+aluno.aulasRealizadas = 0;
+
+aluno.historicoExames = [];
+
+aluno.ultimaReprovacao = null;
+
+aluno.aulasNaUltimaReprovacao = 0;
+
+aluno.aulasReprovacaoFeitas = 0;
+
+
+
+const novoAluno =
+await addDoc(
+collection(db,"alunos"),
+aluno
+);
+
+
+
+await updateDoc(
+doc(db,"alunos",novoAluno.id),
+{
+idAluno: novoAluno.id
+}
+);
+
+
+
+alert("Aluno adicionado com sucesso ✅");
+
+
+}
+
+
+
+limparFormulario();
+
+atualizarDashboard();
+
+
+
+}
+
+catch(erro){
+
+alert("ERRO: " + erro.message);
+
+console.log(erro);
+
+}
+
+
+});
 
 // ============================================
 // LIMPAR FORMULÁRIO
