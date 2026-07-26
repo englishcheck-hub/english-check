@@ -239,43 +239,40 @@ const aluno = {
 try {
 
 
-if(alunoEmEdicao){
+if (alunoEmEdicao) {
 
+    aluno.historicoExames =
+        alunoEmEdicao.historicoExames || [];
 
-if(
-estadoExame === "Reprovado" &&
-alunoEmEdicao.estadoExame !== "Reprovado"
-){
+    aluno.ultimaReprovacao =
+        alunoEmEdicao.ultimaReprovacao || null;
 
+    aluno.aulasNaUltimaReprovacao =
+        alunoEmEdicao.aulasNaUltimaReprovacao || 0;
 
-aluno.ultimaReprovacao =
-new Date().toISOString().split("T")[0];
+    aluno.aulasReprovacaoFeitas =
+        alunoEmEdicao.aulasReprovacaoFeitas || 0;
 
+    aluno.aulasRealizadas =
+        alunoEmEdicao.aulasRealizadas || 0;
 
-aluno.aulasNaUltimaReprovacao =
-alunoEmEdicao.aulasRealizadas || 0;
+    aluno.historicoAulas =
+        alunoEmEdicao.historicoAulas || [];
 
+    await updateDoc(
+        doc(db, "alunos", alunoEmEdicao.id),
+        aluno
+    );
 
-aluno.aulasReprovacaoFeitas = 0;
+    alert("Aluno atualizado com sucesso ✅");
 
+    alunoEmEdicao = null;
 
-aluno.historicoExames =
-alunoEmEdicao.historicoExames || [];
-
-
-aluno.historicoExames.push({
-
-data: aluno.ultimaReprovacao,
-
-resultado:"Reprovado",
-
-aulasConcluidas:false
-
-});
-
+    document.getElementById("addStudentButton").innerText =
+        "Adicionar Aluno";
 
 }
-
+    
 else {
 
 
@@ -519,7 +516,7 @@ function mostrarAlunos() {
             </button>
 
             <button>
-                class="exame-buton"
+                class="exam-buton"
                 data-docid="${aluno.id}">
                 📝 Resultado de Exame
             </button>
