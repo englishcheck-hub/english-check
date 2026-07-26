@@ -373,6 +373,8 @@ function mostrarAlunos() {
 
             <p><strong>Aulas realizadas:</strong> ${aluno.aulasRealizadas}</p>
 
+${verificarTeoriaCompleta(aluno)}
+
             <p><strong>Estado do exame:</strong> ${aluno.estadoExame}</p>
 
             <p><strong>Validade do código:</strong> ${formatarData(aluno.validadeCodigo)}</p>
@@ -839,6 +841,35 @@ function mostrarAlertas() {
 
 }
 
+// ============================================
+// VERIFICAR TEORIA COMPLETA
+// ============================================
+
+function verificarTeoriaCompleta(aluno) {
+
+    if ((aluno.aulasRealizadas || 0) >= 28) {
+
+        return `
+            <div style="
+                margin:12px 0;
+                padding:12px;
+                background:#dcfce7;
+                border:2px solid #16a34a;
+                border-radius:8px;
+                color:#166534;
+                font-weight:bold;
+                text-align:center;
+            ">
+                🎉 TEORIA COMPLETA<br>
+                ✅ O aluno já pode marcar o exame de código.
+            </div>
+        `;
+
+    }
+
+    return "";
+
+}
 
 // ============================================
 // FORMATAR DATA
