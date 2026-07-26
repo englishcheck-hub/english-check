@@ -64,12 +64,14 @@ onSnapshot(collection(db, "alunos"), (snapshot) => {
         });
 
     });
-    alert("Foram carregados " + alunos.length + "alunos");
+
+    console.log("Alunos carregados:", alunos);
 
     atualizarDashboard();
 
-});
+    mostrarAlunos();
 
+});
 
 // ============================================
 // LER AULAS
@@ -474,18 +476,16 @@ function mostrarAlunos() {
                 ➕ Registar Aula
             </button>
 
-            <button>
-                class="exam-button"
-                data-docid="${aluno.id}">
-                📝 Resultado de Exame
-            </button>
-
-            <button>
-                class="edit-button"
-                data-docid="${aluno.id}">
-                ✏️ Editar
-            </button>
-
+            <button
+    class="exam-button"
+    data-docid="${aluno.id}">
+    📝 Resultado de Exame
+</button>
+            <button
+    class="edit-button"
+    data-docid="${aluno.id}">
+    ✏️ Editar
+</button>
             <button
                 class="danger-button delete-button"
                 data-docid="${aluno.id}">
