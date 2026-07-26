@@ -474,18 +474,22 @@ function mostrarAlunos() {
 
             <p><strong>Aulas realizadas:</strong> ${aluno.aulasRealizadas}</p>
 
-${verificarTeoriaCompleta(aluno)}
+            ${verificarTeoriaCompleta(aluno)}
 
             <p><strong>Estado do exame:</strong> ${aluno.estadoExame}</p>
+
+            ${mostrarEstadoReprovacao(aluno)}
 
             <p><strong>Validade do código:</strong> ${formatarData(aluno.validadeCodigo)}</p>
 
             <p><strong>QR Code:</strong></p>
 
-<img
-    src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(aluno.id)}"
-    alt="QR Code do aluno"
->            <p><strong>Estado:</strong> ${aluno.estado}</p>
+            <img
+                src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(aluno.id)}"
+                alt="QR Code do aluno"
+            >
+
+            <p><strong>Estado:</strong> ${aluno.estado}</p>
 
             <p>
                 <strong>Histórico de aulas:</strong><br>
@@ -493,22 +497,22 @@ ${verificarTeoriaCompleta(aluno)}
             </p>
 
             <button
-    class="add-lesson-button"
-    data-docid="${aluno.id}">
-    ➕ Registar Aula
-</button>
+                class="add-lesson-button"
+                data-docid="${aluno.id}">
+                ➕ Registar Aula
+            </button>
 
-<button
-    class="edit-button"
-    data-docid="${aluno.id}">
-    ✏️ Editar
-</button>
+            <button
+                class="edit-button"
+                data-docid="${aluno.id}">
+                ✏️ Editar
+            </button>
 
-<button
-    class="danger-button delete-button"
-    data-docid="${aluno.id}">
-    🗑️ Apagar Aluno
-</button>
+            <button
+                class="danger-button delete-button"
+                data-docid="${aluno.id}">
+                🗑️ Apagar Aluno
+            </button>
 
         `;
 
@@ -1111,16 +1115,63 @@ document.getElementById("saveLesson").addEventListener("click", async function (
             // Atualiza os alunos apenas quando a aula é nova
             for (const aluno of alunosDaAula) {
 
-                await updateDoc(doc(db, "alunos", aluno.id), {
+    const novasAulas = (aluno.aulasRealizadas || 0) + 1;
 
-                    aulasRealizadas: (aluno.aulasRealizadas || 0) + 1,
+    const dadosAtualizar = {
 
-                    historicoAulas: arrayUnion(idAula)
+        aulasRealizadas: novasAulas,
 
-                });
+        historicoAulas: arrayUnion(idAula)
+
+    };
+
+    // Se o aluno tiver uma reprovação ativa
+    if (aluno.ultimaReprovacao) {
+
+        const aulasReprovacao =
+            novasAulas - (aluno.aulasNaUltimaReprovacao || 0);
+
+        dadosAtualizar.aulasReprovacaoFeitas =
+            Math.min(aulasReprovacao, 5);
+
+        // Atualizar também o histórico de exames
+        let historico = aluno.historicoExames || [];
+
+        if (historico.length > 0) {
+
+            const ultimaEntrada = historico[historico.length - 1];
+
+            if (
+                ultimaEntrada.resultado === "Reprovado" &&
+                !ultimaEntrada.aulasConcluidas
+            ) {
+
+                ultimaEntrada.aulasReprovacao =
+                    Math.min(aulasReprovacao, 5);
+
+                if (aulasReprovacao >= 5) {
+
+                    ultimaEntrada.aulasConcluidas = true;
+
+                }
 
             }
 
+        }
+
+        dadosAtualizar.historicoExames = historico;
+
+    }
+
+    await updateDoc(
+
+        doc(db, "alunos", aluno.id),
+
+        dadosAtualizar
+
+    );
+
+}
         }
 
         alert("Aula guardada com sucesso ✅");
@@ -1451,3 +1502,39 @@ document.getElementById("lessonsMenu").addEventListener("click", function () {
     mostrarAulas();
     
 });
+
+// ============================================
+// ESTADO DAS AULAS DE REPROVAÇÃO
+// ============================================
+
+function mostrarEstadoReprovacao(aluno) {
+
+    if (!aluno.ultimaReprovacao) {
+        return "";
+    }
+
+    let html = `
+        <p><strong>Última reprovação:</strong> ${formatarData(aluno.ultimaReprovacao)}</p>
+    `;
+
+    if ((aluno.aulasReprovacaoFeitas || 0) >= 5) {
+
+        html += `
+            <p style="color:green;font-weight:bold;">
+                ✅ Aulas de reprovação concluídas (5/5)
+            </p>
+        `;
+
+    } else {
+
+        html += `
+            <p style="color:#d97706;font-weight:bold;">
+                📚 Aulas de reprovação: ${aluno.aulasReprovacaoFeitas || 0}/5
+            </p>
+        `;
+
+    }
+
+    return html;
+
+}
