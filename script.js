@@ -434,6 +434,8 @@ document
 
 function mostrarAlunos() {
 
+    console.log("Entrou em mostrarAlunos");
+
     const lista = document.getElementById("studentsList");
 
     if (!lista) {
@@ -448,6 +450,7 @@ function mostrarAlunos() {
         .trim();
 
     const alunosFiltrados = alunos.filter(function (aluno) {
+        console.log(alunos);
 
         return (
             aluno.nome.toLowerCase().includes(pesquisa) ||
@@ -1590,6 +1593,7 @@ function mostrarEstadoReprovacao(aluno) {
 
 }
 
+/*
 // ============================================
 // FECHAR MODAL DO EXAME
 // ============================================
@@ -1599,3 +1603,4 @@ document.getElementById("cancelExamResult").onclick = function () {
     document.getElementById("examModal").style.display = "none";
 
 };
+*/
