@@ -69,6 +69,10 @@ onSnapshot(collection(db, "alunos"), (snapshot) => {
 
     atualizarDashboard();
 
+    if (typeof mostrarAlunos === "function") {
+        mostrarAlunos();
+    }
+
 });
 
 // ============================================
