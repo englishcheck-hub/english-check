@@ -187,105 +187,72 @@ document
     .getElementById("addStudentButton")
     .addEventListener("click", async function () {
 
-        const numero =
-            document
-            .getElementById("studentNumber")
-            .value
-            .trim();
+        const numero = document.getElementById("studentNumber").value.trim();
+        const nome = document.getElementById("studentName").value.trim();
+        const validadeLicenca = document.getElementById("licenceExpiry").value;
+        const estadoExame = document.getElementById("examStatus").value;
+        const validadeCodigo = document.getElementById("codeExpiry").value;
+        const qrCode = document.getElementById("qrCode").value.trim();
+        const estadoAluno = document.getElementById("studentStatus").value;
 
+        if (numero === "" || nome === "") {
 
-        const nome =
-            document
-            .getElementById("studentName")
-            .value
-            .trim();
-
-
-        const validadeLicenca =
-            document
-            .getElementById("licenceExpiry")
-            .value;
-
-
-        const estadoExame =
-            document
-            .getElementById("examStatus")
-            .value;
-
-
-        const validadeCodigo =
-            document
-            .getElementById("codeExpiry")
-            .value;
-
-
-        const qrCode =
-            document
-            .getElementById("qrCode")
-            .value
-            .trim();
-
-
-        const estadoAluno =
-            document
-            .getElementById("studentStatus")
-            .value;
-
-
-        if (
-
-            numero === ""
-
-            ||
-
-            nome === ""
-
-        ) {
-
-            alert(
-                "Preenche o número e o nome do aluno."
-            );
-
+            alert("Preenche o número e o nome do aluno.");
             return;
 
         }
 
+        const aluno = {
 
-    const aluno = {
+            numero: numero,
+            nome: nome,
+            validadeLicenca: validadeLicenca,
+            estadoExame: estadoExame,
+            validadeCodigo: validadeCodigo,
+            qrCode: qrCode,
+            estado: estadoAluno
 
-    numero: numero,
-    nome: nome,
-    validadeLicenca: validadeLicenca,
-    aulasRealizadas: 0,
-    estadoExame: estadoExame,
-    validadeCodigo: validadeCodigo,
-    qrCode: qrCode,
-    estado: estadoAluno
+        };
 
-};
+        try {
 
-try {
+            if (alunoEmEdicao) {
 
-    const novoAluno = await addDoc(collection(db, "alunos"), aluno);
+                // EDITAR
+                await updateDoc(doc(db, "alunos", alunoEmEdicao.id), aluno);
 
-    await updateDoc(doc(db, "alunos", novoAluno.id), {
-        idAluno: novoAluno.id
+                alert("Aluno atualizado com sucesso ✅");
+
+                alunoEmEdicao = null;
+
+                document.getElementById("addStudentButton").innerText = "Adicionar Aluno";
+
+            } else {
+
+                // NOVO ALUNO
+                aluno.aulasRealizadas = 0;
+
+                const novoAluno = await addDoc(collection(db, "alunos"), aluno);
+
+                await updateDoc(doc(db, "alunos", novoAluno.id), {
+                    idAluno: novoAluno.id
+                });
+
+                alert("Aluno adicionado com sucesso ✅");
+
+            }
+
+            limparFormulario();
+            atualizarDashboard();
+
+        } catch (erro) {
+
+            alert("ERRO: " + erro.message);
+            console.log(erro);
+
+        }
+
     });
-
-    limparFormulario();
-    atualizarDashboard();
-
-    alert("Aluno adicionado com sucesso ✅");
-
-} catch (erro) {
-
-    alert("ERRO: " + erro.message);
-    console.log(erro);
-
-}
-
-    });
-
 
 // ============================================
 // LIMPAR FORMULÁRIO
