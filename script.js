@@ -399,11 +399,6 @@ function limparFormulario() {
 
 
     document
-        .getElementById("examStatus")
-        .value = "Por fazer";
-
-
-    document
         .getElementById("codeExpiry")
         .value = "";
 
@@ -647,7 +642,6 @@ botoesResultado.forEach(function (botao) {
             document.getElementById("studentNumber").value = aluno.numero;
             document.getElementById("studentName").value = aluno.nome;
             document.getElementById("licenceExpiry").value = aluno.validadeLicenca || "";
-            document.getElementById("examStatus").value = aluno.estadoExame;
             document.getElementById("codeExpiry").value = aluno.validadeCodigo || "";
             document.getElementById("qrCode").value = aluno.qrCode || "";
             document.getElementById("studentStatus").value = aluno.estado;
