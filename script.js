@@ -216,6 +216,9 @@ document
 
         try {
 
+            console.log(alunoEmEdicao);
+alert(alunoEmEdicao ? "Modo EDITAR" : "Modo NOVO");
+
             if (alunoEmEdicao) {
 
                 // EDITAR
