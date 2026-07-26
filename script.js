@@ -43,8 +43,10 @@ let alunosDaAula = [];
 let aulaEmEdicao = null;
 
 // Aluno que está a ser editado
-
 let alunoEmEdicao = null;
+
+// Aluno para registar resultado de exame
+let alunoResultadoExame = null;
 
 // ============================================
 // LER ALUNOS
@@ -191,7 +193,6 @@ document
 const numero = document.getElementById("studentNumber").value.trim();
 const nome = document.getElementById("studentName").value.trim();
 const validadeLicenca = document.getElementById("licenceExpiry").value;
-const estadoExame = document.getElementById("examStatus").value;
 const validadeCodigo = document.getElementById("codeExpiry").value;
 const qrCode = document.getElementById("qrCode").value.trim();
 const estadoAluno = document.getElementById("studentStatus").value;
@@ -207,16 +208,33 @@ return;
 
 const aluno = {
 
-numero,
-nome,
-validadeLicenca,
-estadoExame,
-validadeCodigo,
-qrCode,
-estado: estadoAluno,
+    numero,
+    nome,
+    validadeLicenca,
+    estadoExame: alunoEmEdicao
+        ? alunoEmEdicao.estadoExame
+        : "Sem exames registados",
+    validadeCodigo,
+    qrCode,
+    estado: estadoAluno,
+
+    historicoExames: alunoEmEdicao
+        ? alunoEmEdicao.historicoExames
+        : [],
+
+    ultimaReprovacao: alunoEmEdicao
+        ? alunoEmEdicao.ultimaReprovacao
+        : null,
+
+    aulasNaUltimaReprovacao: alunoEmEdicao
+        ? alunoEmEdicao.aulasNaUltimaReprovacao
+        : 0,
+
+    aulasReprovacaoFeitas: alunoEmEdicao
+        ? alunoEmEdicao.aulasReprovacaoFeitas
+        : 0
 
 };
-
 
 try {
 
@@ -502,6 +520,12 @@ function mostrarAlunos() {
                 ➕ Registar Aula
             </button>
 
+            <button>
+                class="exame-buton"
+                data-docid="${aluno.id}">
+                📝 Resultado de Exame
+            </button>
+
             <button
                 class="edit-button"
                 data-docid="${aluno.id}">
@@ -566,6 +590,32 @@ function adicionarEventosDosBotoes() {
         };
 
     });
+
+    // RESULTADO DE EXAME
+const botoesResultado = document.querySelectorAll(".exam-button");
+
+botoesResultado.forEach(function (botao) {
+
+    botao.onclick = function () {
+
+        const docid = this.getAttribute("data-docid");
+
+        const aluno = alunos.find(function (a) {
+            return a.id === docid;
+        });
+
+        if (!aluno) {
+            alert("Aluno não encontrado.");
+            return;
+        }
+
+        alunoResultadoExame = aluno;
+
+        alert("Em seguida vamos abrir o registo do resultado de exame para " + aluno.nome);
+
+    };
+
+});
 
     // EDITAR ALUNO
     const botoesEditar = document.querySelectorAll(".edit-button");
