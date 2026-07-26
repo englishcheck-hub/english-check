@@ -9,10 +9,9 @@
 body {
     margin: 0;
     font-family: Arial, sans-serif;
-    background: #f5c400;
-    color: #111111;
+    background: #f4f4f4;
+    color: #1A1A1A;
 }
-
 
 /* =========================
    BOTÕES
@@ -23,23 +22,24 @@ button {
     padding: 14px;
     margin-top: 10px;
 
-    background: #111111;
-    color: #f5c400;
+    background: #FFD500;
+    color: #111111;
 
-    border: 2px solid #111111;
-    border-radius: 8px;
+    border: 2px solid #FFD500;
+    border-radius: 10px;
 
     font-size: 16px;
     font-weight: bold;
 
     cursor: pointer;
+    transition: all 0.25s ease;
 }
 
 button:hover {
-    background: #f5c400;
-    color: #111111;
+    background: #111111;
+    color: #FFD500;
+    border-color: #111111;
 }
-
 
 /* =========================
    CAMPOS
@@ -133,30 +133,42 @@ label {
 
 .topbar {
     background: #111111;
-    color: #f5c400;
+    color: #FFD500;
 
     padding: 18px 25px;
 
     display: flex;
     justify-content: space-between;
     align-items: center;
+
+    border-bottom: 4px solid #FFD500;
 }
 
 .topbar h1 {
     margin: 0;
+    color: #FFD500;
+    font-size: 28px;
+    font-weight: bold;
 }
 
 .logout-button {
     width: auto;
 
-    background: #f5c400;
+    background: #FFD500;
     color: #111111;
 
-    border: 2px solid #f5c400;
+    border: 2px solid #FFD500;
+    border-radius: 8px;
+
+    padding: 10px 18px;
+
+    transition: all 0.25s ease;
 }
 
 .logout-button:hover {
     background: #ffffff;
+    color: #111111;
+    border-color: #ffffff;
 }
 
 
