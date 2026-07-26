@@ -1337,6 +1337,8 @@ document.getElementById("studentsMenu").addEventListener("click", function () {
     document.getElementById("studentsPage").style.display = "block";
     document.getElementById("lessonsPage").style.display = "none";
 
+    mostrarAlunos();
+    
 });
 
 document.getElementById("lessonsMenu").addEventListener("click", function () {
@@ -1345,4 +1347,6 @@ document.getElementById("lessonsMenu").addEventListener("click", function () {
     document.getElementById("studentsPage").style.display = "none";
     document.getElementById("lessonsPage").style.display = "block";
 
+    mostrarAulas();
+    
 });
