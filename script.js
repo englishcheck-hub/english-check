@@ -64,6 +64,7 @@ onSnapshot(collection(db, "alunos"), (snapshot) => {
         });
 
     });
+    alert("Foram carregados " + alunos.length + "alunos");
 
     atualizarDashboard();
 
