@@ -272,48 +272,6 @@ if (alunoEmEdicao) {
         "Adicionar Aluno";
 
 }
-    
-else {
-
-
-aluno.ultimaReprovacao =
-alunoEmEdicao.ultimaReprovacao || null;
-
-
-aluno.aulasNaUltimaReprovacao =
-alunoEmEdicao.aulasNaUltimaReprovacao || 0;
-
-
-aluno.aulasReprovacaoFeitas =
-alunoEmEdicao.aulasReprovacaoFeitas || 0;
-
-
-aluno.historicoExames =
-alunoEmEdicao.historicoExames || [];
-
-
-}
-
-
-
-await updateDoc(
-doc(db,"alunos",alunoEmEdicao.id),
-aluno
-);
-
-
-alert("Aluno atualizado com sucesso ✅");
-
-
-alunoEmEdicao = null;
-
-
-document.getElementById("addStudentButton").innerText =
-"Adicionar Aluno";
-
-
-
-}
 
 else{
 
@@ -516,12 +474,12 @@ function mostrarAlunos() {
             </button>
 
             <button>
-                class="exam-buton"
+                class="exam-button"
                 data-docid="${aluno.id}">
                 📝 Resultado de Exame
             </button>
 
-            <button
+            <button>
                 class="edit-button"
                 data-docid="${aluno.id}">
                 ✏️ Editar
@@ -1590,7 +1548,7 @@ function mostrarEstadoReprovacao(aluno) {
 
 }
 
-/*
+
 // ============================================
 // FECHAR MODAL DO EXAME
 // ============================================
@@ -1600,4 +1558,4 @@ document.getElementById("cancelExamResult").onclick = function () {
     document.getElementById("examModal").style.display = "none";
 
 };
-*/
+
