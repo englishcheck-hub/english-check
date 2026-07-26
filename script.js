@@ -42,6 +42,10 @@ let aulas = [];
 let alunosDaAula = [];
 let aulaEmEdicao = null;
 
+// Aluno que está a ser editado
+
+let alunoEmEdicao = null;
+
 // ============================================
 // LER ALUNOS
 // ============================================
@@ -416,16 +420,22 @@ function mostrarAlunos() {
             </p>
 
             <button
-                class="add-lesson-button"
-                data-docid="${aluno.id}">
-                ➕ Registar Aula
-            </button>
+    class="add-lesson-button"
+    data-docid="${aluno.id}">
+    ➕ Registar Aula
+</button>
 
-            <button
-                class="danger-button delete-button"
-                data-docid="${aluno.id}">
-                🗑️ Apagar Aluno
-            </button>
+<button
+    class="edit-button"
+    data-docid="${aluno.id}">
+    ✏️ Editar
+</button>
+
+<button
+    class="danger-button delete-button"
+    data-docid="${aluno.id}">
+    🗑️ Apagar Aluno
+</button>
 
         `;
 
@@ -443,6 +453,7 @@ function mostrarAlunos() {
 
 function adicionarEventosDosBotoes() {
 
+    // REGISTAR AULA
     const botoesAula = document.querySelectorAll(".add-lesson-button");
 
     botoesAula.forEach(function (botao) {
@@ -479,7 +490,46 @@ function adicionarEventosDosBotoes() {
 
     });
 
+    // EDITAR ALUNO
+    const botoesEditar = document.querySelectorAll(".edit-button");
 
+    botoesEditar.forEach(function (botao) {
+
+        botao.onclick = function () {
+
+            const docid = this.getAttribute("data-docid");
+
+            const aluno = alunos.find(function (a) {
+                return a.id === docid;
+            });
+
+            if (!aluno) {
+                alert("Aluno não encontrado.");
+                return;
+            }
+
+            alunoEmEdicao = aluno;
+
+            document.getElementById("studentNumber").value = aluno.numero;
+            document.getElementById("studentName").value = aluno.nome;
+            document.getElementById("licenceExpiry").value = aluno.validadeLicenca || "";
+            document.getElementById("examStatus").value = aluno.estadoExame;
+            document.getElementById("codeExpiry").value = aluno.validadeCodigo || "";
+            document.getElementById("qrCode").value = aluno.qrCode || "";
+            document.getElementById("studentStatus").value = aluno.estado;
+
+            document.getElementById("addStudentButton").innerText = "💾 Guardar Alterações";
+
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth"
+            });
+
+        };
+
+    });
+
+    // APAGAR ALUNO
     const botoesApagar = document.querySelectorAll(".delete-button");
 
     botoesApagar.forEach(function (botao) {
