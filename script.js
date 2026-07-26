@@ -399,20 +399,30 @@ function mostrarAlunos() {
         return;
     }
 
-    const pesquisa = document
-        .getElementById("searchStudent")
-        .value
-        .toLowerCase()
-        .trim();
+
+    const campoPesquisa = document.getElementById("searchStudent");
+
+    const pesquisa = campoPesquisa
+        ? campoPesquisa.value.toLowerCase().trim()
+        : "";
+
 
     const alunosFiltrados = alunos.filter(function (aluno) {
 
-    return (
-        (aluno.nome || "").toLowerCase().includes(pesquisa) ||
-        (aluno.numero || "").toLowerCase().includes(pesquisa)
-    );
+        const nome = String(aluno.nome || "").toLowerCase();
+        const numero = String(aluno.numero || "").toLowerCase();
 
-});
+        return (
+            nome.includes(pesquisa) ||
+            numero.includes(pesquisa)
+        );
+
+    });
+
+
+    console.log("Alunos filtrados:", alunosFiltrados);
+
+
     if (alunosFiltrados.length === 0) {
 
         lista.innerHTML = "Ainda não existem alunos.";
@@ -420,51 +430,100 @@ function mostrarAlunos() {
 
     }
 
+
     lista.innerHTML = "";
 
+
     alunosFiltrados.forEach(function (aluno) {
+
+
+        console.log("A criar cartão:", aluno);
+
 
         const cartao = document.createElement("div");
 
         cartao.className = "student-card";
 
+
         let historico = "Sem aulas registadas";
 
-        if (aluno.historicoAulas && aluno.historicoAulas.length > 0) {
+
+        if (
+            aluno.historicoAulas &&
+            aluno.historicoAulas.length > 0
+        ) {
+
             historico = aluno.historicoAulas.join("<br>");
+
         }
+
+
+        let teoria = "";
+
+        try {
+
+            teoria = verificarTeoriaCompleta(aluno) || "";
+
+        } catch (erro) {
+
+            console.log("Erro na teoria:", erro);
+
+        }
+
+
+        let reprovacao = "";
+
+        try {
+
+            reprovacao = mostrarEstadoReprovacao(aluno) || "";
+
+        } catch (erro) {
+
+            console.log("Erro na reprovação:", erro);
+
+        }
+
+
 
         cartao.innerHTML = `
 
-            <h3>👨‍🎓 ${aluno.nome}</h3>
+            <h3>👨‍🎓 ${aluno.nome || "Sem nome"}</h3>
 
-            <p><strong>N.º de aluno:</strong> ${aluno.numero}</p>
+            <p><strong>N.º de aluno:</strong> ${aluno.numero || "-"}</p>
 
             <p><strong>Validade da licença:</strong> ${formatarData(aluno.validadeLicenca)}</p>
 
-            <p><strong>Aulas realizadas:</strong> ${aluno.aulasRealizadas}</p>
+            <p><strong>Aulas realizadas:</strong> ${aluno.aulasRealizadas || 0}</p>
 
-            ${verificarTeoriaCompleta(aluno)}
 
-            <p><strong>Estado do exame:</strong> ${aluno.estadoExame}</p>
+            ${teoria}
 
-            ${mostrarEstadoReprovacao(aluno)}
+
+            <p><strong>Estado do exame:</strong> ${aluno.estadoExame || "Sem exames registados"}</p>
+
+
+            ${reprovacao}
+
 
             <p><strong>Validade do código:</strong> ${formatarData(aluno.validadeCodigo)}</p>
+
 
             <p><strong>QR Code:</strong></p>
 
             <img
-                src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(aluno.id)}"
+                src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(aluno.id || "")}"
                 alt="QR Code do aluno"
             >
 
-            <p><strong>Estado:</strong> ${aluno.estado}</p>
+
+            <p><strong>Estado:</strong> ${aluno.estado || "-"}</p>
+
 
             <p>
                 <strong>Histórico de aulas:</strong><br>
                 ${historico}
             </p>
+
 
             <button
                 class="add-lesson-button"
@@ -472,16 +531,21 @@ function mostrarAlunos() {
                 ➕ Registar Aula
             </button>
 
+
             <button
-    class="exam-button"
-    data-docid="${aluno.id}">
-    📝 Resultado de Exame
-</button>
+                class="exam-button"
+                data-docid="${aluno.id}">
+                📝 Resultado de Exame
+            </button>
+
+
             <button
-    class="edit-button"
-    data-docid="${aluno.id}">
-    ✏️ Editar
-</button>
+                class="edit-button"
+                data-docid="${aluno.id}">
+                ✏️ Editar
+            </button>
+
+
             <button
                 class="danger-button delete-button"
                 data-docid="${aluno.id}">
@@ -490,9 +554,12 @@ function mostrarAlunos() {
 
         `;
 
+
         lista.appendChild(cartao);
 
+
     });
+
 
     adicionarEventosDosBotoes();
 
