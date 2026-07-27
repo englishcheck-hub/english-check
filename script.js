@@ -1756,3 +1756,57 @@ XLSX.utils.book_append_sheet(
     );
 
 });
+
+// ============================================
+// IMPRIMIR ALUNOS ATIVOS (PDF)
+// ============================================
+
+document.getElementById("printActiveStudentsButton").addEventListener("click", function () {
+
+    const { jsPDF } = window.jspdf;
+
+    const pdf = new jsPDF();
+
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(18);
+    pdf.text("English Check", 20, 20);
+
+    pdf.setFontSize(14);
+    pdf.text("Lista de Alunos Ativos", 20, 30);
+
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(10);
+
+    const dataAtual = new Date().toLocaleDateString("pt-PT");
+
+    pdf.text("Data: " + dataAtual, 20, 38);
+
+    let y = 50;
+
+    const alunosAtivos = alunos.filter(function (aluno) {
+        return aluno.estado === "Ativo";
+    });
+
+    alunosAtivos.forEach(function (aluno, index) {
+
+        if (y > 275) {
+            pdf.addPage();
+            y = 20;
+        }
+
+        pdf.setFont("helvetica", "bold");
+        pdf.text((index + 1) + ". " + aluno.nome, 20, y);
+
+        pdf.setFont("helvetica", "normal");
+
+        pdf.text("N.º: " + aluno.numero, 25, y + 6);
+        pdf.text("Aulas: " + (aluno.aulasRealizadas || 0), 70, y + 6);
+        pdf.text("Exame: " + (aluno.estadoExame || "Sem exames"), 120, y + 6);
+
+        y += 18;
+
+    });
+
+    pdf.save("Alunos_Ativos.pdf");
+
+});
