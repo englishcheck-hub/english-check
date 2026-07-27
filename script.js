@@ -1627,3 +1627,63 @@ document.getElementById("cancelExamResult").onclick = function () {
 
 };
 
+// ============================================
+// GUARDAR RESULTADO DO EXAME
+// ============================================
+
+document.getElementById("saveExamResult").onclick = async function () {
+
+    if (!alunoResultadoExame) {
+        alert("Nenhum aluno selecionado.");
+        return;
+    }
+
+    const data = document.getElementById("examDate").value;
+    const resultado = document.getElementById("examResult").value;
+
+    if (data === "") {
+        alert("Seleciona a data do exame.");
+        return;
+    }
+
+    try {
+
+        let historico = alunoResultadoExame.historicoExames || [];
+
+        historico.push({
+            data: data,
+            resultado: resultado
+        });
+
+        const dadosAtualizar = {
+
+            estadoExame: resultado,
+            historicoExames: historico
+
+        };
+
+        if (resultado === "Reprovado") {
+
+            dadosAtualizar.ultimaReprovacao = data;
+            dadosAtualizar.aulasNaUltimaReprovacao =
+                alunoResultadoExame.aulasRealizadas || 0;
+            dadosAtualizar.aulasReprovacaoFeitas = 0;
+
+        }
+
+        await updateDoc(
+            doc(db, "alunos", alunoResultadoExame.id),
+            dadosAtualizar
+        );
+
+        document.getElementById("examModal").style.display = "none";
+
+        alert("Resultado do exame guardado com sucesso ✅");
+
+    } catch (erro) {
+
+        alert("Erro ao guardar: " + erro.message);
+
+    }
+
+};
