@@ -1729,6 +1729,27 @@ document.getElementById("exportReportButton").addEventListener("click", function
         "Alunos"
     );
 
+    const dadosAulas = aulas.map(function (aula) {
+
+    return {
+
+        "ID da Aula": aula.idAula,
+        "Data": aula.data,
+        "Matéria": aula.materia,
+        "Alunos": (aula.alunos || []).join(", ")
+
+    };
+
+});
+
+const folhaAulas = XLSX.utils.json_to_sheet(dadosAulas);
+
+XLSX.utils.book_append_sheet(
+    livro,
+    folhaAulas,
+    "Aulas"
+);
+
     XLSX.writeFile(
         livro,
         "Relatorio_English_Check.xlsx"
