@@ -1273,7 +1273,15 @@ function mostrarAulas() {
 
     lista.innerHTML = "";
 
-    aulas.forEach(function (aula) {
+    [...aulas]
+
+.sort(function (a, b) {
+
+    return new Date(b.data) - new Date(a.data);
+
+})
+
+.forEach(function (aula) {
 
         let alunosTexto = "";
 
