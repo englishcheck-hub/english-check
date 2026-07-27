@@ -1696,3 +1696,42 @@ document.getElementById("saveExamResult").onclick = async function () {
     }
 
 };
+
+// ============================================
+// EXPORTAR RELATÓRIO
+// ============================================
+
+document.getElementById("exportReportButton").addEventListener("click", function () {
+
+    const livro = XLSX.utils.book_new();
+
+    const dadosAlunos = alunos.map(function (aluno) {
+
+        return {
+
+            "N.º": aluno.numero,
+            "Nome": aluno.nome,
+            "Estado": aluno.estado,
+            "Aulas": aluno.aulasRealizadas || 0,
+            "Exame": aluno.estadoExame,
+            "Validade Licença": aluno.validadeLicenca,
+            "Validade Código": aluno.validadeCodigo
+
+        };
+
+    });
+
+    const folhaAlunos = XLSX.utils.json_to_sheet(dadosAlunos);
+
+    XLSX.utils.book_append_sheet(
+        livro,
+        folhaAlunos,
+        "Alunos"
+    );
+
+    XLSX.writeFile(
+        livro,
+        "Relatorio_English_Check.xlsx"
+    );
+
+});
