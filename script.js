@@ -403,29 +403,34 @@ function mostrarAlunos() {
         return;
     }
 
-
     const campoPesquisa = document.getElementById("searchStudent");
 
     const pesquisa = campoPesquisa
         ? campoPesquisa.value.toLowerCase().trim()
         : "";
 
+    // Ordenar por número de aluno
+    const alunosFiltrados = [...alunos]
 
-    const alunosFiltrados = alunos.filter(function (aluno) {
+        .sort(function (a, b) {
 
-        const nome = String(aluno.nome || "").toLowerCase();
-        const numero = String(aluno.numero || "").toLowerCase();
+            return Number(a.numero) - Number(b.numero);
 
-        return (
-            nome.includes(pesquisa) ||
-            numero.includes(pesquisa)
-        );
+        })
 
-    });
+        .filter(function (aluno) {
 
+            const nome = String(aluno.nome || "").toLowerCase();
+            const numero = String(aluno.numero || "").toLowerCase();
+
+            return (
+                nome.includes(pesquisa) ||
+                numero.includes(pesquisa)
+            );
+
+        });
 
     console.log("Alunos filtrados:", alunosFiltrados);
-
 
     if (alunosFiltrados.length === 0) {
 
@@ -434,23 +439,17 @@ function mostrarAlunos() {
 
     }
 
-
     lista.innerHTML = "";
-
 
     alunosFiltrados.forEach(function (aluno) {
 
-
         console.log("A criar cartão:", aluno);
-
 
         const cartao = document.createElement("div");
 
         cartao.className = "student-card";
 
-
         let historico = "Sem aulas registadas";
-
 
         if (
             aluno.historicoAulas &&
@@ -460,7 +459,6 @@ function mostrarAlunos() {
             historico = aluno.historicoAulas.join("<br>");
 
         }
-
 
         let teoria = "";
 
@@ -474,7 +472,6 @@ function mostrarAlunos() {
 
         }
 
-
         let reprovacao = "";
 
         try {
@@ -487,8 +484,6 @@ function mostrarAlunos() {
 
         }
 
-
-
         cartao.innerHTML = `
 
             <h3>👨‍🎓 ${aluno.nome || "Sem nome"}</h3>
@@ -499,18 +494,13 @@ function mostrarAlunos() {
 
             <p><strong>Aulas realizadas:</strong> ${aluno.aulasRealizadas || 0}</p>
 
-
             ${teoria}
-
 
             <p><strong>Estado do exame:</strong> ${aluno.estadoExame || "Sem exames registados"}</p>
 
-
             ${reprovacao}
 
-
             <p><strong>Validade do código:</strong> ${formatarData(aluno.validadeCodigo)}</p>
-
 
             <p><strong>QR Code:</strong></p>
 
@@ -519,15 +509,12 @@ function mostrarAlunos() {
                 alt="QR Code do aluno"
             >
 
-
             <p><strong>Estado:</strong> ${aluno.estado || "-"}</p>
-
 
             <p>
                 <strong>Histórico de aulas:</strong><br>
                 ${historico}
             </p>
-
 
             <button
                 class="add-lesson-button"
@@ -535,20 +522,17 @@ function mostrarAlunos() {
                 ➕ Registar Aula
             </button>
 
-
             <button
                 class="exam-button"
                 data-docid="${aluno.id}">
                 📝 Resultado de Exame
             </button>
 
-
             <button
                 class="edit-button"
                 data-docid="${aluno.id}">
                 ✏️ Editar
             </button>
-
 
             <button
                 class="danger-button delete-button"
@@ -558,12 +542,9 @@ function mostrarAlunos() {
 
         `;
 
-
         lista.appendChild(cartao);
 
-
     });
-
 
     adicionarEventosDosBotoes();
 
