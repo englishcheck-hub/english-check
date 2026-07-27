@@ -1580,6 +1580,15 @@ document.getElementById("lessonsMenu").addEventListener("click", function () {
     
 });
 
+document.getElementById("reportsMenu").addEventListener("click", function () {
+
+    document.getElementById("homePage").style.display = "none";
+    document.getElementById("studentsPage").style.display = "none";
+    document.getElementById("lessonsPage").style.display = "none";
+    document.getElementById("reportsPage").style.display = "block";
+
+});
+
 // ============================================
 // ESTADO DAS AULAS DE REPROVAÇÃO
 // ============================================
