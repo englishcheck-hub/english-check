@@ -1402,39 +1402,6 @@ function mostrarAulas() {
 
 function adicionarEventosDasAulas() {
 
-    function mostrarSelecionadorAlunos() {
-
-    const lista = document.getElementById("lessonStudentsSelector");
-
-    if (!lista) return;
-
-    lista.innerHTML = "";
-
-    [...alunos]
-        .sort(function (a, b) {
-            return Number(a.numero) - Number(b.numero);
-        })
-        .forEach(function (aluno) {
-
-            const existe = alunosDaAula.find(function (a) {
-                return a.id === aluno.id;
-            });
-
-            lista.innerHTML += `
-                <label style="display:block; margin-bottom:6px;">
-                    <input
-                        type="checkbox"
-                        class="lessonStudentCheckbox"
-                        value="${aluno.id}"
-                        ${existe ? "checked" : ""}
-                    >
-                    ${aluno.numero} - ${aluno.nome}
-                </label>
-            `;
-
-        });
-
-}
 
     // APAGAR AULA
     document.querySelectorAll(".deleteLessonButton").forEach(function(botao){
@@ -1546,7 +1513,6 @@ document.querySelectorAll(".editLessonButton").forEach(function(botao){
         });
 
         atualizarListaDaAula();
-        mostrarSelecionadorAlunos();
 
         alert("Aula carregada para edição. Depois altera os dados e clica em Guardar Aula.");
     };
