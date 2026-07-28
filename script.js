@@ -1143,6 +1143,7 @@ document.getElementById("saveLesson").addEventListener("click", async function (
     try {
 
         // Editar aula existente
+        console.log("Aula em edição:", aulaEmEdicao);
         if (aulaEmEdicao) {
 
             await updateDoc(doc(db, "aulas", aulaEmEdicao.id), {
