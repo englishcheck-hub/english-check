@@ -1120,6 +1120,68 @@ document.getElementById("addStudentToLesson").addEventListener("click", function
 
 });
 
+document.getElementById("selectMultipleStudents").addEventListener("click", function () {
+
+    const caixa = document.getElementById("multipleStudentsBox");
+    const botao = document.getElementById("addSelectedStudents");
+
+    caixa.innerHTML = "";
+
+    [...alunos]
+        .sort(function (a, b) {
+            return Number(a.numero) - Number(b.numero);
+        })
+        .forEach(function (aluno) {
+
+            const marcado = alunosDaAula.some(function(a){
+                return a.id === aluno.id;
+            });
+
+            caixa.innerHTML += `
+                <label style="display:block;margin-bottom:5px;">
+                    <input type="checkbox" value="${aluno.numero}" ${marcado ? "checked" : ""}>
+                    ${aluno.numero} - ${aluno.nome}
+                </label>
+            `;
+
+        });
+
+    caixa.style.display = "block";
+    botao.style.display = "inline-block";
+
+});
+
+document.getElementById("addSelectedStudents").addEventListener("click", function () {
+
+    const selecionados = document.querySelectorAll("#multipleStudentsBox input:checked");
+
+    selecionados.forEach(function (checkbox) {
+
+        const numero = checkbox.value;
+
+        const aluno = alunos.find(function (a) {
+            return a.numero === numero;
+        });
+
+        if (!aluno) return;
+
+        const existe = alunosDaAula.find(function (a) {
+            return a.id === aluno.id;
+        });
+
+        if (!existe) {
+            alunosDaAula.push(aluno);
+        }
+
+    });
+
+    atualizarListaDaAula();
+
+    document.getElementById("multipleStudentsBox").style.display = "none";
+    document.getElementById("addSelectedStudents").style.display = "none";
+
+});
+
 // ============================================
 // GUARDAR AULA
 // ============================================
