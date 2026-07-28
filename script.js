@@ -1808,9 +1808,15 @@ document.getElementById("printActiveStudentsButton").addEventListener("click", f
 
     let y = 50;
 
-    const alunosAtivos = alunos.filter(function (aluno) {
-        return aluno.estado === "Ativo";
-    });
+    const alunosAtivos = [...alunos]
+
+.filter(function(aluno){
+    return aluno.estado === "Ativo";
+})
+
+.sort(function(a, b){
+    return Number(a.numero) - Number(b.numero);
+});
 
     alunosAtivos.forEach(function (aluno, index) {
 
