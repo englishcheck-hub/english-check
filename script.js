@@ -763,16 +763,11 @@ botoesResultado.forEach(function (botao) {
 
 function atualizarDashboard() {
 
-
     const alunosAtivos =
-
         alunos.filter(function (aluno) {
 
-
             return (
-
                 aluno.estado === "Ativo"
-
             );
 
         });
@@ -781,50 +776,15 @@ function atualizarDashboard() {
     document
         .getElementById("totalStudents")
         .innerText =
-
         alunosAtivos.length;
 
 
-    const totalAulas =
-
-        alunos.reduce(function (
-
-            total,
-
-            aluno
-
-        ) {
-
-
-            return (
-
-                total +
-
-                aluno.aulasRealizadas
-
-            );
-
-        }, 0);
-
-
-    document
-        .getElementById("totalLessons")
-        .innerText =
-
-        totalAulas;
-
-
     const examesAprovados =
-
         alunos.filter(function (aluno) {
 
-
             return (
-
                 aluno.estadoExame ===
-
                 "Aprovado"
-
             );
 
         });
@@ -833,7 +793,6 @@ function atualizarDashboard() {
     document
         .getElementById("totalApproved")
         .innerText =
-
         examesAprovados.length;
 
 
@@ -841,7 +800,6 @@ function atualizarDashboard() {
     mostrarAlunos();
     mostrarAulas();
 }
-
 
 // ============================================
 // ALERTAS DE VALIDADE
