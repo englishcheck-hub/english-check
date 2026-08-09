@@ -252,7 +252,10 @@ const estadoAluno = document.getElementById("studentStatus").value;
 
 if(numero === "" || nome === ""){
 
-alert("Preenche o número e o nome do aluno.");
+mostrarNotificacao(
+    "Preenche o número e o nome do aluno.",
+    "erro"
+);
 return;
 
 }
@@ -316,7 +319,7 @@ return;
             aluno
         );
     
-        alert("Aluno atualizado com sucesso ✅");
+        mostrarNotificacao("Aluno atualizado com sucesso ✅");
     
         alunoEmEdicao = null;
     
@@ -357,7 +360,7 @@ return;
     
     
     
-    alert("Aluno adicionado com sucesso ✅");
+    mostrarNotificacao("Aluno adicionado com sucesso ✅");
     
     
     }
@@ -374,7 +377,10 @@ return;
     
     catch(erro){
     
-    alert("ERRO: " + erro.message);
+    mostrarNotificacao(
+    "Erro: " + erro.message,
+    "erro"
+);
     
     console.log(erro);
     
@@ -617,7 +623,7 @@ function adicionarEventosDosBotoes() {
             });
 
             if (!aluno) {
-                alert("Aluno não encontrado.");
+                mostrarNotificacao("Aluno não encontrado.", "erro");
                 return;
             }
 
@@ -627,11 +633,14 @@ function adicionarEventosDosBotoes() {
                     aulasRealizadas: (aluno.aulasRealizadas || 0) + 1
                 });
 
-                alert("Aula registada com sucesso ✅");
+                mostrarNotificacao("Aula registada com sucesso ✅");
 
             } catch (error) {
 
-                alert("Erro ao registar aula: " + error.message);
+                mostrarNotificacao(
+    "Erro ao registar aula: " + error.message,
+    "erro"
+);
                 console.error(error);
 
             }
@@ -654,7 +663,7 @@ botoesResultado.forEach(function (botao) {
         });
 
         if (!aluno) {
-            alert("Aluno não encontrado.");
+            mostrarNotificacao("Aluno não encontrado.", "erro");
             return;
         }
 
@@ -687,7 +696,7 @@ botoesResultado.forEach(function (botao) {
             });
 
             if (!aluno) {
-                alert("Aluno não encontrado.");
+                mostrarNotificacao("Aluno não encontrado.", "erro");
                 return;
             }
 
@@ -730,11 +739,14 @@ botoesResultado.forEach(function (botao) {
 
                 await deleteDoc(doc(db, "alunos", docid));
 
-                alert("Aluno apagado com sucesso ✅");
+                mostrarNotificacao("Aluno apagado com sucesso ✅");
 
             } catch (error) {
 
-                alert("Erro ao apagar aluno: " + error.message);
+                mostrarNotificacao(
+    "Erro ao apagar aluno: " + error.message,
+    "erro"
+);
                 console.error(error);
 
             }
@@ -1137,7 +1149,7 @@ document.getElementById("addStudentToLesson").addEventListener("click", function
     const numero = document.getElementById("lessonStudentNumber").value.trim();
 
     if (numero === "") {
-        alert("Introduz o número do aluno.");
+        mostrarNotificacao("Introduz o número do aluno.", "erro");
         return;
     }
 
@@ -1146,7 +1158,7 @@ document.getElementById("addStudentToLesson").addEventListener("click", function
     });
 
     if (!aluno) {
-        alert("Aluno não encontrado.");
+        mostrarNotificacao("Aluno não encontrado.", "erro");
         return;
     }
 
@@ -1155,7 +1167,7 @@ document.getElementById("addStudentToLesson").addEventListener("click", function
     });
 
     if (existe) {
-        alert("Este aluno já foi adicionado à aula.");
+        mostrarNotificacao("Este aluno já foi adicionado à aula.", "erro");
         return;
     }
 
@@ -1240,12 +1252,18 @@ document.getElementById("saveLesson").addEventListener("click", async function (
     const data = document.getElementById("lessonDate").value;
 
     if (idAula === "" || materia === "" || data === "") {
-        alert("Preenche o ID da aula, a matéria e a data.");
+        mostrarNotificacao(
+    "Preenche o ID da aula, a matéria e a data.",
+    "erro"
+);
         return;
     }
 
     if (alunosDaAula.length === 0) {
-        alert("Ainda não adicionaste nenhum aluno.");
+        mostrarNotificacao(
+    "Ainda não adicionaste nenhum aluno.",
+    "erro"
+);
         return;
     }
 
@@ -1342,7 +1360,7 @@ document.getElementById("saveLesson").addEventListener("click", async function (
 }
         }
 
-        alert("Aula guardada com sucesso ✅");
+        mostrarNotificacao("Aula guardada com sucesso ✅");
 
         alunosDaAula = [];
         aulaEmEdicao = null;
@@ -1355,7 +1373,10 @@ document.getElementById("saveLesson").addEventListener("click", async function (
 
     } catch (erro) {
 
-        alert("Erro: " + erro.message);
+        mostrarNotificacao(
+    "Erro: " + erro.message,
+    "erro"
+);
         console.error(erro);
 
     }
@@ -1495,11 +1516,14 @@ await updateDoc(doc(db, "alunos", aluno.id), {
 
 });
                                 
-    alert("Atualizou: " + aluno.nome);
+    mostrarNotificacao("Atualizou: " + aluno.nome);
 
 } catch (e) {
 
-    alert("Erro no aluno " + aluno.nome + ": " + e.message);
+    mostrarNotificacao(
+    "Erro no aluno " + aluno.nome + ": " + e.message,
+    "erro"
+);
 
 }
                         }
@@ -1511,11 +1535,14 @@ await updateDoc(doc(db, "alunos", aluno.id), {
                 // Apagar a aula
                 await deleteDoc(doc(db, "aulas", id));
 
-                alert("Aula apagada com sucesso ✅");
+                mostrarNotificacao("Aula apagada com sucesso ✅");
 
             }catch(erro){
 
-                alert("Erro ao apagar aula: " + erro.message);
+                mostrarNotificacao(
+    "Erro ao apagar aula: " + erro.message,
+    "erro"
+);
 
             }
 
@@ -1537,7 +1564,7 @@ document.querySelectorAll(".editLessonButton").forEach(function(botao){
         aulaEmEdicao = aula;
 
         if(!aula){
-            alert("Aula não encontrada.");
+            mostrarNotificacao("Aula não encontrada.", "erro");
             return;
         }
 
@@ -1561,7 +1588,9 @@ document.querySelectorAll(".editLessonButton").forEach(function(botao){
 
         atualizarListaDaAula();
 
-        alert("Aula carregada para edição. Depois altera os dados e clica em Guardar Aula.");
+        mostrarNotificacao(
+    "Aula carregada para edição. Altera os dados e clica em Guardar Aula."
+);
     };
 
 });
@@ -1601,7 +1630,7 @@ if (scanButton) {
 
                 decodedText = decodedText.trim();
 
-                alert("QR lido: " + decodedText);
+                mostrarNotificacao("QR lido: " + decodedText);
 
                 console.log("QR lido:", decodedText);
                 console.log("Alunos:", alunos);
@@ -1619,7 +1648,7 @@ if (scanButton) {
 
                 if (!aluno) {
 
-                    alert("Aluno não encontrado.");
+                    mostrarNotificacao("Aluno não encontrado.", "erro");
                     return;
 
                 }
@@ -1630,14 +1659,14 @@ if (scanButton) {
 
                 if (existe) {
 
-                    alert("Este aluno já foi adicionado.");
+                    mostrarNotificacao("Este aluno já foi adicionado.", "erro");
                     return;
 
                 }
 
                 alunosDaAula.push(aluno);
                 atualizarListaDaAula();
-                alert("Aluno adicionado: " + aluno.nome);
+                mostrarNotificacao("Aluno adicionado: " + aluno.nome);
             },
 
             function () {
@@ -1743,7 +1772,7 @@ document.getElementById("cancelExamResult").onclick = function () {
 document.getElementById("saveExamResult").onclick = async function () {
 
     if (!alunoResultadoExame) {
-        alert("Nenhum aluno selecionado.");
+        mostrarNotificacao("Nenhum aluno selecionado.", "erro");
         return;
     }
 
@@ -1751,7 +1780,7 @@ document.getElementById("saveExamResult").onclick = async function () {
     const resultado = document.getElementById("examResult").value;
 
     if (data === "") {
-        alert("Seleciona a data do exame.");
+        mostrarNotificacao("Seleciona a data do exame.", "erro");
         return;
     }
 
@@ -1787,11 +1816,14 @@ document.getElementById("saveExamResult").onclick = async function () {
 
         document.getElementById("examModal").style.display = "none";
 
-        alert("Resultado do exame guardado com sucesso ✅");
+        mostrarNotificacao("Resultado do exame guardado com sucesso ✅");
 
     } catch (erro) {
 
-        alert("Erro ao guardar: " + erro.message);
+        mostrarNotificacao(
+    "Erro ao guardar: " + erro.message,
+    "erro"
+);
 
     }
 
