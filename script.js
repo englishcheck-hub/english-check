@@ -49,6 +49,52 @@ let alunoEmEdicao = null;
 let alunoResultadoExame = null;
 
 // ============================================
+// NOTIFICAÇÕES RÁPIDAS
+// ============================================
+
+function mostrarNotificacao(mensagem, tipo = "sucesso") {
+
+    const notificacao = document.createElement("div");
+
+    notificacao.textContent = mensagem;
+
+    notificacao.style.position = "fixed";
+    notificacao.style.top = "20px";
+    notificacao.style.right = "20px";
+    notificacao.style.zIndex = "9999";
+
+    notificacao.style.padding = "14px 20px";
+    notificacao.style.borderRadius = "10px";
+
+    notificacao.style.fontSize = "15px";
+    notificacao.style.fontWeight = "bold";
+
+    notificacao.style.boxShadow = "0 5px 15px rgba(0,0,0,0.20)";
+
+    if (tipo === "erro") {
+        notificacao.style.background = "#d90000";
+        notificacao.style.color = "#ffffff";
+    } else {
+        notificacao.style.background = "#FFD500";
+        notificacao.style.color = "#111111";
+    }
+
+    document.body.appendChild(notificacao);
+
+    setTimeout(function () {
+
+        notificacao.style.opacity = "0";
+        notificacao.style.transition = "opacity 0.3s ease";
+
+        setTimeout(function () {
+            notificacao.remove();
+        }, 300);
+
+    }, 2500);
+
+}
+
+// ============================================
 // LER ALUNOS
 // ============================================
 
@@ -74,6 +120,7 @@ onSnapshot(collection(db, "alunos"), (snapshot) => {
     }
 
 });
+
 
 // ============================================
 // LER AULAS
@@ -211,130 +258,130 @@ return;
 }
 
 
-const aluno = {
-
-    numero,
-    nome,
-    validadeLicenca,
-    estadoExame: alunoEmEdicao
-        ? alunoEmEdicao.estadoExame
-        : "Sem exames registados",
-    validadeCodigo,
-    qrCode,
-    estado: estadoAluno,
-
-    historicoExames: alunoEmEdicao
-        ? alunoEmEdicao.historicoExames
-        : [],
-
-    ultimaReprovacao: alunoEmEdicao
-        ? alunoEmEdicao.ultimaReprovacao
-        : null,
-
-    aulasNaUltimaReprovacao: alunoEmEdicao
-        ? alunoEmEdicao.aulasNaUltimaReprovacao
-        : 0,
-
-    aulasReprovacaoFeitas: alunoEmEdicao
-        ? alunoEmEdicao.aulasReprovacaoFeitas
-        : 0
-
-};
-
-try {
-
-
-if (alunoEmEdicao) {
-
-    aluno.historicoExames =
-        alunoEmEdicao.historicoExames || [];
-
-    aluno.ultimaReprovacao =
-        alunoEmEdicao.ultimaReprovacao || null;
-
-    aluno.aulasNaUltimaReprovacao =
-        alunoEmEdicao.aulasNaUltimaReprovacao || 0;
-
-    aluno.aulasReprovacaoFeitas =
-        alunoEmEdicao.aulasReprovacaoFeitas || 0;
-
-    aluno.aulasRealizadas =
-        alunoEmEdicao.aulasRealizadas || 0;
-
-    aluno.historicoAulas =
-        alunoEmEdicao.historicoAulas || [];
-
-    await updateDoc(
-        doc(db, "alunos", alunoEmEdicao.id),
-        aluno
+    const aluno = {
+    
+        numero,
+        nome,
+        validadeLicenca,
+        estadoExame: alunoEmEdicao
+            ? alunoEmEdicao.estadoExame
+            : "Sem exames registados",
+        validadeCodigo,
+        qrCode,
+        estado: estadoAluno,
+    
+        historicoExames: alunoEmEdicao
+            ? alunoEmEdicao.historicoExames
+            : [],
+    
+        ultimaReprovacao: alunoEmEdicao
+            ? alunoEmEdicao.ultimaReprovacao
+            : null,
+    
+        aulasNaUltimaReprovacao: alunoEmEdicao
+            ? alunoEmEdicao.aulasNaUltimaReprovacao
+            : 0,
+    
+        aulasReprovacaoFeitas: alunoEmEdicao
+            ? alunoEmEdicao.aulasReprovacaoFeitas
+            : 0
+    
+    };
+    
+    try {
+    
+    
+    if (alunoEmEdicao) {
+    
+        aluno.historicoExames =
+            alunoEmEdicao.historicoExames || [];
+    
+        aluno.ultimaReprovacao =
+            alunoEmEdicao.ultimaReprovacao || null;
+    
+        aluno.aulasNaUltimaReprovacao =
+            alunoEmEdicao.aulasNaUltimaReprovacao || 0;
+    
+        aluno.aulasReprovacaoFeitas =
+            alunoEmEdicao.aulasReprovacaoFeitas || 0;
+    
+        aluno.aulasRealizadas =
+            alunoEmEdicao.aulasRealizadas || 0;
+    
+        aluno.historicoAulas =
+            alunoEmEdicao.historicoAulas || [];
+    
+        await updateDoc(
+            doc(db, "alunos", alunoEmEdicao.id),
+            aluno
+        );
+    
+        alert("Aluno atualizado com sucesso ✅");
+    
+        alunoEmEdicao = null;
+    
+        document.getElementById("addStudentButton").innerText =
+            "Adicionar Aluno";
+    
+    }
+    
+    else{
+    
+    
+    aluno.aulasRealizadas = 0;
+    
+    aluno.historicoExames = [];
+    
+    aluno.ultimaReprovacao = null;
+    
+    aluno.aulasNaUltimaReprovacao = 0;
+    
+    aluno.aulasReprovacaoFeitas = 0;
+    
+    
+    
+    const novoAluno =
+    await addDoc(
+    collection(db,"alunos"),
+    aluno
     );
-
-    alert("Aluno atualizado com sucesso ✅");
-
-    alunoEmEdicao = null;
-
-    document.getElementById("addStudentButton").innerText =
-        "Adicionar Aluno";
-
-}
-
-else{
-
-
-aluno.aulasRealizadas = 0;
-
-aluno.historicoExames = [];
-
-aluno.ultimaReprovacao = null;
-
-aluno.aulasNaUltimaReprovacao = 0;
-
-aluno.aulasReprovacaoFeitas = 0;
-
-
-
-const novoAluno =
-await addDoc(
-collection(db,"alunos"),
-aluno
-);
-
-
-
-await updateDoc(
-doc(db,"alunos",novoAluno.id),
-{
-idAluno: novoAluno.id
-}
-);
-
-
-
-alert("Aluno adicionado com sucesso ✅");
-
-
-}
-
-
-
-limparFormulario();
-
-atualizarDashboard();
-
-
-
-}
-
-catch(erro){
-
-alert("ERRO: " + erro.message);
-
-console.log(erro);
-
-}
-
-
-});
+    
+    
+    
+    await updateDoc(
+    doc(db,"alunos",novoAluno.id),
+    {
+    idAluno: novoAluno.id
+    }
+    );
+    
+    
+    
+    alert("Aluno adicionado com sucesso ✅");
+    
+    
+    }
+    
+    
+    
+    limparFormulario();
+    
+    atualizarDashboard();
+    
+    
+    
+    }
+    
+    catch(erro){
+    
+    alert("ERRO: " + erro.message);
+    
+    console.log(erro);
+    
+    }
+    
+    
+    });
 
 // ============================================
 // LIMPAR FORMULÁRIO
