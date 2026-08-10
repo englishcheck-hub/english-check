@@ -428,3 +428,386 @@ label {
     margin-right:10px;
 
 }
+
+/* ============================================
+   CALENDÁRIO / HORÁRIO
+============================================ */
+
+/* Caixa de cada mês */
+
+.calendar-month {
+    background: #ffffff;
+    border: 3px solid #111111;
+    border-radius: 12px;
+    margin-bottom: 30px;
+    padding: 15px;
+    box-shadow: 5px 5px 0 #111111;
+
+    overflow-x: auto;
+}
+
+.calendar-month h3 {
+    margin: 5px 0 18px 0;
+    padding: 12px;
+
+    background: #111111;
+    color: #FFD500;
+
+    border-radius: 8px;
+
+    font-size: 22px;
+}
+
+
+/* ============================================
+   TABELA DO HORÁRIO
+============================================ */
+
+.calendar-table {
+    display: grid;
+
+    /* primeira coluna = horário
+       restantes = dias */
+    grid-auto-rows: minmax(65px, auto);
+
+    min-width: 850px;
+
+    border: 2px solid #111111;
+    border-radius: 8px;
+
+    overflow: hidden;
+
+    background: #ffffff;
+}
+
+
+/* ============================================
+   CABEÇALHO
+============================================ */
+
+.calendar-header {
+    display: grid;
+
+    grid-template-columns:
+        90px
+        repeat(5, minmax(140px, 1fr));
+
+    background: #111111;
+    color: #FFD500;
+
+    border-bottom: 3px solid #111111;
+}
+
+
+/* Cabeçalho "Horário" */
+
+.calendar-time-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 12px;
+
+    font-weight: bold;
+    text-align: center;
+
+    border-right: 2px solid #FFD500;
+}
+
+
+/* Dias */
+
+.calendar-day-header {
+    min-height: 75px;
+
+    padding: 8px;
+
+    display: flex;
+    flex-direction: column;
+
+    justify-content: center;
+    align-items: center;
+
+    text-align: center;
+
+    border-right: 1px solid #555555;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+.calendar-day-header:last-child {
+    border-right: none;
+}
+
+.calendar-day-header:hover {
+    background: #FFD500;
+    color: #111111;
+}
+
+.calendar-day-header strong {
+    font-size: 14px;
+}
+
+.calendar-day-header span {
+    font-size: 24px;
+    font-weight: bold;
+    margin-top: 3px;
+}
+
+.calendar-day-header small {
+    display: block;
+
+    margin-top: 4px;
+
+    font-size: 10px;
+    font-weight: bold;
+}
+
+
+/* ============================================
+   LINHAS DOS HORÁRIOS
+============================================ */
+
+.calendar-row {
+    display: grid;
+
+    grid-template-columns:
+        90px
+        repeat(5, minmax(140px, 1fr));
+
+    min-height: 65px;
+
+    border-bottom: 1px solid #cccccc;
+}
+
+.calendar-row:last-child {
+    border-bottom: none;
+}
+
+
+/* Hora */
+
+.calendar-time {
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    background: #f5c400;
+
+    border-right: 2px solid #111111;
+
+    font-weight: bold;
+
+    font-size: 15px;
+
+    text-align: center;
+}
+
+
+/* ============================================
+   CÉLULAS DO HORÁRIO
+============================================ */
+
+.calendar-cell {
+    min-height: 65px;
+
+    background: #ffffff;
+
+    border-right: 1px solid #cccccc;
+
+    border-bottom: 1px solid #cccccc;
+
+    cursor: pointer;
+
+    position: relative;
+
+    transition: background 0.2s;
+}
+
+.calendar-cell:last-child {
+    border-right: none;
+}
+
+.calendar-cell:hover {
+    background: #fff3a6;
+}
+
+
+/* ============================================
+   INTERVALO
+============================================ */
+
+.calendar-break {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    min-height: 38px;
+
+    background: #111111;
+
+    color: #FFD500;
+
+    font-weight: bold;
+
+    font-size: 14px;
+
+    letter-spacing: 1px;
+
+    border-top: 2px solid #111111;
+    border-bottom: 2px solid #111111;
+}
+
+
+/* ============================================
+   FERIADOS
+============================================ */
+
+.calendar-day-header.holiday {
+    background: #d90000;
+    color: #ffffff;
+
+    cursor: not-allowed;
+}
+
+.calendar-day-header.holiday:hover {
+    background: #d90000;
+    color: #ffffff;
+}
+
+.calendar-cell.holiday {
+    background: #d90000;
+
+    color: #ffffff;
+
+    cursor: not-allowed;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+}
+
+.calendar-cell.holiday span {
+    font-size: 20px;
+}
+
+
+/* ============================================
+   DIAS FECHADOS MANUALMENTE
+============================================ */
+
+.calendar-day-header.closed-day {
+    background: #555555;
+    color: #ffffff;
+}
+
+.calendar-day-header.closed-day:hover {
+    background: #555555;
+    color: #ffffff;
+}
+
+.calendar-cell.closed-day {
+    background: #555555;
+
+    color: #ffffff;
+
+    cursor: not-allowed;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+}
+
+.calendar-cell.closed-day span {
+    font-size: 18px;
+}
+
+.calendar-cell.closed-day small {
+    margin-top: 3px;
+
+    font-size: 9px;
+
+    font-weight: bold;
+}
+
+
+/* ============================================
+   MENU DO DIA
+============================================ */
+
+.calendar-day-menu {
+    min-width: 210px;
+}
+
+.calendar-day-menu button {
+    width: 100%;
+
+    margin-top: 0;
+
+    padding: 10px 14px;
+
+    background: #FFD500;
+
+    color: #111111;
+
+    border: none;
+
+    border-radius: 8px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+.calendar-day-menu button:hover {
+    background: #111111;
+    color: #FFD500;
+}
+
+
+/* ============================================
+   CALENDÁRIO VAZIO
+============================================ */
+
+.calendar-empty {
+    text-align: center;
+
+    padding: 40px 20px;
+
+    background: #ffffff;
+
+    border: 2px dashed #111111;
+
+    border-radius: 10px;
+
+    font-size: 18px;
+}
+
+.calendar-empty:first-line {
+    font-size: 35px;
+}
+
+
+/* ============================================
+   RESPONSIVO
+============================================ */
+
+@media (max-width: 800px) {
+
+    .calendar-month {
+        padding: 10px;
+    }
+
+    .calendar-table {
+        min-width: 800px;
+    }
+
+}
