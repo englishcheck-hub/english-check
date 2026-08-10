@@ -1644,39 +1644,58 @@ document.getElementById("homeMenu").addEventListener("click", function () {
     document.getElementById("homePage").style.display = "block";
     document.getElementById("studentsPage").style.display = "none";
     document.getElementById("lessonsPage").style.display = "none";
+    document.getElementById("calendarPage").style.display = "none";
+    document.getElementById("reportsPage").style.display = "none";
 
 });
+
 
 document.getElementById("studentsMenu").addEventListener("click", function () {
 
     document.getElementById("homePage").style.display = "none";
     document.getElementById("studentsPage").style.display = "block";
     document.getElementById("lessonsPage").style.display = "none";
+    document.getElementById("calendarPage").style.display = "none";
+    document.getElementById("reportsPage").style.display = "none";
 
     mostrarAlunos();
-    
+
 });
+
 
 document.getElementById("lessonsMenu").addEventListener("click", function () {
 
     document.getElementById("homePage").style.display = "none";
     document.getElementById("studentsPage").style.display = "none";
     document.getElementById("lessonsPage").style.display = "block";
+    document.getElementById("calendarPage").style.display = "none";
+    document.getElementById("reportsPage").style.display = "none";
 
     mostrarAulas();
-    
+
 });
+
+
+document.getElementById("calendarMenu").addEventListener("click", function () {
+
+    document.getElementById("homePage").style.display = "none";
+    document.getElementById("studentsPage").style.display = "none";
+    document.getElementById("lessonsPage").style.display = "none";
+    document.getElementById("calendarPage").style.display = "block";
+    document.getElementById("reportsPage").style.display = "none";
+
+});
+
 
 document.getElementById("reportsMenu").addEventListener("click", function () {
 
     document.getElementById("homePage").style.display = "none";
     document.getElementById("studentsPage").style.display = "none";
     document.getElementById("lessonsPage").style.display = "none";
+    document.getElementById("calendarPage").style.display = "none";
     document.getElementById("reportsPage").style.display = "block";
 
-});
-
-// ============================================
+});// ============================================
 // ESTADO DAS AULAS DE REPROVAÇÃO
 // ============================================
 
