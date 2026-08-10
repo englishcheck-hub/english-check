@@ -1701,37 +1701,103 @@ document.getElementById("reportsMenu").addEventListener("click", function () {
 // ADICIONAR NOVO MÊS
 // ============================================
 
-document.getElementById("addMonthButton").addEventListener("click", function () {
+document.getElementById("addMonthButton").addEventListener("click", async function () {
 
     const nomeMes = prompt(
-        "Introduz o mês e o ano.\nExemplo: Setembro 2026"
+        "Introduz o mês e o ano.\nExemplo: Agosto 2026"
     );
 
     if (!nomeMes) {
         return;
     }
 
-    const monthsContainer =
-        document.getElementById("monthsContainer");
+    try {
 
-    monthsContainer.innerHTML = `
+        await addDoc(collection(db, "calendarioMeses"), {
+            nome: nomeMes,
+            criadoEm: new Date().toISOString()
+        });
 
-        <div class="calendar-month">
+        alert("Mês adicionado com sucesso ✅");
 
-            <h3>📅 ${nomeMes}</h3>
+    } catch (erro) {
 
-            <div class="calendar-grid">
+        alert("Erro ao guardar mês: " + erro.message);
 
-                Calendário de ${nomeMes}
-
-            </div>
-
-        </div>
-
-    `;
+    }
 
 });
 
+
+// ============================================
+// CARREGAR MESES DO CALENDÁRIO
+// ============================================
+
+onSnapshot(
+    collection(db, "calendarioMeses"),
+    function (snapshot) {
+
+        const monthsContainer =
+            document.getElementById("monthsContainer");
+
+        if (snapshot.empty) {
+
+            monthsContainer.innerHTML = `
+
+                <div class="calendar-empty">
+
+                    📅
+
+                    <p>
+                        Ainda não existe nenhum mês.
+                    </p>
+
+                    <p>
+                        Clica em <strong>➕ Adicionar novo mês</strong>
+                        para começar.
+                    </p>
+
+                </div>
+
+            `;
+
+            return;
+        }
+
+
+        let html = "";
+
+
+        snapshot.forEach(function (docFirebase) {
+
+            const mes = docFirebase.data();
+
+
+            html += `
+
+                <div class="calendar-month">
+
+                    <h3>
+                        📅 ${mes.nome}
+                    </h3>
+
+                    <div class="calendar-grid">
+
+                        Calendário de ${mes.nome}
+
+                    </div>
+
+                </div>
+
+            `;
+
+        });
+
+
+        monthsContainer.innerHTML = html;
+
+    }
+);
 // ============================================
 // ESTADO DAS AULAS DE REPROVAÇÃO
 // ============================================
