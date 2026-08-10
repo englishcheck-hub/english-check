@@ -1212,142 +1212,325 @@ document.getElementById("addSelectedStudents").addEventListener("click", functio
 
 document.getElementById("saveLesson").addEventListener("click", async function () {
 
-    const idAula = document.getElementById("lessonId").value.trim();
-    const materia = document.getElementById("lessonSubject").value.trim();
-    const data = document.getElementById("lessonDate").value;
+    const idAula =
+        document.getElementById("lessonId").value.trim();
 
-    if (idAula === "" || materia === "" || data === "") {
+    const materia =
+        document.getElementById("lessonSubject").value.trim();
+
+    const data =
+        document.getElementById("lessonDate").value;
+
+    const hora =
+        document.getElementById("lessonTime").value;
+
+
+    // ========================================
+    // VALIDAR AULA
+    // ========================================
+
+    if (
+        idAula === "" ||
+        materia === "" ||
+        data === "" ||
+        hora === ""
+    ) {
+
         mostrarNotificacao(
-    "Preenche o ID da aula, a matéria e a data.",
-    "erro"
-);
+            "Seleciona a aula, a data e a hora.",
+            "erro"
+        );
+
         return;
     }
+
+
+    // ========================================
+    // VALIDAR ALUNOS
+    // ========================================
 
     if (alunosDaAula.length === 0) {
+
         mostrarNotificacao(
-    "Ainda não adicionaste nenhum aluno.",
-    "erro"
-);
+            "Ainda não adicionaste nenhum aluno.",
+            "erro"
+        );
+
         return;
     }
+
+
+    // ========================================
+    // OBTER COR DA AULA
+    // ========================================
+
+    const aulaInfo =
+        materiasAulas[idAula];
+
+    const corAula =
+        aulaInfo
+            ? aulaInfo.cor
+            : "verde";
+
 
     try {
 
-        // Editar aula existente
-        console.log("Aula em edição:", aulaEmEdicao);
+        // ====================================
+        // ALUNOS DA AULA
+        // ====================================
+
+        const numerosAlunos =
+            alunosDaAula.map(function (aluno) {
+                return aluno.numero;
+            });
+
+
+        // ====================================
+        // EDITAR AULA
+        // ====================================
+
         if (aulaEmEdicao) {
 
-            await updateDoc(doc(db, "aulas", aulaEmEdicao.id), {
+            await updateDoc(
+                doc(
+                    db,
+                    "aulas",
+                    aulaEmEdicao.id
+                ),
+                {
 
-                idAula: idAula,
-                materia: materia,
-                data: data,
-                alunos: alunosDaAula.map(a => a.numero)
+                    idAula: idAula,
 
-            });
+                    materia: materia,
 
-            console.log("Aula atualizada:", idAula);
+                    data: data,
 
-        } else {
+                    hora: hora,
 
-            // Criar nova aula
-            await addDoc(collection(db, "aulas"), {
+                    cor: corAula,
 
-                idAula: idAula,
-                materia: materia,
-                data: data,
-                alunos: alunosDaAula.map(a => a.numero)
-
-            });
-
-            console.log("Aula criada:", idAula);
-
-            // Atualiza os alunos apenas quando a aula é nova
-            for (const aluno of alunosDaAula) {
-
-    const novasAulas = (aluno.aulasRealizadas || 0) + 1;
-
-    const dadosAtualizar = {
-
-        aulasRealizadas: novasAulas,
-
-        historicoAulas: arrayUnion(idAula)
-
-    };
-
-    // Se o aluno tiver uma reprovação ativa
-    if (aluno.ultimaReprovacao) {
-
-        const aulasReprovacao =
-            novasAulas - (aluno.aulasNaUltimaReprovacao || 0);
-
-        dadosAtualizar.aulasReprovacaoFeitas =
-            Math.min(aulasReprovacao, 5);
-
-        // Atualizar também o histórico de exames
-        let historico = aluno.historicoExames || [];
-
-        if (historico.length > 0) {
-
-            const ultimaEntrada = historico[historico.length - 1];
-
-            if (
-                ultimaEntrada.resultado === "Reprovado" &&
-                !ultimaEntrada.aulasConcluidas
-            ) {
-
-                ultimaEntrada.aulasReprovacao =
-                    Math.min(aulasReprovacao, 5);
-
-                if (aulasReprovacao >= 5) {
-
-                    ultimaEntrada.aulasConcluidas = true;
+                    alunos: numerosAlunos
 
                 }
+            );
+
+
+            console.log(
+                "Aula atualizada:",
+                idAula,
+                data,
+                hora
+            );
+
+        }
+
+
+        // ====================================
+        // CRIAR NOVA AULA
+        // ====================================
+
+        else {
+
+            await addDoc(
+                collection(db, "aulas"),
+                {
+
+                    idAula: idAula,
+
+                    materia: materia,
+
+                    data: data,
+
+                    hora: hora,
+
+                    cor: corAula,
+
+                    alunos: numerosAlunos,
+
+                    criadaEm:
+                        new Date().toISOString()
+
+                }
+            );
+
+
+            console.log(
+                "Aula criada:",
+                idAula,
+                data,
+                hora
+            );
+
+
+            // =================================
+            // ATUALIZAR ALUNOS
+            // =================================
+
+            for (
+                const aluno of alunosDaAula
+            ) {
+
+                const novasAulas =
+                    (aluno.aulasRealizadas || 0) + 1;
+
+
+                const dadosAtualizar = {
+
+                    aulasRealizadas:
+                        novasAulas,
+
+                    historicoAulas:
+                        arrayUnion(idAula)
+
+                };
+
+
+                // =============================
+                // REPROVAÇÃO
+                // =============================
+
+                if (aluno.ultimaReprovacao) {
+
+                    const aulasReprovacao =
+                        novasAulas -
+                        (
+                            aluno.aulasNaUltimaReprovacao ||
+                            0
+                        );
+
+
+                    dadosAtualizar
+                        .aulasReprovacaoFeitas =
+                            Math.min(
+                                aulasReprovacao,
+                                5
+                            );
+
+
+                    let historico =
+                        aluno.historicoExames || [];
+
+
+                    if (
+                        historico.length > 0
+                    ) {
+
+                        const ultimaEntrada =
+                            historico[
+                                historico.length - 1
+                            ];
+
+
+                        if (
+                            ultimaEntrada.resultado ===
+                                "Reprovado" &&
+                            !ultimaEntrada.aulasConcluidas
+                        ) {
+
+                            ultimaEntrada.aulasReprovacao =
+                                Math.min(
+                                    aulasReprovacao,
+                                    5
+                                );
+
+
+                            if (
+                                aulasReprovacao >= 5
+                            ) {
+
+                                ultimaEntrada.aulasConcluidas =
+                                    true;
+
+                            }
+
+                        }
+
+                    }
+
+
+                    dadosAtualizar
+                        .historicoExames =
+                            historico;
+
+                }
+
+
+                await updateDoc(
+
+                    doc(
+                        db,
+                        "alunos",
+                        aluno.id
+                    ),
+
+                    dadosAtualizar
+
+                );
 
             }
 
         }
 
-        dadosAtualizar.historicoExames = historico;
 
-    }
+        // ====================================
+        // FINALIZAR
+        // ====================================
 
-    await updateDoc(
+        mostrarNotificacao(
+            "Aula guardada com sucesso ✅"
+        );
 
-        doc(db, "alunos", aluno.id),
-
-        dadosAtualizar
-
-    );
-
-}
-        }
-
-        mostrarNotificacao("Aula guardada com sucesso ✅");
 
         alunosDaAula = [];
+
         aulaEmEdicao = null;
+
 
         atualizarListaDaAula();
 
-        document.getElementById("lessonId").value = "";
-        document.getElementById("lessonSubject").value = "";
-        document.getElementById("lessonDate").value = "";
+
+        document.getElementById(
+            "lessonId"
+        ).value = "";
+
+
+        document.getElementById(
+            "lessonSubject"
+        ).value = "";
+
+
+        document.getElementById(
+            "lessonDate"
+        ).value = "";
+
+
+        document.getElementById(
+            "lessonTime"
+        ).value = "";
+
+
+        // Voltar a desenhar a grelha
+
+        renderizarCalendario();
+
 
     } catch (erro) {
 
+        console.error(
+            "Erro ao guardar aula:",
+            erro
+        );
+
+
         mostrarNotificacao(
-    "Erro: " + erro.message,
-    "erro"
-);
-        console.error(erro);
+            "Erro ao guardar aula: " +
+            erro.message,
+            "erro"
+        );
 
     }
 
 });
-
 // ============================================
 // MOSTRAR AULAS
 // ============================================
