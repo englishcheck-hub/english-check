@@ -1765,27 +1765,563 @@ onSnapshot(
         }
 
 
+        // ========================================
+        // CALCULAR PÁSCOA
+        // ========================================
+
+        function calcularPascoa(ano) {
+
+            const a = ano % 19;
+            const b = Math.floor(ano / 100);
+            const c = ano % 100;
+            const d = Math.floor(b / 4);
+            const e = b % 4;
+            const f = Math.floor((b + 8) / 25);
+            const g = Math.floor((b - f + 1) / 3);
+            const h =
+                (19 * a + b - d - g + 15) % 30;
+
+            const i = Math.floor(c / 4);
+            const k = c % 4;
+
+            const l =
+                (32 + 2 * e + 2 * i - h - k) % 7;
+
+            const m =
+                Math.floor(
+                    (a + 11 * h + 22 * l) / 451
+                );
+
+            const mes =
+                Math.floor(
+                    (h + l - 7 * m + 114) / 31
+                );
+
+            const dia =
+                ((h + l - 7 * m + 114) % 31) + 1;
+
+            return new Date(
+                ano,
+                mes - 1,
+                dia
+            );
+        }
+
+
+        // ========================================
+        // OBTER FERIADOS DE PORTUGAL / LISBOA
+        // ========================================
+
+        function obterFeriados(ano) {
+
+            const feriados = [];
+
+            function adicionar(data, nome) {
+
+                feriados.push({
+                    data: data,
+                    nome: nome
+                });
+
+            }
+
+
+            // Feriados fixos
+
+            adicionar(
+                new Date(ano, 0, 1),
+                "Ano Novo"
+            );
+
+            adicionar(
+                new Date(ano, 3, 25),
+                "Dia da Liberdade"
+            );
+
+            adicionar(
+                new Date(ano, 4, 1),
+                "Dia do Trabalhador"
+            );
+
+            adicionar(
+                new Date(ano, 5, 10),
+                "Dia de Portugal"
+            );
+
+            // Santo António
+            // Feriado municipal de Lisboa
+
+            adicionar(
+                new Date(ano, 5, 13),
+                "Santo António — Lisboa"
+            );
+
+            adicionar(
+                new Date(ano, 9, 5),
+                "Implantação da República"
+            );
+
+            adicionar(
+                new Date(ano, 10, 1),
+                "Dia de Todos os Santos"
+            );
+
+            adicionar(
+                new Date(ano, 11, 1),
+                "Restauração da Independência"
+            );
+
+            adicionar(
+                new Date(ano, 11, 8),
+                "Imaculada Conceição"
+            );
+
+            adicionar(
+                new Date(ano, 11, 25),
+                "Natal"
+            );
+
+
+            // Páscoa e feriados móveis
+
+            const pascoa =
+                calcularPascoa(ano);
+
+
+            // Sexta-feira Santa
+
+            const sextaFeiraSanta =
+                new Date(pascoa);
+
+            sextaFeiraSanta.setDate(
+                pascoa.getDate() - 2
+            );
+
+            adicionar(
+                sextaFeiraSanta,
+                "Sexta-feira Santa"
+            );
+
+
+            // Domingo de Páscoa
+            // Não aparece na grelha,
+            // mas mantemos a data para cálculo.
+
+            adicionar(
+                new Date(pascoa),
+                "Páscoa"
+            );
+
+
+            // Corpo de Deus
+            // 60 dias depois da Páscoa
+
+            const corpoDeus =
+                new Date(pascoa);
+
+            corpoDeus.setDate(
+                pascoa.getDate() + 60
+            );
+
+            adicionar(
+                corpoDeus,
+                "Corpo de Deus"
+            );
+
+
+            // Carnaval
+            // Não é feriado nacional obrigatório,
+            // por isso NÃO fica bloqueado automaticamente.
+
+
+            return feriados;
+        }
+
+
+        // ========================================
+        // VERIFICAR SE É FERIADO
+        // ========================================
+
+        function obterFeriado(
+            data,
+            feriados
+        ) {
+
+            return feriados.find(
+                function (feriado) {
+
+                    return (
+                        feriado.data.getFullYear() ===
+                            data.getFullYear()
+
+                        &&
+
+                        feriado.data.getMonth() ===
+                            data.getMonth()
+
+                        &&
+
+                        feriado.data.getDate() ===
+                            data.getDate()
+                    );
+
+                }
+            );
+        }
+
+
+        // ========================================
+        // DIAS DA SEMANA
+        // ========================================
+
+        const nomesDias = [
+
+            "Domingo",
+            "Segunda",
+            "Terça",
+            "Quarta",
+            "Quinta",
+            "Sexta",
+            "Sábado"
+
+        ];
+
+
+        // ========================================
+        // HORÁRIOS
+        // ========================================
+
+        const horarios = [
+
+            "09:00",
+            "10:00",
+            "11:00",
+            "12:00",
+            "13:00",
+
+            "17:00",
+            "18:00",
+            "19:00",
+            "20:00"
+
+        ];
+
+
         let html = "";
 
+
+        // ========================================
+        // CRIAR CADA MÊS
+        // ========================================
 
         snapshot.forEach(function (docFirebase) {
 
             const mes = docFirebase.data();
 
 
+            // ------------------------------------
+            // INTERPRETAR MÊS E ANO
+            // ------------------------------------
+
+            const partes =
+                mes.nome.trim().split(/\s+/);
+
+            const nomeMesTexto =
+                partes[0];
+
+            const ano =
+                parseInt(partes[1]);
+
+
+            const nomesMeses = [
+
+                "janeiro",
+                "fevereiro",
+                "março",
+                "abril",
+                "maio",
+                "junho",
+                "julho",
+                "agosto",
+                "setembro",
+                "outubro",
+                "novembro",
+                "dezembro"
+
+            ];
+
+
+            const mesNumero =
+                nomesMeses.indexOf(
+                    nomeMesTexto.toLowerCase()
+                );
+
+
+            // Se não conseguir interpretar
+            // o mês/ano, não cria a grelha.
+
+            if (
+                mesNumero === -1 ||
+                isNaN(ano)
+            ) {
+
+                html += `
+
+                    <div class="calendar-month">
+
+                        <h3>
+                            📅 ${mes.nome}
+                        </h3>
+
+                        <p>
+                            Não foi possível interpretar
+                            o mês e o ano.
+                        </p>
+
+                    </div>
+
+                `;
+
+                return;
+            }
+
+
+            // ------------------------------------
+            // DIAS DO MÊS
+            // ------------------------------------
+
+            const ultimoDia =
+                new Date(
+                    ano,
+                    mesNumero + 1,
+                    0
+                ).getDate();
+
+
+            const feriados =
+                obterFeriados(ano);
+
+
+            // ------------------------------------
+            // CABEÇALHO
+            // ------------------------------------
+
+            let tabela = `
+
+                <div class="calendar-table">
+
+                    <div class="calendar-header">
+
+                        <div class="calendar-time-header">
+                            Horário
+                        </div>
+            `;
+
+
+            // Segunda = 1
+            // Domingo = 0
+            //
+            // Domingo é simplesmente ignorado.
+
+            for (
+                let dia = 1;
+                dia <= ultimoDia;
+                dia++
+            ) {
+
+                const data =
+                    new Date(
+                        ano,
+                        mesNumero,
+                        dia
+                    );
+
+
+                const diaSemana =
+                    data.getDay();
+
+
+                if (diaSemana === 0) {
+                    continue;
+                }
+
+
+                const feriado =
+                    obterFeriado(
+                        data,
+                        feriados
+                    );
+
+
+                const classeFeriado =
+                    feriado
+                        ? " holiday"
+                        : "";
+
+
+                tabela += `
+
+                    <div
+                        class="calendar-day-header${classeFeriado}"
+                        title="${feriado ? feriado.nome : ""}"
+                    >
+
+                        <strong>
+                            ${nomesDias[diaSemana]}
+                        </strong>
+
+                        <span>
+                            ${dia}
+                        </span>
+
+                        ${
+                            feriado
+                                ? `
+                                    <small>
+                                        ${feriado.nome}
+                                    </small>
+                                  `
+                                : ""
+                        }
+
+                    </div>
+
+                `;
+            }
+
+
+            tabela += `
+
+                    </div>
+
+            `;
+
+
+            // ====================================
+            // LINHAS DOS HORÁRIOS
+            // ====================================
+
+            horarios.forEach(function (horario) {
+
+                // Separador entre os dois períodos
+
+                if (horario === "17:00") {
+
+                    tabela += `
+
+                        <div class="calendar-break">
+                            Intervalo
+                        </div>
+
+                    `;
+                }
+
+
+                tabela += `
+
+                    <div class="calendar-row">
+
+                        <div class="calendar-time">
+                            ${horario}
+                        </div>
+
+                `;
+
+
+                for (
+                    let dia = 1;
+                    dia <= ultimoDia;
+                    dia++
+                ) {
+
+                    const data =
+                        new Date(
+                            ano,
+                            mesNumero,
+                            dia
+                        );
+
+
+                    const diaSemana =
+                        data.getDay();
+
+
+                    if (diaSemana === 0) {
+                        continue;
+                    }
+
+
+                    const feriado =
+                        obterFeriado(
+                            data,
+                            feriados
+                        );
+
+
+                    if (feriado) {
+
+                        tabela += `
+
+                            <div
+                                class="calendar-cell holiday"
+                                title="${feriado.nome}"
+                            >
+                            </div>
+
+                        `;
+
+                    }
+
+                    else {
+
+                        tabela += `
+
+                            <div
+                                class="calendar-cell"
+                                data-date="${ano}-${String(mesNumero + 1).padStart(2, "0")}-${String(dia).padStart(2, "0")}"
+                                data-time="${horario}"
+                            >
+                            </div>
+
+                        `;
+
+                    }
+
+                }
+
+
+                tabela += `
+
+                    </div>
+
+                `;
+
+            });
+
+
+            tabela += `
+
+                </div>
+
+            `;
+
+
+            // ====================================
+            // MÊS COMPLETO
+            // ====================================
+
             html += `
 
-                <div class="calendar-month">
+                <div
+                    class="calendar-month"
+                    data-month-id="${docFirebase.id}"
+                >
 
                     <h3>
                         📅 ${mes.nome}
                     </h3>
 
-                    <div class="calendar-grid">
-
-                        Calendário de ${mes.nome}
-
-                    </div>
+                    ${tabela}
 
                 </div>
 
@@ -1797,8 +2333,7 @@ onSnapshot(
         monthsContainer.innerHTML = html;
 
     }
-);
-// ============================================
+);// ============================================
 // ESTADO DAS AULAS DE REPROVAÇÃO
 // ============================================
 
