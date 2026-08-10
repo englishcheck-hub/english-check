@@ -15,6 +15,7 @@ import {
     addDoc,
     deleteDoc,
     updateDoc,
+    setDoc,
     doc,
     onSnapshot,
     arrayUnion,
@@ -38,6 +39,13 @@ const db = getFirestore(app);
 let alunos = [];
 let aulas = [];
 
+// ============================================
+// CALENDÁRIO
+// ============================================
+
+let mesesCalendario = [];
+let diasFechados = [];
+
 // Alunos da aula que está a ser criada
 let alunosDaAula = [];
 let aulaEmEdicao = null;
@@ -53,7 +61,6 @@ let alunoResultadoExame = null;
 // ============================================
 
 function mostrarNotificacao(mensagem, tipo = "sucesso") {
-
     const notificacao = document.createElement("div");
 
     notificacao.textContent = mensagem;
@@ -1698,6 +1705,10 @@ document.getElementById("reportsMenu").addEventListener("click", function () {
 });
 
 // ============================================
+// CALENDÁRIO
+// ============================================
+
+// ============================================
 // ADICIONAR NOVO MÊS
 // ============================================
 
@@ -1718,11 +1729,14 @@ document.getElementById("addMonthButton").addEventListener("click", async functi
             criadoEm: new Date().toISOString()
         });
 
-        alert("Mês adicionado com sucesso ✅");
+        mostrarNotificacao("Mês adicionado com sucesso ✅");
 
     } catch (erro) {
 
-        alert("Erro ao guardar mês: " + erro.message);
+        mostrarNotificacao(
+            "Erro ao guardar mês: " + erro.message,
+            "erro"
+        );
 
     }
 
@@ -1730,31 +1744,668 @@ document.getElementById("addMonthButton").addEventListener("click", async functi
 
 
 // ============================================
-// CARREGAR MESES DO CALENDÁRIO
+// LER MESES DO CALENDÁRIO
 // ============================================
 
 onSnapshot(
     collection(db, "calendarioMeses"),
     function (snapshot) {
 
-        const monthsContainer =
-            document.getElementById("monthsContainer");
+        mesesCalendario = [];
 
-        if (snapshot.empty) {
+        snapshot.forEach(function (documento) {
 
-            monthsContainer.innerHTML = `
+            mesesCalendario.push({
+                id: documento.id,
+                ...documento.data()
+            });
 
-                <div class="calendar-empty">
+        });
 
-                    📅
+        renderizarCalendario();
+
+    }
+);
+
+
+// ============================================
+// LER DIAS FECHADOS
+// ============================================
+
+onSnapshot(
+    collection(db, "diasFechados"),
+    function (snapshot) {
+
+        diasFechados = [];
+
+        snapshot.forEach(function (documento) {
+
+            diasFechados.push({
+                id: documento.id,
+                ...documento.data()
+            });
+
+        });
+
+        console.log("Dias fechados:", diasFechados);
+
+        renderizarCalendario();
+
+    }
+);
+
+
+// ============================================
+// CALCULAR PÁSCOA
+// ============================================
+
+function calcularPascoa(ano) {
+
+    const a = ano % 19;
+    const b = Math.floor(ano / 100);
+    const c = ano % 100;
+    const d = Math.floor(b / 4);
+    const e = b % 4;
+    const f = Math.floor((b + 8) / 25);
+    const g = Math.floor((b - f + 1) / 3);
+
+    const h =
+        (19 * a + b - d - g + 15) % 30;
+
+    const i = Math.floor(c / 4);
+    const k = c % 4;
+
+    const l =
+        (32 + 2 * e + 2 * i - h - k) % 7;
+
+    const m =
+        Math.floor(
+            (a + 11 * h + 22 * l) / 451
+        );
+
+    const mes =
+        Math.floor(
+            (h + l - 7 * m + 114) / 31
+        );
+
+    const dia =
+        ((h + l - 7 * m + 114) % 31) + 1;
+
+    return new Date(
+        ano,
+        mes - 1,
+        dia
+    );
+
+}
+
+
+// ============================================
+// OBTER FERIADOS DE LISBOA
+// ============================================
+
+function obterFeriados(ano) {
+
+    const feriados = [];
+
+    function adicionar(data, nome) {
+
+        feriados.push({
+            data: data,
+            nome: nome
+        });
+
+    }
+
+
+    // ========================================
+    // FERIADOS FIXOS
+    // ========================================
+
+    adicionar(
+        new Date(ano, 0, 1),
+        "Ano Novo"
+    );
+
+    adicionar(
+        new Date(ano, 3, 25),
+        "Dia da Liberdade"
+    );
+
+    adicionar(
+        new Date(ano, 4, 1),
+        "Dia do Trabalhador"
+    );
+
+    adicionar(
+        new Date(ano, 5, 10),
+        "Dia de Portugal"
+    );
+
+    // Feriado municipal de Lisboa
+
+    adicionar(
+        new Date(ano, 5, 13),
+        "Santo António — Lisboa"
+    );
+
+    adicionar(
+        new Date(ano, 9, 5),
+        "Implantação da República"
+    );
+
+    adicionar(
+        new Date(ano, 10, 1),
+        "Dia de Todos os Santos"
+    );
+
+    adicionar(
+        new Date(ano, 11, 1),
+        "Restauração da Independência"
+    );
+
+    adicionar(
+        new Date(ano, 11, 8),
+        "Imaculada Conceição"
+    );
+
+    adicionar(
+        new Date(ano, 11, 25),
+        "Natal"
+    );
+
+
+    // ========================================
+    // FERIADOS MÓVEIS
+    // ========================================
+
+    const pascoa =
+        calcularPascoa(ano);
+
+
+    const sextaFeiraSanta =
+        new Date(pascoa);
+
+    sextaFeiraSanta.setDate(
+        pascoa.getDate() - 2
+    );
+
+    adicionar(
+        sextaFeiraSanta,
+        "Sexta-feira Santa"
+    );
+
+
+    // Páscoa
+    adicionar(
+        new Date(pascoa),
+        "Páscoa"
+    );
+
+
+    // Corpo de Deus
+    const corpoDeus =
+        new Date(pascoa);
+
+    corpoDeus.setDate(
+        pascoa.getDate() + 60
+    );
+
+    adicionar(
+        corpoDeus,
+        "Corpo de Deus"
+    );
+
+
+    return feriados;
+
+}
+
+
+// ============================================
+// OBTER FERIADO
+// ============================================
+
+function obterFeriado(data, feriados) {
+
+    return feriados.find(function (feriado) {
+
+        return (
+            feriado.data.getFullYear() === data.getFullYear() &&
+            feriado.data.getMonth() === data.getMonth() &&
+            feriado.data.getDate() === data.getDate()
+        );
+
+    });
+
+}
+
+
+// ============================================
+// CONVERTER DATA PARA YYYY-MM-DD
+// ============================================
+
+function obterDataString(ano, mes, dia) {
+
+    return (
+        ano +
+        "-" +
+        String(mes + 1).padStart(2, "0") +
+        "-" +
+        String(dia).padStart(2, "0")
+    );
+
+}
+
+
+// ============================================
+// VERIFICAR SE O DIA ESTÁ FECHADO
+// ============================================
+
+function obterDiaFechado(dataString) {
+
+    return diasFechados.find(function (dia) {
+
+        return dia.id === dataString;
+
+    });
+
+}
+
+
+// ============================================
+// MENU DO DIA
+// ============================================
+
+function mostrarMenuDoDia(cabecalho) {
+
+    // Fechar menus anteriores
+
+    const menuAnterior =
+        document.querySelector(".calendar-day-menu");
+
+    if (menuAnterior) {
+        menuAnterior.remove();
+    }
+
+
+    const dataString =
+        cabecalho.getAttribute("data-date");
+
+    const feriado =
+        cabecalho.getAttribute("data-holiday");
+
+
+    // Feriados não podem ser alterados
+
+    if (feriado === "true") {
+
+        mostrarNotificacao(
+            "Este dia está bloqueado por ser feriado.",
+            "erro"
+        );
+
+        return;
+
+    }
+
+
+    const diaFechado =
+        obterDiaFechado(dataString);
+
+
+    const menu =
+        document.createElement("div");
+
+    menu.className =
+        "calendar-day-menu";
+
+
+    menu.style.position = "fixed";
+    menu.style.zIndex = "10000";
+    menu.style.background = "#ffffff";
+    menu.style.border = "2px solid #111111";
+    menu.style.borderRadius = "10px";
+    menu.style.padding = "10px";
+    menu.style.boxShadow = "0 5px 20px rgba(0,0,0,0.25)";
+
+
+    const botao =
+        document.createElement("button");
+
+
+    if (diaFechado) {
+
+        botao.innerHTML =
+            "🔓 Reabrir dia";
+
+    } else {
+
+        botao.innerHTML =
+            "🔒 Fechar dia inteiro";
+
+    }
+
+
+    botao.style.display = "block";
+    botao.style.width = "100%";
+    botao.style.padding = "10px 14px";
+    botao.style.border = "none";
+    botao.style.borderRadius = "8px";
+    botao.style.background = "#FFD500";
+    botao.style.color = "#111111";
+    botao.style.fontWeight = "bold";
+    botao.style.cursor = "pointer";
+
+
+    botao.onclick = async function () {
+
+        menu.remove();
+
+
+        // ====================================
+        // REABRIR
+        // ====================================
+
+        if (diaFechado) {
+
+            const confirmar =
+                confirm(
+                    "Queres reabrir este dia?\n\n" +
+                    "As células voltarão a ficar disponíveis."
+                );
+
+
+            if (!confirmar) {
+                return;
+            }
+
+
+            try {
+
+                await deleteDoc(
+                    doc(
+                        db,
+                        "diasFechados",
+                        dataString
+                    )
+                );
+
+
+                mostrarNotificacao(
+                    "Dia reaberto com sucesso ✅"
+                );
+
+
+            } catch (erro) {
+
+                mostrarNotificacao(
+                    "Erro ao reabrir o dia: " +
+                    erro.message,
+                    "erro"
+                );
+
+            }
+
+            return;
+
+        }
+
+
+        // ====================================
+        // FECHAR
+        // ====================================
+
+        const confirmar =
+            confirm(
+                "Queres fechar este dia inteiro?\n\n" +
+                "Não será possível criar aulas neste dia."
+            );
+
+
+        if (!confirmar) {
+            return;
+        }
+
+
+        try {
+
+            await setDoc(
+                doc(
+                    db,
+                    "diasFechados",
+                    dataString
+                ),
+                {
+                    data: dataString,
+                    tipo: "FECHADO",
+                    criadoEm: new Date().toISOString()
+                }
+            );
+
+
+            mostrarNotificacao(
+                "Dia fechado com sucesso 🔒"
+            );
+
+
+        } catch (erro) {
+
+            mostrarNotificacao(
+                "Erro ao fechar o dia: " +
+                erro.message,
+                "erro"
+            );
+
+        }
+
+    };
+
+
+    menu.appendChild(botao);
+
+    document.body.appendChild(menu);
+
+
+    // ========================================
+    // POSICIONAR MENU
+    // ========================================
+
+    const rect =
+        cabecalho.getBoundingClientRect();
+
+
+    let left =
+        rect.left;
+
+
+    let top =
+        rect.bottom + 5;
+
+
+    // Evitar sair do lado direito
+
+    if (
+        left + 220 >
+        window.innerWidth
+    ) {
+
+        left =
+            window.innerWidth - 230;
+
+    }
+
+
+    menu.style.left =
+        Math.max(left, 5) + "px";
+
+    menu.style.top =
+        top + "px";
+
+
+    // ========================================
+    // FECHAR AO CLICAR FORA
+    // ========================================
+
+    setTimeout(function () {
+
+        document.addEventListener(
+            "click",
+            function fecharMenu(event) {
+
+                if (
+                    !menu.contains(event.target) &&
+                    event.target !== cabecalho
+                ) {
+
+                    menu.remove();
+
+                    document.removeEventListener(
+                        "click",
+                        fecharMenu
+                    );
+
+                }
+
+            }
+        );
+
+    }, 0);
+
+}
+
+
+// ============================================
+// CRIAR CALENDÁRIO
+// ============================================
+
+function renderizarCalendario() {
+
+    const monthsContainer =
+        document.getElementById("monthsContainer");
+
+
+    if (!monthsContainer) {
+        return;
+    }
+
+
+    if (mesesCalendario.length === 0) {
+
+        monthsContainer.innerHTML = `
+
+            <div class="calendar-empty">
+
+                📅
+
+                <p>
+                    Ainda não existe nenhum mês.
+                </p>
+
+                <p>
+                    Clica em <strong>➕ Adicionar novo mês</strong>
+                    para começar.
+                </p>
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    const nomesDias = [
+
+        "Domingo",
+        "Segunda",
+        "Terça",
+        "Quarta",
+        "Quinta",
+        "Sexta",
+        "Sábado"
+
+    ];
+
+
+    const horarios = [
+
+        "09:00",
+        "10:00",
+        "11:00",
+        "12:00",
+        "13:00",
+
+        "17:00",
+        "18:00",
+        "19:00",
+        "20:00"
+
+    ];
+
+
+    const nomesMeses = [
+
+        "janeiro",
+        "fevereiro",
+        "março",
+        "abril",
+        "maio",
+        "junho",
+        "julho",
+        "agosto",
+        "setembro",
+        "outubro",
+        "novembro",
+        "dezembro"
+
+    ];
+
+
+    let html = "";
+
+
+    // ========================================
+    // CADA MÊS
+    // ========================================
+
+    mesesCalendario.forEach(function (mes) {
+
+        const partes =
+            mes.nome.trim().split(/\s+/);
+
+
+        const nomeMesTexto =
+            partes[0];
+
+
+        const ano =
+            parseInt(partes[1]);
+
+
+        const mesNumero =
+            nomesMeses.indexOf(
+                nomeMesTexto.toLowerCase()
+            );
+
+
+        if (
+            mesNumero === -1 ||
+            isNaN(ano)
+        ) {
+
+            html += `
+
+                <div class="calendar-month">
+
+                    <h3>
+                        📅 ${mes.nome}
+                    </h3>
 
                     <p>
-                        Ainda não existe nenhum mês.
-                    </p>
-
-                    <p>
-                        Clica em <strong>➕ Adicionar novo mês</strong>
-                        para começar.
+                        Não foi possível interpretar
+                        o mês e o ano.
                     </p>
 
                 </div>
@@ -1762,366 +2413,188 @@ onSnapshot(
             `;
 
             return;
+
         }
 
 
-        // ========================================
-        // CALCULAR PÁSCOA
-        // ========================================
-
-        function calcularPascoa(ano) {
-
-            const a = ano % 19;
-            const b = Math.floor(ano / 100);
-            const c = ano % 100;
-            const d = Math.floor(b / 4);
-            const e = b % 4;
-            const f = Math.floor((b + 8) / 25);
-            const g = Math.floor((b - f + 1) / 3);
-            const h =
-                (19 * a + b - d - g + 15) % 30;
-
-            const i = Math.floor(c / 4);
-            const k = c % 4;
-
-            const l =
-                (32 + 2 * e + 2 * i - h - k) % 7;
-
-            const m =
-                Math.floor(
-                    (a + 11 * h + 22 * l) / 451
-                );
-
-            const mes =
-                Math.floor(
-                    (h + l - 7 * m + 114) / 31
-                );
-
-            const dia =
-                ((h + l - 7 * m + 114) % 31) + 1;
-
-            return new Date(
+        const ultimoDia =
+            new Date(
                 ano,
-                mes - 1,
-                dia
-            );
-        }
+                mesNumero + 1,
+                0
+            ).getDate();
 
 
-        // ========================================
-        // OBTER FERIADOS DE PORTUGAL / LISBOA
-        // ========================================
+        const feriados =
+            obterFeriados(ano);
 
-        function obterFeriados(ano) {
 
-            const feriados = [];
+        // ====================================
+        // CABEÇALHO
+        // ====================================
 
-            function adicionar(data, nome) {
+        let tabela = `
 
-                feriados.push({
-                    data: data,
-                    nome: nome
-                });
+            <div class="calendar-table">
+
+                <div class="calendar-header">
+
+                    <div class="calendar-time-header">
+                        Horário
+                    </div>
+
+        `;
+
+
+        for (
+            let dia = 1;
+            dia <= ultimoDia;
+            dia++
+        ) {
+
+            const data =
+                new Date(
+                    ano,
+                    mesNumero,
+                    dia
+                );
+
+
+            const diaSemana =
+                data.getDay();
+
+
+            if (diaSemana === 0) {
+                continue;
+            }
+
+
+            const feriado =
+                obterFeriado(
+                    data,
+                    feriados
+                );
+
+
+            const dataString =
+                obterDataString(
+                    ano,
+                    mesNumero,
+                    dia
+                );
+
+
+            const diaFechado =
+                obterDiaFechado(
+                    dataString
+                );
+
+
+            // =================================
+            // CLASSE DO CABEÇALHO
+            // =================================
+
+            let classeCabecalho =
+                "calendar-day-header";
+
+
+            if (feriado) {
+
+                classeCabecalho +=
+                    " holiday";
+
+            }
+            else if (diaFechado) {
+
+                classeCabecalho +=
+                    " closed-day";
 
             }
 
 
-            // Feriados fixos
+            tabela += `
 
-            adicionar(
-                new Date(ano, 0, 1),
-                "Ano Novo"
-            );
+                <div
+                    class="${classeCabecalho}"
+                    data-date="${dataString}"
+                    data-holiday="${feriado ? "true" : "false"}"
+                    title="${
+                        feriado
+                            ? feriado.nome
+                            : diaFechado
+                                ? "Dia fechado manualmente"
+                                : "Clique para fechar o dia inteiro"
+                    }"
+                >
 
-            adicionar(
-                new Date(ano, 3, 25),
-                "Dia da Liberdade"
-            );
+                    <strong>
+                        ${nomesDias[diaSemana]}
+                    </strong>
 
-            adicionar(
-                new Date(ano, 4, 1),
-                "Dia do Trabalhador"
-            );
+                    <span>
+                        ${dia}
+                    </span>
 
-            adicionar(
-                new Date(ano, 5, 10),
-                "Dia de Portugal"
-            );
+                    ${
+                        feriado
+                            ? `
+                                <small>
+                                    ⬛ ${feriado.nome}
+                                </small>
+                              `
+                            : diaFechado
+                                ? `
+                                    <small>
+                                        ⬛ FECHADO
+                                    </small>
+                                  `
+                                : ""
+                    }
 
-            // Santo António
-            // Feriado municipal de Lisboa
+                </div>
 
-            adicionar(
-                new Date(ano, 5, 13),
-                "Santo António — Lisboa"
-            );
+            `;
 
-            adicionar(
-                new Date(ano, 9, 5),
-                "Implantação da República"
-            );
-
-            adicionar(
-                new Date(ano, 10, 1),
-                "Dia de Todos os Santos"
-            );
-
-            adicionar(
-                new Date(ano, 11, 1),
-                "Restauração da Independência"
-            );
-
-            adicionar(
-                new Date(ano, 11, 8),
-                "Imaculada Conceição"
-            );
-
-            adicionar(
-                new Date(ano, 11, 25),
-                "Natal"
-            );
-
-
-            // Páscoa e feriados móveis
-
-            const pascoa =
-                calcularPascoa(ano);
-
-
-            // Sexta-feira Santa
-
-            const sextaFeiraSanta =
-                new Date(pascoa);
-
-            sextaFeiraSanta.setDate(
-                pascoa.getDate() - 2
-            );
-
-            adicionar(
-                sextaFeiraSanta,
-                "Sexta-feira Santa"
-            );
-
-
-            // Domingo de Páscoa
-            // Não aparece na grelha,
-            // mas mantemos a data para cálculo.
-
-            adicionar(
-                new Date(pascoa),
-                "Páscoa"
-            );
-
-
-            // Corpo de Deus
-            // 60 dias depois da Páscoa
-
-            const corpoDeus =
-                new Date(pascoa);
-
-            corpoDeus.setDate(
-                pascoa.getDate() + 60
-            );
-
-            adicionar(
-                corpoDeus,
-                "Corpo de Deus"
-            );
-
-
-            // Carnaval
-            // Não é feriado nacional obrigatório,
-            // por isso NÃO fica bloqueado automaticamente.
-
-
-            return feriados;
         }
 
 
-        // ========================================
-        // VERIFICAR SE É FERIADO
-        // ========================================
+        tabela += `
 
-        function obterFeriado(
-            data,
-            feriados
-        ) {
+                </div>
 
-            return feriados.find(
-                function (feriado) {
-
-                    return (
-                        feriado.data.getFullYear() ===
-                            data.getFullYear()
-
-                        &&
-
-                        feriado.data.getMonth() ===
-                            data.getMonth()
-
-                        &&
-
-                        feriado.data.getDate() ===
-                            data.getDate()
-                    );
-
-                }
-            );
-        }
+        `;
 
 
-        // ========================================
-        // DIAS DA SEMANA
-        // ========================================
+        // ====================================
+        // LINHAS DOS HORÁRIOS
+        // ====================================
 
-        const nomesDias = [
-
-            "Domingo",
-            "Segunda",
-            "Terça",
-            "Quarta",
-            "Quinta",
-            "Sexta",
-            "Sábado"
-
-        ];
+        horarios.forEach(function (horario) {
 
 
-        // ========================================
-        // HORÁRIOS
-        // ========================================
+            if (horario === "17:00") {
 
-        const horarios = [
+                tabela += `
 
-            "09:00",
-            "10:00",
-            "11:00",
-            "12:00",
-            "13:00",
-
-            "17:00",
-            "18:00",
-            "19:00",
-            "20:00"
-
-        ];
-
-
-        let html = "";
-
-
-        // ========================================
-        // CRIAR CADA MÊS
-        // ========================================
-
-        snapshot.forEach(function (docFirebase) {
-
-            const mes = docFirebase.data();
-
-
-            // ------------------------------------
-            // INTERPRETAR MÊS E ANO
-            // ------------------------------------
-
-            const partes =
-                mes.nome.trim().split(/\s+/);
-
-            const nomeMesTexto =
-                partes[0];
-
-            const ano =
-                parseInt(partes[1]);
-
-
-            const nomesMeses = [
-
-                "janeiro",
-                "fevereiro",
-                "março",
-                "abril",
-                "maio",
-                "junho",
-                "julho",
-                "agosto",
-                "setembro",
-                "outubro",
-                "novembro",
-                "dezembro"
-
-            ];
-
-
-            const mesNumero =
-                nomesMeses.indexOf(
-                    nomeMesTexto.toLowerCase()
-                );
-
-
-            // Se não conseguir interpretar
-            // o mês/ano, não cria a grelha.
-
-            if (
-                mesNumero === -1 ||
-                isNaN(ano)
-            ) {
-
-                html += `
-
-                    <div class="calendar-month">
-
-                        <h3>
-                            📅 ${mes.nome}
-                        </h3>
-
-                        <p>
-                            Não foi possível interpretar
-                            o mês e o ano.
-                        </p>
-
+                    <div class="calendar-break">
+                        Intervalo
                     </div>
 
                 `;
 
-                return;
             }
 
 
-            // ------------------------------------
-            // DIAS DO MÊS
-            // ------------------------------------
+            tabela += `
 
-            const ultimoDia =
-                new Date(
-                    ano,
-                    mesNumero + 1,
-                    0
-                ).getDate();
+                <div class="calendar-row">
 
+                    <div class="calendar-time">
+                        ${horario}
+                    </div>
 
-            const feriados =
-                obterFeriados(ano);
-
-
-            // ------------------------------------
-            // CABEÇALHO
-            // ------------------------------------
-
-            let tabela = `
-
-                <div class="calendar-table">
-
-                    <div class="calendar-header">
-
-                        <div class="calendar-time-header">
-                            Horário
-                        </div>
             `;
 
-
-            // Segunda = 1
-            // Domingo = 0
-            //
-            // Domingo é simplesmente ignorado.
 
             for (
                 let dia = 1;
@@ -2153,175 +2626,98 @@ onSnapshot(
                     );
 
 
-                const classeFeriado =
-                    feriado
-                        ? " holiday"
-                        : "";
+                const dataString =
+                    obterDataString(
+                        ano,
+                        mesNumero,
+                        dia
+                    );
 
 
-                tabela += `
+                const diaFechado =
+                    obterDiaFechado(
+                        dataString
+                    );
 
-                    <div
-                        class="calendar-day-header${classeFeriado}"
-                        title="${feriado ? feriado.nome : ""}"
-                    >
 
-                        <strong>
-                            ${nomesDias[diaSemana]}
-                        </strong>
+                // =================================
+                // FERIADO
+                // =================================
 
-                        <span>
-                            ${dia}
-                        </span>
+                if (feriado) {
 
-                        ${
-                            feriado
-                                ? `
-                                    <small>
-                                        ${feriado.nome}
-                                    </small>
-                                  `
-                                : ""
-                        }
+                    tabela += `
 
-                    </div>
+                        <div
+                            class="calendar-cell holiday"
+                            title="${feriado.nome}"
+                            data-date="${dataString}"
+                            data-time="${horario}"
+                            data-blocked="holiday"
+                        >
+                            <span>
+                                ⬛
+                            </span>
+                        </div>
 
-                `;
+                    `;
+
+                }
+
+
+                // =================================
+                // DIA FECHADO MANUALMENTE
+                // =================================
+
+                else if (diaFechado) {
+
+                    tabela += `
+
+                        <div
+                            class="calendar-cell closed-day"
+                            title="FECHADO"
+                            data-date="${dataString}"
+                            data-time="${horario}"
+                            data-blocked="closed"
+                        >
+                            <span>
+                                ⬛
+                            </span>
+
+                            <small>
+                                FECHADO
+                            </small>
+
+                        </div>
+
+                    `;
+
+                }
+
+
+                // =================================
+                // CÉLULA NORMAL
+                // =================================
+
+                else {
+
+                    tabela += `
+
+                        <div
+                            class="calendar-cell"
+                            data-date="${dataString}"
+                            data-time="${horario}"
+                        >
+                        </div>
+
+                    `;
+
+                }
+
             }
 
 
             tabela += `
-
-                    </div>
-
-            `;
-
-
-            // ====================================
-            // LINHAS DOS HORÁRIOS
-            // ====================================
-
-            horarios.forEach(function (horario) {
-
-                // Separador entre os dois períodos
-
-                if (horario === "17:00") {
-
-                    tabela += `
-
-                        <div class="calendar-break">
-                            Intervalo
-                        </div>
-
-                    `;
-                }
-
-
-                tabela += `
-
-                    <div class="calendar-row">
-
-                        <div class="calendar-time">
-                            ${horario}
-                        </div>
-
-                `;
-
-
-                for (
-                    let dia = 1;
-                    dia <= ultimoDia;
-                    dia++
-                ) {
-
-                    const data =
-                        new Date(
-                            ano,
-                            mesNumero,
-                            dia
-                        );
-
-
-                    const diaSemana =
-                        data.getDay();
-
-
-                    if (diaSemana === 0) {
-                        continue;
-                    }
-
-
-                    const feriado =
-                        obterFeriado(
-                            data,
-                            feriados
-                        );
-
-
-                    if (feriado) {
-
-                        tabela += `
-
-                            <div
-                                class="calendar-cell holiday"
-                                title="${feriado.nome}"
-                            >
-                            </div>
-
-                        `;
-
-                    }
-
-                    else {
-
-                        tabela += `
-
-                            <div
-                                class="calendar-cell"
-                                data-date="${ano}-${String(mesNumero + 1).padStart(2, "0")}-${String(dia).padStart(2, "0")}"
-                                data-time="${horario}"
-                            >
-                            </div>
-
-                        `;
-
-                    }
-
-                }
-
-
-                tabela += `
-
-                    </div>
-
-                `;
-
-            });
-
-
-            tabela += `
-
-                </div>
-
-            `;
-
-
-            // ====================================
-            // MÊS COMPLETO
-            // ====================================
-
-            html += `
-
-                <div
-                    class="calendar-month"
-                    data-month-id="${docFirebase.id}"
-                >
-
-                    <h3>
-                        📅 ${mes.nome}
-                    </h3>
-
-                    ${tabela}
 
                 </div>
 
@@ -2330,10 +2726,136 @@ onSnapshot(
         });
 
 
-        monthsContainer.innerHTML = html;
+        tabela += `
 
-    }
-);// ============================================
+            </div>
+
+        `;
+
+
+        // ====================================
+        // MÊS
+        // ====================================
+
+        html += `
+
+            <div
+                class="calendar-month"
+                data-month-id="${mes.id}"
+            >
+
+                <h3>
+                    📅 ${mes.nome}
+                </h3>
+
+                ${tabela}
+
+            </div>
+
+        `;
+
+    });
+
+
+    monthsContainer.innerHTML =
+        html;
+
+
+    // ========================================
+    // EVENTOS DOS CABEÇALHOS
+    // ========================================
+
+    document
+        .querySelectorAll(".calendar-day-header")
+        .forEach(function (cabecalho) {
+
+            cabecalho.onclick =
+                function (event) {
+
+                    event.stopPropagation();
+
+                    mostrarMenuDoDia(
+                        this
+                    );
+
+                };
+
+        });
+
+
+    // ========================================
+    // EVENTOS DAS CÉLULAS
+    // ========================================
+
+    document
+        .querySelectorAll(".calendar-cell")
+        .forEach(function (celula) {
+
+            celula.onclick =
+                function () {
+
+                    const bloqueado =
+                        this.getAttribute(
+                            "data-blocked"
+                        );
+
+
+                    if (bloqueado === "holiday") {
+
+                        mostrarNotificacao(
+                            "Este dia está bloqueado por feriado.",
+                            "erro"
+                        );
+
+                        return;
+
+                    }
+
+
+                    if (bloqueado === "closed") {
+
+                        mostrarNotificacao(
+                            "Este dia está fechado. Reabre o dia no cabeçalho para criares aulas.",
+                            "erro"
+                        );
+
+                        return;
+
+                    }
+
+
+                    const data =
+                        this.getAttribute(
+                            "data-date"
+                        );
+
+                    const horario =
+                        this.getAttribute(
+                            "data-time"
+                        );
+
+
+                    console.log(
+                        "Célula selecionada:",
+                        data,
+                        horario
+                    );
+
+
+                    mostrarNotificacao(
+                        "Célula disponível: " +
+                        data +
+                        " às " +
+                        horario
+                    );
+
+                };
+
+        });
+
+}
+
+// ============================================
 // ESTADO DAS AULAS DE REPROVAÇÃO
 // ============================================
 
