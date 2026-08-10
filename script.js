@@ -1695,7 +1695,44 @@ document.getElementById("reportsMenu").addEventListener("click", function () {
     document.getElementById("calendarPage").style.display = "none";
     document.getElementById("reportsPage").style.display = "block";
 
-});// ============================================
+});
+
+// ============================================
+// ADICIONAR NOVO MÊS
+// ============================================
+
+document.getElementById("addMonthButton").addEventListener("click", function () {
+
+    const nomeMes = prompt(
+        "Introduz o mês e o ano.\nExemplo: Setembro 2026"
+    );
+
+    if (!nomeMes) {
+        return;
+    }
+
+    const monthsContainer =
+        document.getElementById("monthsContainer");
+
+    monthsContainer.innerHTML = `
+
+        <div class="calendar-month">
+
+            <h3>📅 ${nomeMes}</h3>
+
+            <div class="calendar-grid">
+
+                Calendário de ${nomeMes}
+
+            </div>
+
+        </div>
+
+    `;
+
+});
+
+// ============================================
 // ESTADO DAS AULAS DE REPROVAÇÃO
 // ============================================
 
