@@ -133,27 +133,37 @@ onSnapshot(collection(db, "alunos"), (snapshot) => {
 // LER AULAS
 // ============================================
 
-onSnapshot(collection(db, "aulas"), (snapshot) => {
+onSnapshot(
+    collection(db, "aulas"),
+    (snapshot) => {
 
-    aulas = [];
+        aulas = [];
 
-    snapshot.forEach((documento) => {
+        snapshot.forEach((documento) => {
 
-        aulas.push({
-            id: documento.id,
-            ...documento.data()
+            aulas.push({
+                id: documento.id,
+                ...documento.data()
+            });
+
         });
 
-    });
+        console.log("Aulas carregadas:", aulas);
 
-    console.log("Aulas carregadas:", aulas);
 
-    if (typeof mostrarAulas === "function") {
-        mostrarAulas();
+        // Atualizar lista de aulas
+        if (typeof mostrarAulas === "function") {
+            mostrarAulas();
+        }
+
+
+        // Atualizar grelha mensal
+        if (typeof renderizarCalendario === "function") {
+            renderizarCalendario();
+        }
+
     }
-
-});
-
+);
 
 // ============================================
 // LOGIN
@@ -1518,7 +1528,10 @@ document.getElementById("saveLesson").addEventListener("click", async function (
 
         console.error(
             "Erro ao guardar aula:",
-            erro
+            
+            
+            
+    erro
         );
 
 
@@ -1719,6 +1732,7 @@ document.querySelectorAll(".editLessonButton").forEach(function(botao){
         document.getElementById("lessonId").value = aula.idAula;
         document.getElementById("lessonSubject").value = aula.materia;
         document.getElementById("lessonDate").value = aula.data;
+        document.getElementById("lessonTime").value = aula.hora || "";
 
         alunosDaAula = [];
 
@@ -2905,50 +2919,77 @@ function renderizarCalendario() {
                 }
 
 
-                // ----------------------------
-                // CÉLULA NORMAL
-                // ----------------------------
+// ----------------------------
+// CÉLULA NORMAL / AULA
+// ----------------------------
 
-                else {
+else {
 
-                    html += `
+    const aulaEncontrada =
+        aulas.find(function (aula) {
 
-                        <div
-                            class="calendar-cell"
-                            data-date="${dia.dataString}"
-                            data-time="${horario}"
-                        >
-                        </div>
-
-                    `;
-
-                }
-
-            });
-
-
-            html += `
-
-                </div>
-
-            `;
+            return (
+                aula.data === dia.dataString &&
+                aula.hora === horario
+            );
 
         });
 
 
+    // ================================
+    // EXISTE UMA AULA
+    // ================================
+
+    if (aulaEncontrada) {
+
+        const cor =
+            aulaEncontrada.cor || "verde";
+
+
         html += `
 
-                    </div>
+            <div
+                class="calendar-cell lesson-cell lesson-${cor}"
+                data-date="${dia.dataString}"
+                data-time="${horario}"
+                data-lesson-id="${aulaEncontrada.id}"
+            >
 
+                <div class="lesson-number">
+                    ${aulaEncontrada.idAula}
+                </div>
+
+                <div class="lesson-subject">
+                    ${aulaEncontrada.materia}
                 </div>
 
             </div>
 
         `;
 
-    });
+    }
 
 
+    // ================================
+    // CÉLULA VAZIA
+    // ================================
+
+    else {
+
+        html += `
+
+            <div
+                class="calendar-cell"
+                data-date="${dia.dataString}"
+                data-time="${horario}"
+            >
+            </div>
+
+        `;
+
+    }
+
+}
     // ----------------------------------------
     // COLOCAR NO ECRÃ
     // ----------------------------------------
@@ -2980,81 +3021,104 @@ function renderizarCalendario() {
 
 
     // ========================================
-    // CLICAR NAS CÉLULAS
-    // ========================================
+// CLICAR NUMA CÉLULA PARA CRIAR AULA
+// ========================================
 
-    document
-        .querySelectorAll(".calendar-cell")
-        .forEach(function (celula) {
+document
+    .querySelectorAll(".calendar-cell")
+    .forEach(function (celula) {
 
-            celula.onclick =
-                function () {
+        celula.onclick = function () {
 
-                    const bloqueado =
-                        this.getAttribute(
-                            "data-blocked"
-                        );
+            const bloqueado =
+                this.getAttribute("data-blocked");
 
+            if (bloqueado === "holiday") {
 
-                    if (
-                        bloqueado === "holiday"
-                    ) {
+                mostrarNotificacao(
+                    "Este dia está bloqueado por feriado.",
+                    "erro"
+                );
 
-                        mostrarNotificacao(
-                            "Este dia está bloqueado por feriado.",
-                            "erro"
-                        );
+                return;
+            }
 
-                        return;
+            if (bloqueado === "closed") {
 
-                    }
+                mostrarNotificacao(
+                    "Este dia está fechado. Reabre o dia para criares aulas.",
+                    "erro"
+                );
 
+                return;
+            }
 
-                    if (
-                        bloqueado === "closed"
-                    ) {
+            const data =
+                this.getAttribute("data-date");
 
-                        mostrarNotificacao(
-                            "Este dia está fechado. Reabre o dia no cabeçalho para criares aulas.",
-                            "erro"
-                        );
-
-                        return;
-
-                    }
+            const horario =
+                this.getAttribute("data-time");
 
 
-                    const data =
-                        this.getAttribute(
-                            "data-date"
-                        );
+            // ====================================
+            // PREENCHER DATA E HORA
+            // ====================================
+
+            const campoData =
+                document.getElementById("lessonDate");
+
+            const campoHora =
+                document.getElementById("lessonTime");
+
+            if (campoData) {
+                campoData.value = data;
+            }
+
+            if (campoHora) {
+                campoHora.value = horario;
+            }
 
 
-                    const horario =
-                        this.getAttribute(
-                            "data-time"
-                        );
+            // ====================================
+            // IR PARA A PÁGINA DAS AULAS
+            // ====================================
+
+            document.getElementById("homePage").style.display = "none";
+            document.getElementById("studentsPage").style.display = "none";
+            document.getElementById("lessonsPage").style.display = "block";
+            document.getElementById("calendarPage").style.display = "none";
+            document.getElementById("reportsPage").style.display = "none";
 
 
-                    console.log(
-                        "Célula selecionada:",
-                        data,
-                        horario
-                    );
+            // ====================================
+            // DESTACAR A INFORMAÇÃO
+            // ====================================
+
+            mostrarNotificacao(
+                "Data e hora selecionadas: " +
+                formatarData(data) +
+                " às " +
+                horario +
+                " ⏰"
+            );
 
 
-                    mostrarNotificacao(
-                        "Célula disponível: " +
-                        data +
-                        " às " +
-                        horario
-                    );
+            // Ir para o formulário
+            const formulario =
+                document.getElementById("saveLesson");
 
-                };
+            if (formulario) {
 
-        });
+                formulario.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center"
+                });
 
-}
+            }
+
+        };
+
+    });
 // ============================================
 // ESTADO DAS AULAS DE REPROVAÇÃO
 // ============================================
