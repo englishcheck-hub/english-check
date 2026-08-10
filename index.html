@@ -349,18 +349,65 @@
 
     <h2>📚 Nova Aula</h2>
 
-    <label>ID da Aula</label>
-    <input id="lessonId" placeholder="Ex.: C12 ou M1">
+<label>N.º da Aula</label>
 
-    <label>Matéria</label>
-    <input id="lessonSubject" placeholder="Ex.: Prioridades">
+<select id="lessonId">
 
-    <label>Data</label>
-    <input id="lessonDate" type="date">
+    <option value="">Selecionar aula</option>
 
-    <label>Hora</label>
-<input id="lessonTime" type="time">
+    <option value="01">01 — The Driver's Profile</option>
+    <option value="02">02 — The Driver and Their Physical and Psychological Condition</option>
+    <option value="03">03 — The Driver and Other Road Users</option>
+    <option value="04">04 — Civic Behaviour and Road Safety</option>
+    <option value="05/06">05/06 — Driving Task, Reaction Time and Distances</option>
+    <option value="07">07 — Alternative Name Used for First Module Tests</option>
 
+    <option value="08">08 — Hierarchy of Instructions to Traffic Lights</option>
+    <option value="09">09 — Vertical Signs to Warning Signs</option>
+    <option value="10">10 — Regulatory Signs</option>
+    <option value="11">11 — Information Signs</option>
+    <option value="12">12 — Road Markings and Drivers' Signals</option>
+    <option value="13">13 — Starting and Resuming Movement to Reduced Visibility</option>
+    <option value="14">14 — Vehicle Lighting to the Prohibition of Certain Devices</option>
+    <option value="15">15 — Speeds</option>
+    <option value="16">16 — Priorities to Passing oncoming Vehicles</option>
+    <option value="17">17 — Overtaking to Reversing</option>
+    <option value="18">18 — Stopping and Parking</option>
+    <option value="19">19 — Vehicle Weights, Dimensions and Systems</option>
+    <option value="20">20 — Periodic Inspections to Safety Equipment</option>
+    <option value="21">21 — Road Classification to Driving in Adverse Environmental Conditions</option>
+    <option value="22">22 — Legal Requirements for Driving</option>
+    <option value="23">23 — Liability for Offences to Behaviour in the Event of an Accident</option>
+
+    <option value="24">24 — Exam Preparation Assessment</option>
+
+</select>
+
+
+<label>Matéria</label>
+
+<input
+    id="lessonSubject"
+    type="text"
+    readonly
+    placeholder="A matéria aparece automaticamente"
+>
+
+
+<label>Data</label>
+
+<input
+    id="lessonDate"
+    type="date"
+>
+
+
+<label>Hora</label>
+
+<input
+    id="lessonTime"
+    type="time"
+>
     <label>N.º do aluno</label>
     <input id="lessonStudentNumber" placeholder="Ex.: 001">
 
