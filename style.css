@@ -811,3 +811,126 @@ label {
     }
 
 }
+
+/* ============================================
+   GRELHA MENSAL — TODOS OS DIAS DO MÊS
+============================================ */
+
+.calendar-table {
+    display: block;
+    width: max-content;
+    min-width: 100%;
+    overflow-x: auto;
+}
+
+/* Cabeçalho com todos os dias */
+.calendar-header {
+    display: grid;
+
+    /* 90px para horário + 31 dias */
+    grid-template-columns:
+        90px
+        repeat(31, 90px);
+
+    width: max-content;
+    min-width: 100%;
+
+    background: #111111;
+    color: #FFD500;
+}
+
+/* Cada linha mantém exatamente as mesmas colunas */
+.calendar-row {
+    display: grid;
+
+    grid-template-columns:
+        90px
+        repeat(31, 90px);
+
+    width: max-content;
+    min-width: 100%;
+
+    min-height: 65px;
+}
+
+/* Cabeçalho dos dias */
+.calendar-day-header {
+    min-width: 90px;
+    width: 90px;
+    min-height: 75px;
+
+    padding: 6px;
+
+    display: flex;
+    flex-direction: column;
+
+    justify-content: center;
+    align-items: center;
+
+    text-align: center;
+
+    border-right: 1px solid #555555;
+}
+
+/* Número do dia */
+.calendar-day-header span {
+    font-size: 22px;
+}
+
+/* Células */
+.calendar-cell {
+    width: 90px;
+    min-width: 90px;
+    min-height: 65px;
+
+    border-right: 1px solid #cccccc;
+    border-bottom: 1px solid #cccccc;
+}
+
+/* Hora */
+.calendar-time-header,
+.calendar-time {
+    width: 90px;
+    min-width: 90px;
+}
+
+/* O mês pode fazer scroll horizontal */
+.calendar-month {
+    overflow-x: auto;
+}
+
+/* ============================================
+   MOBILE / TABLET
+============================================ */
+
+@media (max-width: 800px) {
+
+    .calendar-table {
+        width: max-content;
+        min-width: 100%;
+    }
+
+    .calendar-header,
+    .calendar-row {
+        grid-template-columns:
+            75px
+            repeat(31, 80px);
+    }
+
+    .calendar-time-header,
+    .calendar-time {
+        width: 75px;
+        min-width: 75px;
+    }
+
+    .calendar-day-header {
+        width: 80px;
+        min-width: 80px;
+    }
+
+    .calendar-cell {
+        width: 80px;
+        min-width: 80px;
+    }
+
+}
