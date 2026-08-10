@@ -2276,7 +2276,7 @@ function mostrarMenuDoDia(cabecalho) {
 
 
 // ============================================
-// CRIAR CALENDÁRIO
+// CRIAR ESCALA MENSAL
 // ============================================
 
 function renderizarCalendario() {
@@ -2284,11 +2284,13 @@ function renderizarCalendario() {
     const monthsContainer =
         document.getElementById("monthsContainer");
 
-
     if (!monthsContainer) {
         return;
     }
 
+    // ----------------------------------------
+    // SEM MESES
+    // ----------------------------------------
 
     if (mesesCalendario.length === 0) {
 
@@ -2312,22 +2314,12 @@ function renderizarCalendario() {
         `;
 
         return;
-
     }
 
 
-    const nomesDias = [
-
-        "Domingo",
-        "Segunda",
-        "Terça",
-        "Quarta",
-        "Quinta",
-        "Sexta",
-        "Sábado"
-
-    ];
-
+    // ----------------------------------------
+    // HORÁRIOS
+    // ----------------------------------------
 
     const horarios = [
 
@@ -2344,6 +2336,10 @@ function renderizarCalendario() {
 
     ];
 
+
+    // ----------------------------------------
+    // NOMES DOS MESES
+    // ----------------------------------------
 
     const nomesMeses = [
 
@@ -2366,9 +2362,9 @@ function renderizarCalendario() {
     let html = "";
 
 
-    // ========================================
+    // ----------------------------------------
     // CADA MÊS
-    // ========================================
+    // ----------------------------------------
 
     mesesCalendario.forEach(function (mes) {
 
@@ -2389,6 +2385,10 @@ function renderizarCalendario() {
                 nomeMesTexto.toLowerCase()
             );
 
+
+        // ------------------------------------
+        // MÊS INVÁLIDO
+        // ------------------------------------
 
         if (
             mesNumero === -1 ||
@@ -2413,9 +2413,12 @@ function renderizarCalendario() {
             `;
 
             return;
-
         }
 
+
+        // ------------------------------------
+        // ÚLTIMO DIA DO MÊS
+        // ------------------------------------
 
         const ultimoDia =
             new Date(
@@ -2429,21 +2432,11 @@ function renderizarCalendario() {
             obterFeriados(ano);
 
 
-        // ====================================
-        // CABEÇALHO
-        // ====================================
+        // ------------------------------------
+        // OBTER APENAS DIAS ÚTEIS
+        // ------------------------------------
 
-        let tabela = `
-
-            <div class="calendar-table">
-
-                <div class="calendar-header">
-
-                    <div class="calendar-time-header">
-                        Horário
-                    </div>
-
-        `;
+        const diasUteis = [];
 
 
         for (
@@ -2464,278 +2457,41 @@ function renderizarCalendario() {
                 data.getDay();
 
 
+            // Domingo não aparece
             if (diaSemana === 0) {
                 continue;
             }
 
 
-            const feriado =
-                obterFeriado(
-                    data,
-                    feriados
-                );
+            diasUteis.push({
 
+                numero: dia,
 
-            const dataString =
-                obterDataString(
-                    ano,
-                    mesNumero,
-                    dia
-                );
+                data: data,
 
+                diaSemana: diaSemana,
 
-            const diaFechado =
-                obterDiaFechado(
-                    dataString
-                );
-
-
-            // =================================
-            // CLASSE DO CABEÇALHO
-            // =================================
-
-            let classeCabecalho =
-                "calendar-day-header";
-
-
-            if (feriado) {
-
-                classeCabecalho +=
-                    " holiday";
-
-            }
-            else if (diaFechado) {
-
-                classeCabecalho +=
-                    " closed-day";
-
-            }
-
-
-            tabela += `
-
-                <div
-                    class="${classeCabecalho}"
-                    data-date="${dataString}"
-                    data-holiday="${feriado ? "true" : "false"}"
-                    title="${
-                        feriado
-                            ? feriado.nome
-                            : diaFechado
-                                ? "Dia fechado manualmente"
-                                : "Clique para fechar o dia inteiro"
-                    }"
-                >
-
-                    <strong>
-                        ${nomesDias[diaSemana]}
-                    </strong>
-
-                    <span>
-                        ${dia}
-                    </span>
-
-                    ${
-                        feriado
-                            ? `
-                                <small>
-                                    ⬛ ${feriado.nome}
-                                </small>
-                              `
-                            : diaFechado
-                                ? `
-                                    <small>
-                                        ⬛ FECHADO
-                                    </small>
-                                  `
-                                : ""
-                    }
-
-                </div>
-
-            `;
-
-        }
-
-
-        tabela += `
-
-                </div>
-
-        `;
-
-
-        // ====================================
-        // LINHAS DOS HORÁRIOS
-        // ====================================
-
-        horarios.forEach(function (horario) {
-
-
-            if (horario === "17:00") {
-
-                tabela += `
-
-                    <div class="calendar-break">
-                        Intervalo
-                    </div>
-
-                `;
-
-            }
-
-
-            tabela += `
-
-                <div class="calendar-row">
-
-                    <div class="calendar-time">
-                        ${horario}
-                    </div>
-
-            `;
-
-
-            for (
-                let dia = 1;
-                dia <= ultimoDia;
-                dia++
-            ) {
-
-                const data =
-                    new Date(
-                        ano,
-                        mesNumero,
-                        dia
-                    );
-
-
-                const diaSemana =
-                    data.getDay();
-
-
-                if (diaSemana === 0) {
-                    continue;
-                }
-
-
-                const feriado =
-                    obterFeriado(
-                        data,
-                        feriados
-                    );
-
-
-                const dataString =
+                dataString:
                     obterDataString(
                         ano,
                         mesNumero,
                         dia
-                    );
+                    ),
+
+                feriado:
+                    obterFeriado(
+                        data,
+                        feriados
+                    )
+
+            });
+
+        }
 
 
-                const diaFechado =
-                    obterDiaFechado(
-                        dataString
-                    );
-
-
-                // =================================
-                // FERIADO
-                // =================================
-
-                if (feriado) {
-
-                    tabela += `
-
-                        <div
-                            class="calendar-cell holiday"
-                            title="${feriado.nome}"
-                            data-date="${dataString}"
-                            data-time="${horario}"
-                            data-blocked="holiday"
-                        >
-                            <span>
-                                ⬛
-                            </span>
-                        </div>
-
-                    `;
-
-                }
-
-
-                // =================================
-                // DIA FECHADO MANUALMENTE
-                // =================================
-
-                else if (diaFechado) {
-
-                    tabela += `
-
-                        <div
-                            class="calendar-cell closed-day"
-                            title="FECHADO"
-                            data-date="${dataString}"
-                            data-time="${horario}"
-                            data-blocked="closed"
-                        >
-                            <span>
-                                ⬛
-                            </span>
-
-                            <small>
-                                FECHADO
-                            </small>
-
-                        </div>
-
-                    `;
-
-                }
-
-
-                // =================================
-                // CÉLULA NORMAL
-                // =================================
-
-                else {
-
-                    tabela += `
-
-                        <div
-                            class="calendar-cell"
-                            data-date="${dataString}"
-                            data-time="${horario}"
-                        >
-                        </div>
-
-                    `;
-
-                }
-
-            }
-
-
-            tabela += `
-
-                </div>
-
-            `;
-
-        });
-
-
-        tabela += `
-
-            </div>
-
-        `;
-
-
-        // ====================================
-        // MÊS
-        // ====================================
+        // ------------------------------------
+        // TÍTULO DO MÊS
+        // ------------------------------------
 
         html += `
 
@@ -2748,7 +2504,260 @@ function renderizarCalendario() {
                     📅 ${mes.nome}
                 </h3>
 
-                ${tabela}
+                <div class="calendar-scroll">
+
+                    <div class="calendar-table">
+
+
+                        <!-- ======================
+                             CABEÇALHO
+                        ======================= -->
+
+                        <div class="calendar-header">
+
+
+                            <div class="calendar-time-header">
+                                HORÁRIO
+                            </div>
+
+        `;
+
+
+        // ------------------------------------
+        // COLUNAS DOS DIAS
+        // ------------------------------------
+
+        diasUteis.forEach(function (dia) {
+
+            let classe =
+                "calendar-day-header";
+
+
+            if (dia.feriado) {
+
+                classe += " holiday";
+
+            }
+            else if (
+                obterDiaFechado(
+                    dia.dataString
+                )
+            ) {
+
+                classe += " closed-day";
+
+            }
+
+
+            html += `
+
+                <div
+                    class="${classe}"
+                    data-date="${dia.dataString}"
+                    data-holiday="${
+                        dia.feriado
+                            ? "true"
+                            : "false"
+                    }"
+                >
+
+                    <strong>
+                        ${dia.numero}
+                    </strong>
+
+                    <span>
+                        ${
+                            [
+                                "",
+                                "Seg",
+                                "Ter",
+                                "Qua",
+                                "Qui",
+                                "Sex",
+                                "Sáb"
+                            ][dia.diaSemana]
+                        }
+                    </span>
+
+                    ${
+                        dia.feriado
+                            ? `
+                                <small>
+                                    ${dia.feriado.nome}
+                                </small>
+                              `
+                            : obterDiaFechado(
+                                dia.dataString
+                            )
+                                ? `
+                                    <small>
+                                        FECHADO
+                                    </small>
+                                  `
+                                : ""
+                    }
+
+                </div>
+
+            `;
+
+        });
+
+
+        html += `
+
+                        </div>
+
+
+                        <!-- ======================
+                             LINHAS DOS HORÁRIOS
+                        ======================= -->
+
+        `;
+
+
+        // ------------------------------------
+        // CADA HORÁRIO
+        // ------------------------------------
+
+        horarios.forEach(function (horario) {
+
+
+            // --------------------------------
+            // INTERVALO
+            // --------------------------------
+
+            if (horario === "17:00") {
+
+                html += `
+
+                    <div class="calendar-break">
+
+                        <span>
+                            INTERVALO
+                        </span>
+
+                    </div>
+
+                `;
+
+            }
+
+
+            html += `
+
+                <div class="calendar-row">
+
+
+                    <div class="calendar-time">
+                        ${horario}
+                    </div>
+
+            `;
+
+
+            // --------------------------------
+            // CADA DIA
+            // --------------------------------
+
+            diasUteis.forEach(function (dia) {
+
+                const diaFechado =
+                    obterDiaFechado(
+                        dia.dataString
+                    );
+
+
+                // ----------------------------
+                // FERIADO
+                // ----------------------------
+
+                if (dia.feriado) {
+
+                    html += `
+
+                        <div
+                            class="calendar-cell holiday"
+                            data-date="${dia.dataString}"
+                            data-time="${horario}"
+                            data-blocked="holiday"
+                            title="${dia.feriado.nome}"
+                        >
+
+                            <span>
+                                ⬛
+                            </span>
+
+                        </div>
+
+                    `;
+
+                }
+
+
+                // ----------------------------
+                // DIA FECHADO
+                // ----------------------------
+
+                else if (diaFechado) {
+
+                    html += `
+
+                        <div
+                            class="calendar-cell closed-day"
+                            data-date="${dia.dataString}"
+                            data-time="${horario}"
+                            data-blocked="closed"
+                            title="Dia fechado"
+                        >
+
+                            <span>
+                                🔒
+                            </span>
+
+                        </div>
+
+                    `;
+
+                }
+
+
+                // ----------------------------
+                // CÉLULA NORMAL
+                // ----------------------------
+
+                else {
+
+                    html += `
+
+                        <div
+                            class="calendar-cell"
+                            data-date="${dia.dataString}"
+                            data-time="${horario}"
+                        >
+                        </div>
+
+                    `;
+
+                }
+
+            });
+
+
+            html += `
+
+                </div>
+
+            `;
+
+        });
+
+
+        html += `
+
+                    </div>
+
+                </div>
 
             </div>
 
@@ -2757,12 +2766,16 @@ function renderizarCalendario() {
     });
 
 
+    // ----------------------------------------
+    // COLOCAR NO ECRÃ
+    // ----------------------------------------
+
     monthsContainer.innerHTML =
         html;
 
 
     // ========================================
-    // EVENTOS DOS CABEÇALHOS
+    // CLICAR NO CABEÇALHO DO DIA
     // ========================================
 
     document
@@ -2784,7 +2797,7 @@ function renderizarCalendario() {
 
 
     // ========================================
-    // EVENTOS DAS CÉLULAS
+    // CLICAR NAS CÉLULAS
     // ========================================
 
     document
@@ -2800,7 +2813,9 @@ function renderizarCalendario() {
                         );
 
 
-                    if (bloqueado === "holiday") {
+                    if (
+                        bloqueado === "holiday"
+                    ) {
 
                         mostrarNotificacao(
                             "Este dia está bloqueado por feriado.",
@@ -2812,7 +2827,9 @@ function renderizarCalendario() {
                     }
 
 
-                    if (bloqueado === "closed") {
+                    if (
+                        bloqueado === "closed"
+                    ) {
 
                         mostrarNotificacao(
                             "Este dia está fechado. Reabre o dia no cabeçalho para criares aulas.",
@@ -2828,6 +2845,7 @@ function renderizarCalendario() {
                         this.getAttribute(
                             "data-date"
                         );
+
 
                     const horario =
                         this.getAttribute(
@@ -2854,7 +2872,6 @@ function renderizarCalendario() {
         });
 
 }
-
 // ============================================
 // ESTADO DAS AULAS DE REPROVAÇÃO
 // ============================================
