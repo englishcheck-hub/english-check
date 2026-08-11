@@ -1400,33 +1400,64 @@ if (addSelectedStudents) {
 
 
 // ============================================
-// GUARDAR ALUNOS DA AULA
+// GUARDAR AULA + ALUNOS DA AULA
 // ============================================
 
 const saveLesson =
-    document.getElementById(
-        "saveLesson"
-    );
+    document.getElementById("saveLesson");
 
 
 if (saveLesson) {
 
     saveLesson.addEventListener(
         "click",
-        async function () {
+        async function (event) {
 
-            alert("BOTÃO GUARDAR AULA FOI CLICADO");
+            event.preventDefault();
+
+            console.log(
+                "BOTÃO GUARDAR AULA FOI CLICADO"
+            );
+
+
+            // ========================================
+            // VERIFICAR SE EXISTE AULA EM EDIÇÃO
+            // ========================================
 
             if (!aulaEmEdicao) {
 
                 mostrarNotificacao(
-                    "Primeiro cria a aula através do calendário.",
+                    "Primeiro cria ou abre uma aula através do calendário.",
                     "erro"
                 );
 
                 return;
             }
 
+
+            // ========================================
+            // VERIFICAR ID FIRESTORE
+            // ========================================
+
+            if (!aulaEmEdicao.id) {
+
+                console.error(
+                    "A aula não tem ID do Firestore:",
+                    aulaEmEdicao
+                );
+
+                mostrarNotificacao(
+                    "Esta aula não tem um ID válido no Firestore.",
+                    "erro"
+                );
+
+                return;
+            }
+
+
+            // ========================================
+            // OBTER CAMPOS
+            // ========================================
 
             const campoId =
                 document.getElementById(
@@ -1468,6 +1499,10 @@ if (saveLesson) {
             }
 
 
+            // ========================================
+            // LER VALORES
+            // ========================================
+
             const idAula =
                 campoId.value.trim();
 
@@ -1483,6 +1518,10 @@ if (saveLesson) {
             const hora =
                 campoHora.value;
 
+
+            // ========================================
+            // VALIDAR
+            // ========================================
 
             if (
                 idAula === "" ||
@@ -1500,8 +1539,12 @@ if (saveLesson) {
             }
 
 
+            // ========================================
+            // NÚMEROS DOS ALUNOS
+            // ========================================
+
             const numerosAlunos =
-                alunosDaAula.map(
+                (alunosDaAula || []).map(
                     function (aluno) {
 
                         return aluno.numero;
@@ -1510,43 +1553,57 @@ if (saveLesson) {
                 );
 
 
+            // ========================================
+            // ALUNOS QUE JÁ ESTAVAM NA AULA
+            // ========================================
+
+            const alunosAntigos =
+                Array.isArray(
+                    aulaEmEdicao.alunos
+                )
+                    ? aulaEmEdicao.alunos
+                    : [];
+
+
+            // ========================================
+            // DETERMINAR NOVOS ALUNOS
+            // ========================================
+
+            const novosAlunos =
+                (alunosDaAula || []).filter(
+                    function (aluno) {
+
+                        return !alunosAntigos.some(
+                            function (numero) {
+
+                                return (
+                                    String(numero) ===
+                                    String(aluno.numero)
+                                );
+
+                            }
+                        );
+
+                    }
+                );
+
+
             try {
 
-                const alunosAntigos =
-                    aulaEmEdicao.alunos || [];
+                // ====================================
+                // GUARDAR AULA NO FIRESTORE
+                // ====================================
 
-
-                const novosAlunos =
-                    alunosDaAula.filter(
-                        function (aluno) {
-
-                            return (
-                                !alunosAntigos.some(
-                                    function (numero) {
-
-                                        return (
-                                            String(numero) ===
-                                            String(aluno.numero)
-                                        );
-
-                                    }
-                                )
-                            );
-
-                        }
-                    );
-
-
-                // =================================
-                // ATUALIZAR AULA
-                // =================================
-
-                await updateDoc(
+                const referenciaAula =
                     doc(
                         db,
                         "aulas",
                         aulaEmEdicao.id
-                    ),
+                    );
+
+
+                await updateDoc(
+                    referenciaAula,
                     {
 
                         idAula:
@@ -1568,18 +1625,23 @@ if (saveLesson) {
                 );
 
 
-                // =================================
-                // ATUALIZAR NOVOS ALUNOS
-                // =================================
+                // ====================================
+                // ATUALIZAR CONTADORES DOS NOVOS
+                // ALUNOS
+                // ====================================
 
                 for (
                     const aluno of novosAlunos
                 ) {
 
+                    if (!aluno.id) {
+                        continue;
+                    }
+
+
                     const novasAulas =
-                        (
-                            aluno.aulasRealizadas ||
-                            0
+                        Number(
+                            aluno.aulasRealizadas || 0
                         ) + 1;
 
 
@@ -1596,6 +1658,10 @@ if (saveLesson) {
                     };
 
 
+                    // =================================
+                    // ALUNO COM REPROVAÇÃO
+                    // =================================
+
                     if (
                         aluno.ultimaReprovacao
                     ) {
@@ -1604,9 +1670,8 @@ if (saveLesson) {
                             Math.max(
                                 0,
                                 novasAulas -
-                                (
-                                    aluno.aulasNaUltimaReprovacao ||
-                                    0
+                                Number(
+                                    aluno.aulasNaUltimaReprovacao || 0
                                 )
                             );
 
@@ -1632,39 +1697,39 @@ if (saveLesson) {
                             historico.length > 0
                         ) {
 
+                            const ultimoIndice =
+                                historico.length - 1;
+
+
                             const ultimo =
                                 historico[
-                                    historico.length - 1
+                                    ultimoIndice
                                 ];
 
 
                             if (
+                                ultimo &&
                                 ultimo.resultado ===
-                                "Reprovado" &&
+                                    "Reprovado" &&
                                 !ultimo.aulasConcluidas
                             ) {
 
-                                const novoUltimo =
-                                    {
-
-                                        ...ultimo,
-
-                                        aulasReprovacao:
-                                            Math.min(
-                                                aulasReprovacao,
-                                                5
-                                            ),
-
-                                        aulasConcluidas:
-                                            aulasReprovacao >= 5
-
-                                    };
-
-
                                 historico[
-                                    historico.length - 1
-                                ] =
-                                    novoUltimo;
+                                    ultimoIndice
+                                ] = {
+
+                                    ...ultimo,
+
+                                    aulasReprovacao:
+                                        Math.min(
+                                            aulasReprovacao,
+                                            5
+                                        ),
+
+                                    aulasConcluidas:
+                                        aulasReprovacao >= 5
+
+                                };
 
                             }
 
@@ -1678,6 +1743,10 @@ if (saveLesson) {
                     }
 
 
+                    // =================================
+                    // GUARDAR ALTERAÇÕES DO ALUNO
+                    // =================================
+
                     await updateDoc(
                         doc(
                             db,
@@ -1690,9 +1759,9 @@ if (saveLesson) {
                 }
 
 
-                // =================================
-                // ATUALIZAR ESTADO LOCAL
-                // =================================
+                // ====================================
+                // ATUALIZAR OBJETO LOCAL DA AULA
+                // ====================================
 
                 aulaEmEdicao = {
 
@@ -1716,30 +1785,99 @@ if (saveLesson) {
                 };
 
 
-                mostrarNotificacao(
-                    "Alunos da aula guardados com sucesso ✅"
-                );
+                // ====================================
+                // ATUALIZAR AULA NA LISTA LOCAL
+                // ====================================
+
+                const indiceAula =
+                    aulas.findIndex(
+                        function (aula) {
+
+                            return (
+                                aula.id ===
+                                aulaEmEdicao.id
+                            );
+
+                        }
+                    );
 
 
-                renderizarCalendario();
+                if (
+                    indiceAula !== -1
+                ) {
+
+                    aulas[
+                        indiceAula
+                    ] = {
+
+                        ...aulas[
+                            indiceAula
+                        ],
+
+                        idAula:
+                            idAula,
+
+                        materia:
+                            materia,
+
+                        data:
+                            data,
+
+                        hora:
+                            hora,
+
+                        alunos:
+                            numerosAlunos
+
+                    };
+
+                }
+
+
+                // ====================================
+                // ATUALIZAR INTERFACE
+                // ====================================
 
                 atualizarListaDaAula();
 
+                mostrarAulas();
+
+                renderizarCalendario();
+
                 atualizarDashboard();
+
+
+                // ====================================
+                // CONFIRMAÇÃO
+                // ====================================
+
+                mostrarNotificacao(
+                    "Aula guardada com sucesso ✅"
+                );
+
 
             }
 
             catch (erro) {
 
                 console.error(
-                    "Erro ao guardar aula:",
+                    "ERRO AO GUARDAR AULA:",
                     erro
+                );
+
+
+                console.error(
+                    "Aula em edição:",
+                    aulaEmEdicao
                 );
 
 
                 mostrarNotificacao(
                     "Erro ao guardar aula: " +
-                    erro.message,
+                    (
+                        erro.message ||
+                        erro
+                    ),
                     "erro"
                 );
 
@@ -1769,6 +1907,7 @@ function mostrarAulas() {
 
 
     if (
+        !Array.isArray(aulas) ||
         aulas.length === 0
     ) {
 
@@ -1779,8 +1918,7 @@ function mostrarAulas() {
     }
 
 
-    lista.innerHTML =
-        "";
+    lista.innerHTML = "";
 
 
     [...aulas]
@@ -1808,12 +1946,11 @@ function mostrarAulas() {
 
 
                 if (
-                    aula.alunos &&
+                    Array.isArray(aula.alunos) &&
                     aula.alunos.length > 0
                 ) {
 
-                    alunosTexto =
-                        "";
+                    alunosTexto = "";
 
 
                     aula.alunos.forEach(
@@ -1824,8 +1961,12 @@ function mostrarAulas() {
                                     function (a) {
 
                                         return (
-                                            String(a.numero) ===
-                                            String(numero)
+                                            String(
+                                                a.numero
+                                            ) ===
+                                            String(
+                                                numero
+                                            )
                                         );
 
                                     }
@@ -1892,7 +2033,7 @@ function mostrarAulas() {
                     <p>
                         <strong>Alunos:</strong>
                         ${
-                            aula.alunos
+                            Array.isArray(aula.alunos)
                                 ? aula.alunos.length
                                 : 0
                         }
@@ -1903,6 +2044,7 @@ function mostrarAulas() {
                     </p>
 
                     <button
+                        type="button"
                         class="editLessonButton"
                         data-id="${aula.id}"
                     >
@@ -1910,6 +2052,7 @@ function mostrarAulas() {
                     </button>
 
                     <button
+                        type="button"
                         class="deleteLessonButton danger-button"
                         data-id="${aula.id}"
                     >
@@ -1938,6 +2081,7 @@ function mostrarAulas() {
 
 function adicionarEventosDasAulas() {
 
+
     // ========================================
     // APAGAR AULA
     // ========================================
@@ -1950,7 +2094,10 @@ function adicionarEventosDasAulas() {
             function (botao) {
 
                 botao.onclick =
-                    async function () {
+                    async function (event) {
+
+                        event.preventDefault();
+
 
                         const id =
                             this.getAttribute(
@@ -1993,9 +2140,9 @@ function adicionarEventosDasAulas() {
 
                         try {
 
-                            // =================================
-                            // ATUALIZAR ALUNOS
-                            // =================================
+                            // =========================
+                            // DEVOLVER AULA AOS ALUNOS
+                            // =========================
 
                             for (
                                 const numero
@@ -2010,8 +2157,12 @@ function adicionarEventosDasAulas() {
                                         function (a) {
 
                                             return (
-                                                String(a.numero) ===
-                                                String(numero)
+                                                String(
+                                                    a.numero
+                                                ) ===
+                                                String(
+                                                    numero
+                                                )
                                             );
 
                                         }
@@ -2032,7 +2183,9 @@ function adicionarEventosDasAulas() {
 
                                             return (
                                                 String(item) !==
-                                                String(aula.idAula)
+                                                String(
+                                                    aula.idAula
+                                                )
                                             );
 
                                         }
@@ -2041,7 +2194,7 @@ function adicionarEventosDasAulas() {
 
                                 const novoTotal =
                                     Math.max(
-                                        (
+                                        Number(
                                             aluno.aulasRealizadas ||
                                             0
                                         ) - 1,
@@ -2069,9 +2222,9 @@ function adicionarEventosDasAulas() {
                             }
 
 
-                            // =================================
+                            // =========================
                             // APAGAR AULA
-                            // =================================
+                            // =========================
 
                             await deleteDoc(
                                 doc(
@@ -2119,7 +2272,10 @@ function adicionarEventosDasAulas() {
 
                             mostrarNotificacao(
                                 "Erro ao apagar aula: " +
-                                erro.message,
+                                (
+                                    erro.message ||
+                                    erro
+                                ),
                                 "erro"
                             );
 
@@ -2143,7 +2299,10 @@ function adicionarEventosDasAulas() {
             function (botao) {
 
                 botao.onclick =
-                    function () {
+                    function (event) {
+
+                        event.preventDefault();
+
 
                         const id =
                             this.getAttribute(
@@ -2161,6 +2320,17 @@ function adicionarEventosDasAulas() {
 
                                 }
                             );
+
+
+                        if (!aula) {
+
+                            mostrarNotificacao(
+                                "Aula não encontrada.",
+                                "erro"
+                            );
+
+                            return;
+                        }
 
 
                         abrirAula(
@@ -2198,6 +2368,12 @@ if (scanButton) {
 
 
             if (!reader) {
+
+                mostrarNotificacao(
+                    "Leitor QR Code não encontrado.",
+                    "erro"
+                );
+
                 return;
             }
 
@@ -2350,7 +2526,8 @@ if (scanButton) {
 
                 function () {
 
-                    // Ignorar erros de leitura
+                    // Erros de leitura
+                    // são ignorados.
 
                 }
 
@@ -2380,7 +2557,6 @@ if (scanButton) {
     );
 
 }
-
 // ============================================
 // MENU / PÁGINAS
 // ============================================
