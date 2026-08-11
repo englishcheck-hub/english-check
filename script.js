@@ -171,6 +171,7 @@ onSnapshot(
     }
 );
 
+console.log("CHEGUEI AO LOGIN");
 
 // ============================================
 // LOGIN
