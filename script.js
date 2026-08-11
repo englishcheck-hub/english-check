@@ -1421,37 +1421,147 @@ function abrirAula(aula) {
         return;
     }
 
+    // ========================================
+    // GUARDAR AULA QUE ESTAMOS A EDITAR
+    // ========================================
 
-    aulaEmEdicao =
-        aula;
+    aulaEmEdicao = aula;
 
+    // ========================================
+    // LIMPAR LISTA ATUAL
+    // ========================================
 
     alunosDaAula = [];
 
+    // ========================================
+    // CARREGAR OS ALUNOS DA AULA
+    // ========================================
 
-    (aula.alunos || []).forEach(
-        function (numero) {
+    (aula.alunos || []).forEach(function (numero) {
 
-            const aluno =
-                alunos.find(function (a) {
+        const aluno = alunos.find(function (a) {
 
-                    return (
-                        String(a.numero) ===
-                        String(numero)
-                    );
+            return String(a.numero) === String(numero);
 
-                });
+        });
 
+        if (aluno) {
 
-            if (aluno) {
-
-                alunosDaAula.push(aluno);
-
-            }
+            alunosDaAula.push(aluno);
 
         }
+
+    });
+
+    // ========================================
+    // PREENCHER DADOS DA AULA
+    // ========================================
+
+    const campoId =
+        document.getElementById("lessonId");
+
+    const campoMateria =
+        document.getElementById("lessonSubject");
+
+    const campoData =
+        document.getElementById("lessonDate");
+
+    const campoHora =
+        document.getElementById("lessonTime");
+
+
+    if (campoId) {
+
+        campoId.value =
+            aula.idAula || "";
+
+    }
+
+
+    if (campoMateria) {
+
+        campoMateria.value =
+            aula.materia || "";
+
+    }
+
+
+    if (campoData) {
+
+        campoData.value =
+            aula.data || "";
+
+    }
+
+
+    if (campoHora) {
+
+        campoHora.value =
+            aula.hora || "";
+
+    }
+
+
+    // ========================================
+    // MOSTRAR OS ALUNOS DA AULA
+    // ========================================
+
+    atualizarListaDaAula();
+
+
+    // ========================================
+    // ABRIR PÁGINA DAS AULAS
+    // ========================================
+
+    document.getElementById("homePage").style.display =
+        "none";
+
+    document.getElementById("studentsPage").style.display =
+        "none";
+
+    document.getElementById("lessonsPage").style.display =
+        "block";
+
+    document.getElementById("calendarPage").style.display =
+        "none";
+
+    document.getElementById("reportsPage").style.display =
+        "none";
+
+
+    // ========================================
+    // MENSAGEM
+    // ========================================
+
+    mostrarNotificacao(
+        "Aula aberta. Podes adicionar alunos por número ou QR Code. ✅"
     );
 
+
+    // ========================================
+    // IR PARA A ZONA DA AULA
+    // ========================================
+
+    const formulario =
+        document.getElementById("saveLesson");
+
+    if (formulario) {
+
+        setTimeout(function () {
+
+            formulario.scrollIntoView({
+
+                behavior: "smooth",
+
+                block: "center"
+
+            });
+
+        }, 100);
+
+    }
+
+}
 
     // ========================================
     // PREENCHER FORMULÁRIO
