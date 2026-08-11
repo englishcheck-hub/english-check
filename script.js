@@ -872,9 +872,7 @@ function atualizarListaDaAula() {
 // ABRIR AULA EXISTENTE
 // ============================================
 
-function abrirAula(
-    aula
-) {
+function abrirAula(aula) {
 
     if (!aula) {
 
@@ -891,8 +889,7 @@ function abrirAula(
     // GUARDAR AULA EM EDIÇÃO
     // ========================================
 
-    aulaEmEdicao =
-        aula;
+    aulaEmEdicao = aula;
 
 
     // ========================================
@@ -938,7 +935,7 @@ function abrirAula(
 
 
     // ========================================
-    // PREENCHER FORMULÁRIO
+    // PREENCHER FORMULÁRIO ORIGINAL
     // ========================================
 
     const campoId =
@@ -1005,56 +1002,483 @@ function abrirAula(
 
 
     // ========================================
-    // ABRIR PÁGINA
+    // PROCURAR SECÇÃO NOVA AULA
     // ========================================
 
-    mostrarPagina(
-        "lessonsPage"
-    );
+    const secaoOriginal =
+        document.querySelector(
+            "#saveLesson"
+        );
+
+
+    if (!secaoOriginal) {
+
+        mostrarNotificacao(
+            "Formulário da aula não encontrado.",
+            "erro"
+        );
+
+        return;
+    }
+
+
+    const secao =
+        secaoOriginal.closest(
+            ".section"
+        );
+
+
+    if (!secao) {
+
+        mostrarNotificacao(
+            "Secção da aula não encontrada.",
+            "erro"
+        );
+
+        return;
+    }
 
 
     // ========================================
-    // MENSAGEM
+    // CRIAR FUNDO DA JANELA
     // ========================================
 
-    mostrarNotificacao(
-        "Aula aberta. Podes adicionar alunos por número ou QR Code. ✅"
-    );
+    const overlay =
+        document.createElement(
+            "div"
+        );
+
+
+    overlay.className =
+        "lesson-editor-overlay";
 
 
     // ========================================
-    // IR PARA FORMULÁRIO
+    // CRIAR JANELA
     // ========================================
 
-    setTimeout(
-        function () {
+    const modal =
+        document.createElement(
+            "div"
+        );
 
-            const formulario =
-                document.getElementById(
-                    "saveLesson"
+
+    modal.className =
+        "lesson-editor-modal";
+
+
+    // ========================================
+    // BOTÃO FECHAR
+    // ========================================
+
+    const fechar =
+        document.createElement(
+            "button"
+        );
+
+
+    fechar.className =
+        "close-lesson-editor";
+
+
+    fechar.type =
+        "button";
+
+
+    fechar.innerHTML =
+        "×";
+
+
+    fechar.title =
+        "Fechar";
+
+
+    // ========================================
+    // CONTEÚDO
+    // ========================================
+
+    const conteudo =
+        secao.cloneNode(
+            true
+        );
+
+
+    // ========================================
+    // REMOVER ID DUPLICADOS
+    // ========================================
+
+    conteudo
+        .querySelectorAll("[id]")
+        .forEach(
+            function (elemento) {
+
+                elemento.removeAttribute(
+                    "id"
                 );
 
+            }
+        );
 
-            if (formulario) {
 
-                formulario.scrollIntoView({
+    // ========================================
+    // MANTER TÍTULO
+    // ========================================
 
-                    behavior:
-                        "smooth",
+    const titulo =
+        conteudo.querySelector(
+            "h2"
+        );
 
-                    block:
-                        "center"
 
-                });
+    if (titulo) {
+
+        titulo.innerHTML =
+            "📚 Editar Aula";
+
+    }
+
+
+    // ========================================
+    // COLOCAR CONTEÚDO NA JANELA
+    // ========================================
+
+    modal.appendChild(
+        fechar
+    );
+
+
+    modal.appendChild(
+        conteudo
+    );
+
+
+    overlay.appendChild(
+        modal
+    );
+
+
+    document.body.appendChild(
+        overlay
+    );
+
+
+    // ========================================
+    // FECHAR JANELA
+    // ========================================
+
+    fechar.onclick =
+        function () {
+
+            overlay.remove();
+
+            aulaEmEdicao =
+                null;
+
+            alunosDaAula =
+                [];
+
+        };
+
+
+    // ========================================
+    // FECHAR AO CLICAR FORA
+    // ========================================
+
+    overlay.onclick =
+        function (event) {
+
+            if (
+                event.target ===
+                overlay
+            ) {
+
+                overlay.remove();
+
+                aulaEmEdicao =
+                    null;
+
+                alunosDaAula =
+                    [];
 
             }
 
-        },
-        100
+        };
+
+
+    // ========================================
+    // ESC
+    // ========================================
+
+    function fecharComEscape(event) {
+
+        if (
+            event.key ===
+            "Escape"
+        ) {
+
+            overlay.remove();
+
+            aulaEmEdicao =
+                null;
+
+            alunosDaAula =
+                [];
+
+            document.removeEventListener(
+                "keydown",
+                fecharComEscape
+            );
+
+        }
+
+    }
+
+
+    document.addEventListener(
+        "keydown",
+        fecharComEscape
+    );
+prepararJanelaEdicaoAula(
+    overlay
+);
+
+    // ========================================
+    // NOTIFICAÇÃO
+    // ========================================
+
+    mostrarNotificacao(
+        "Aula aberta. Podes editar os alunos. ✅"
     );
 
 }
 
+// ============================================
+// LIGAR BOTÕES DA JANELA DE EDITAR AULA
+// ============================================
+
+function prepararJanelaEdicaoAula(overlay) {
+
+    if (!overlay) {
+        return;
+    }
+
+
+    // ========================================
+    // BOTÃO ADICIONAR ALUNO
+    // ========================================
+
+    const botaoAdicionar =
+        overlay.querySelector(
+            "#addStudentToLesson"
+        );
+
+
+    if (botaoAdicionar) {
+
+        botaoAdicionar.id =
+            "addStudentToLessonModal";
+
+
+        botaoAdicionar.onclick =
+            function () {
+
+                const campo =
+                    overlay.querySelector(
+                        "#lessonStudentNumber"
+                    );
+
+
+                if (!campo) {
+                    return;
+                }
+
+
+                const numero =
+                    campo.value.trim();
+
+
+                if (numero === "") {
+
+                    mostrarNotificacao(
+                        "Introduz o número do aluno.",
+                        "erro"
+                    );
+
+                    return;
+                }
+
+
+                const aluno =
+                    alunos.find(
+                        function (a) {
+
+                            return (
+                                String(a.numero) ===
+                                String(numero)
+                            );
+
+                        }
+                    );
+
+
+                if (!aluno) {
+
+                    mostrarNotificacao(
+                        "Aluno não encontrado.",
+                        "erro"
+                    );
+
+                    return;
+                }
+
+
+                const existe =
+                    alunosDaAula.some(
+                        function (a) {
+
+                            return (
+                                a.id ===
+                                aluno.id
+                            );
+
+                        }
+                    );
+
+
+                if (existe) {
+
+                    mostrarNotificacao(
+                        "Este aluno já está nesta aula.",
+                        "erro"
+                    );
+
+                    return;
+                }
+
+
+                alunosDaAula.push(
+                    aluno
+                );
+
+
+                campo.value =
+                    "";
+
+
+                atualizarListaDaAula();
+
+
+                mostrarNotificacao(
+                    "Aluno adicionado: " +
+                    aluno.nome
+                );
+
+            };
+
+    }
+
+
+    // ========================================
+    // BOTÃO GUARDAR
+    // ========================================
+
+    const botaoGuardar =
+        overlay.querySelector(
+            "#saveLesson"
+        );
+
+
+    if (botaoGuardar) {
+
+        botaoGuardar.id =
+            "saveLessonModal";
+
+
+        botaoGuardar.onclick =
+            async function () {
+
+                const numerosAlunos =
+                    alunosDaAula.map(
+                        function (aluno) {
+
+                            return aluno.numero;
+
+                        }
+                    );
+
+
+                try {
+
+                    await updateDoc(
+                        doc(
+                            db,
+                            "aulas",
+                            aulaEmEdicao.id
+                        ),
+                        {
+
+                            alunos:
+                                numerosAlunos
+
+                        }
+                    );
+
+
+                    aulaEmEdicao = {
+
+                        ...aulaEmEdicao,
+
+                        alunos:
+                            numerosAlunos
+
+                    };
+
+
+                    mostrarNotificacao(
+                        "Aula editada com sucesso ✅"
+                    );
+
+
+                    overlay.remove();
+
+
+                    aulaEmEdicao =
+                        null;
+
+
+                    alunosDaAula =
+                        [];
+
+
+                    mostrarAulas();
+
+                    renderizarCalendario();
+
+                    atualizarDashboard();
+
+                }
+
+                catch (erro) {
+
+                    console.error(
+                        "Erro ao guardar aula:",
+                        erro
+                    );
+
+
+                    mostrarNotificacao(
+                        "Erro ao guardar aula: " +
+                        erro.message,
+                        "erro"
+                    );
+
+                }
+
+            };
+
+    }
+
+}
 
 // ============================================
 // ADICIONAR ALUNO MANUALMENTE À AULA
