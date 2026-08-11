@@ -2471,7 +2471,6 @@ function mostrarMenuDoDia(cabecalho) {
 
 }
 
-
 // ============================================
 // CRIAR ESCALA MENSAL
 // ============================================
@@ -2568,14 +2567,11 @@ function renderizarCalendario() {
         const partes =
             mes.nome.trim().split(/\s+/);
 
-
         const nomeMesTexto =
             partes[0];
 
-
         const ano =
             parseInt(partes[1]);
-
 
         const mesNumero =
             nomesMeses.indexOf(
@@ -2735,6 +2731,7 @@ function renderizarCalendario() {
                 classe += " holiday";
 
             }
+
             else if (
                 obterDiaFechado(
                     dia.dataString
@@ -2801,20 +2798,19 @@ function renderizarCalendario() {
         });
 
 
+        // ------------------------------------
+        // FECHAR CABEÇALHO
+        // ------------------------------------
+
         html += `
 
                         </div>
-
-
-                        <!-- ======================
-                             LINHAS DOS HORÁRIOS
-                        ======================= -->
 
         `;
 
 
         // ------------------------------------
-        // CADA HORÁRIO
+        // LINHAS DOS HORÁRIOS
         // ------------------------------------
 
         horarios.forEach(function (horario) {
@@ -2841,10 +2837,13 @@ function renderizarCalendario() {
             }
 
 
+            // --------------------------------
+            // ABRIR LINHA DO HORÁRIO
+            // --------------------------------
+
             html += `
 
                 <div class="calendar-row">
-
 
                     <div class="calendar-time">
                         ${horario}
@@ -2919,81 +2918,111 @@ function renderizarCalendario() {
                 }
 
 
-// ----------------------------
-// CÉLULA NORMAL / AULA
-// ----------------------------
+                // ----------------------------
+                // CÉLULA NORMAL / AULA
+                // ----------------------------
 
-else {
+                else {
 
-    const aulaEncontrada =
-        aulas.find(function (aula) {
+                    const aulaEncontrada =
+                        aulas.find(function (aula) {
 
-            return (
-                aula.data === dia.dataString &&
-                aula.hora === horario
-            );
+                            return (
+                                aula.data === dia.dataString &&
+                                aula.hora === horario
+                            );
+
+                        });
+
+
+                    // ------------------------
+                    // EXISTE UMA AULA
+                    // ------------------------
+
+                    if (aulaEncontrada) {
+
+                        const cor =
+                            aulaEncontrada.cor || "verde";
+
+
+                        html += `
+
+                            <div
+                                class="calendar-cell lesson-cell lesson-${cor}"
+                                data-date="${dia.dataString}"
+                                data-time="${horario}"
+                                data-lesson-id="${aulaEncontrada.id}"
+                            >
+
+                                <div class="lesson-number">
+                                    ${aulaEncontrada.idAula}
+                                </div>
+
+                                <div class="lesson-subject">
+                                    ${aulaEncontrada.materia}
+                                </div>
+
+                            </div>
+
+                        `;
+
+                    }
+
+
+                    // ------------------------
+                    // CÉLULA VAZIA
+                    // ------------------------
+
+                    else {
+
+                        html += `
+
+                            <div
+                                class="calendar-cell"
+                                data-date="${dia.dataString}"
+                                data-time="${horario}"
+                            >
+                            </div>
+
+                        `;
+
+                    }
+
+                }
+
+            });
+
+
+            // --------------------------------
+            // FECHAR LINHA DO HORÁRIO
+            // --------------------------------
+
+            html += `
+
+                </div>
+
+            `;
 
         });
 
 
-    // ================================
-    // EXISTE UMA AULA
-    // ================================
-
-    if (aulaEncontrada) {
-
-        const cor =
-            aulaEncontrada.cor || "verde";
-
+        // ------------------------------------
+        // FECHAR CALENDAR-TABLE
+        // ------------------------------------
 
         html += `
 
-            <div
-                class="calendar-cell lesson-cell lesson-${cor}"
-                data-date="${dia.dataString}"
-                data-time="${horario}"
-                data-lesson-id="${aulaEncontrada.id}"
-            >
+                    </div>
 
-                <div class="lesson-number">
-                    ${aulaEncontrada.idAula}
-                </div>
-
-                <div class="lesson-subject">
-                    ${aulaEncontrada.materia}
                 </div>
 
             </div>
 
         `;
 
-    }
+    });
 
 
-    // ================================
-    // CÉLULA VAZIA
-    // ================================
-
-    else {
-
-        html += `
-
-            <div
-                class="calendar-cell"
-                data-date="${dia.dataString}"
-                data-time="${horario}"
-            >
-            </div>
-        `;
-
-    }
-
-}
-            });
-            });
-        });
-            
-                
     // ----------------------------------------
     // COLOCAR NO ECRÃ
     // ----------------------------------------
@@ -3025,92 +3054,173 @@ else {
 
 
     // ========================================
-// CLICAR NUMA CÉLULA PARA CRIAR AULA
-// ========================================
+    // CLICAR NUMA CÉLULA PARA CRIAR AULA
+    // ========================================
 
-document
-    .querySelectorAll(".calendar-cell")
-    .forEach(function (celula) {
+    document
+        .querySelectorAll(".calendar-cell")
+        .forEach(function (celula) {
 
-        celula.onclick = function () {
+            celula.onclick =
+                function () {
 
-            const bloqueado =
-                this.getAttribute("data-blocked");
-
-            if (bloqueado === "holiday") {
-
-                mostrarNotificacao(
-                    "Este dia está bloqueado por feriado.",
-                    "erro"
-                );
-
-                return;
-            }
-
-            if (bloqueado === "closed") {
-
-                mostrarNotificacao(
-                    "Este dia está fechado. Reabre o dia para criares aulas.",
-                    "erro"
-                );
-
-                return;
-            }
-
-            const data =
-                this.getAttribute("data-date");
-
-            const horario =
-                this.getAttribute("data-time");
-
-            const campoData =
-                    document.getElementById("lessonDate");
-
-                const campoHora =
-                    document.getElementById("lessonTime");
-
-                if (campoData) {
-                    campoData.value = data;
-                }
-
-                if (campoHora) {
-                    campoHora.value = horario;
-                }
+                    const bloqueado =
+                        this.getAttribute(
+                            "data-blocked"
+                        );
 
 
-                document.getElementById("homePage").style.display = "none";
-                document.getElementById("studentsPage").style.display = "none";
-                document.getElementById("lessonsPage").style.display = "block";
-                document.getElementById("calendarPage").style.display = "none";
-                document.getElementById("reportsPage").style.display = "none";
+                    // ----------------------------
+                    // FERIADO
+                    // ----------------------------
+
+                    if (
+                        bloqueado === "holiday"
+                    ) {
+
+                        mostrarNotificacao(
+                            "Este dia está bloqueado por feriado.",
+                            "erro"
+                        );
+
+                        return;
+
+                    }
 
 
-                mostrarNotificacao(
-                    "Data e hora selecionadas: " +
-                    formatarData(data) +
-                    " às " +
-                    horario +
-                    " ⏰"
-                );
+                    // ----------------------------
+                    // DIA FECHADO
+                    // ----------------------------
+
+                    if (
+                        bloqueado === "closed"
+                    ) {
+
+                        mostrarNotificacao(
+                            "Este dia está fechado. Reabre o dia para criares aulas.",
+                            "erro"
+                        );
+
+                        return;
+
+                    }
 
 
-                const formulario =
-                    document.getElementById("saveLesson");
+                    // ----------------------------
+                    // OBTER DATA E HORA
+                    // ----------------------------
 
-                if (formulario) {
+                    const data =
+                        this.getAttribute(
+                            "data-date"
+                        );
 
-                    formulario.scrollIntoView({
-                        behavior: "smooth",
-                        block: "center"
-                    });
+                    const horario =
+                        this.getAttribute(
+                            "data-time"
+                        );
 
-                }
 
-            };
+                    // ----------------------------
+                    // PREENCHER DATA
+                    // ----------------------------
+
+                    const campoData =
+                        document.getElementById(
+                            "lessonDate"
+                        );
+
+                    if (campoData) {
+
+                        campoData.value =
+                            data;
+
+                    }
+
+
+                    // ----------------------------
+                    // PREENCHER HORA
+                    // ----------------------------
+
+                    const campoHora =
+                        document.getElementById(
+                            "lessonTime"
+                        );
+
+                    if (campoHora) {
+
+                        campoHora.value =
+                            horario;
+
+                    }
+
+
+                    // ----------------------------
+                    // IR PARA A PÁGINA DAS AULAS
+                    // ----------------------------
+
+                    document.getElementById(
+                        "homePage"
+                    ).style.display = "none";
+
+                    document.getElementById(
+                        "studentsPage"
+                    ).style.display = "none";
+
+                    document.getElementById(
+                        "lessonsPage"
+                    ).style.display = "block";
+
+                    document.getElementById(
+                        "calendarPage"
+                    ).style.display = "none";
+
+                    document.getElementById(
+                        "reportsPage"
+                    ).style.display = "none";
+
+
+                    // ----------------------------
+                    // NOTIFICAÇÃO
+                    // ----------------------------
+
+                    mostrarNotificacao(
+                        "Data e hora selecionadas: " +
+                        formatarData(data) +
+                        " às " +
+                        horario +
+                        " ⏰"
+                    );
+
+
+                    // ----------------------------
+                    // IR PARA O FORMULÁRIO
+                    // ----------------------------
+
+                    const formulario =
+                        document.getElementById(
+                            "saveLesson"
+                        );
+
+
+                    if (formulario) {
+
+                        formulario.scrollIntoView({
+
+                            behavior: "smooth",
+
+                            block: "center"
+
+                        });
+
+                    }
+
+                };
 
         });
 
 }
+
 
 // ============================================
 // ESTADO DAS AULAS DE REPROVAÇÃO
