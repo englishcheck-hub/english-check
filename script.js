@@ -2984,12 +2984,16 @@ else {
                 data-time="${horario}"
             >
             </div>
-
         `;
 
     }
 
 }
+            });
+            });
+        });
+            
+                
     // ----------------------------------------
     // COLOCAR NO ECRÃ
     // ----------------------------------------
@@ -3059,66 +3063,55 @@ document
             const horario =
                 this.getAttribute("data-time");
 
-
-            // ====================================
-            // PREENCHER DATA E HORA
-            // ====================================
-
             const campoData =
-                document.getElementById("lessonDate");
+                    document.getElementById("lessonDate");
 
-            const campoHora =
-                document.getElementById("lessonTime");
+                const campoHora =
+                    document.getElementById("lessonTime");
 
-            if (campoData) {
-                campoData.value = data;
-            }
+                if (campoData) {
+                    campoData.value = data;
+                }
 
-            if (campoHora) {
-                campoHora.value = horario;
-            }
-
-
-            // ====================================
-            // IR PARA A PÁGINA DAS AULAS
-            // ====================================
-
-            document.getElementById("homePage").style.display = "none";
-            document.getElementById("studentsPage").style.display = "none";
-            document.getElementById("lessonsPage").style.display = "block";
-            document.getElementById("calendarPage").style.display = "none";
-            document.getElementById("reportsPage").style.display = "none";
+                if (campoHora) {
+                    campoHora.value = horario;
+                }
 
 
-            // ====================================
-            // DESTACAR A INFORMAÇÃO
-            // ====================================
-
-            mostrarNotificacao(
-                "Data e hora selecionadas: " +
-                formatarData(data) +
-                " às " +
-                horario +
-                " ⏰"
-            );
+                document.getElementById("homePage").style.display = "none";
+                document.getElementById("studentsPage").style.display = "none";
+                document.getElementById("lessonsPage").style.display = "block";
+                document.getElementById("calendarPage").style.display = "none";
+                document.getElementById("reportsPage").style.display = "none";
 
 
-            // Ir para o formulário
-            const formulario =
-                document.getElementById("saveLesson");
+                mostrarNotificacao(
+                    "Data e hora selecionadas: " +
+                    formatarData(data) +
+                    " às " +
+                    horario +
+                    " ⏰"
+                );
 
-            if (formulario) {
 
-                formulario.scrollIntoView({
-                    behavior: "smooth",
-                    block: "center"
-                });
+                const formulario =
+                    document.getElementById("saveLesson");
 
-            }
+                if (formulario) {
 
-        };
+                    formulario.scrollIntoView({
+                        behavior: "smooth",
+                        block: "center"
+                    });
 
-    });
+                }
+
+            };
+
+        });
+
+}
+
 // ============================================
 // ESTADO DAS AULAS DE REPROVAÇÃO
 // ============================================
