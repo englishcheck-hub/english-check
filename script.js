@@ -4,1071 +4,6 @@
 // ============================================
 
 // ============================================
-// FIREBASE
-// ============================================
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-
-import {
-    getFirestore,
-    collection,
-    addDoc,
-    deleteDoc,
-    updateDoc,
-    setDoc,
-    doc,
-    onSnapshot,
-    arrayUnion
-} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-
-const firebaseConfig = {
-    apiKey: "AIzaSyDszFM_wU6LDvlsf1lXYzmInRnAgMEdp7w",
-    authDomain: "english-check-a82ef.firebaseapp.com",
-    projectId: "english-check-a82ef",
-    storageBucket: "english-check-a82ef.firebasestorage.app",
-    messagingSenderId: "524538268036",
-    appId: "1:524538268036:web:0d8bd3e1cd81a910cbb5d1",
-    measurementId: "G-F1WCZ9E7KR"
-};
-
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-
-// ============================================
-// BASE DE DADOS EM MEMÓRIA
-// ============================================
-
-let alunos = [];
-let aulas = [];
-
-let mesesCalendario = [];
-let diasFechados = [];
-
-
-// ============================================
-// ESTADO DA AULA
-// ============================================
-
-let alunosDaAula = [];
-let aulaEmEdicao = null;
-
-
-// ============================================
-// ESTADO DOS ALUNOS
-// ============================================
-
-let alunoEmEdicao = null;
-let alunoResultadoExame = null;
-
-
-// ============================================
-// NOTIFICAÇÕES
-// ============================================
-
-function mostrarNotificacao(mensagem, tipo = "sucesso") {
-
-    const notificacao = document.createElement("div");
-
-    notificacao.textContent = mensagem;
-
-    notificacao.style.position = "fixed";
-    notificacao.style.top = "20px";
-    notificacao.style.right = "20px";
-    notificacao.style.zIndex = "99999";
-
-    notificacao.style.padding = "14px 20px";
-    notificacao.style.borderRadius = "10px";
-
-    notificacao.style.fontSize = "15px";
-    notificacao.style.fontWeight = "bold";
-
-    notificacao.style.boxShadow =
-        "0 5px 15px rgba(0,0,0,0.20)";
-
-    notificacao.style.background =
-        tipo === "erro"
-            ? "#d90000"
-            : "#FFD500";
-
-    notificacao.style.color =
-        tipo === "erro"
-            ? "#ffffff"
-            : "#111111";
-
-    document.body.appendChild(notificacao);
-
-    setTimeout(function () {
-
-        notificacao.style.opacity = "0";
-        notificacao.style.transition =
-            "opacity 0.3s ease";
-
-        setTimeout(function () {
-
-            notificacao.remove();
-
-        }, 300);
-
-    }, 2500);
-}
-
-
-// ============================================
-// LER ALUNOS
-// ============================================
-
-onSnapshot(
-    collection(db, "alunos"),
-    function (snapshot) {
-
-        alunos = [];
-
-        snapshot.forEach(function (documento) {
-
-            alunos.push({
-                id: documento.id,
-                ...documento.data()
-            });
-
-        });
-
-        console.log("Alunos carregados:", alunos);
-
-        atualizarDashboard();
-
-        mostrarAlunos();
-        mostrarAulas();
-    }
-);
-
-
-// ============================================
-// LER AULAS
-// ============================================
-
-onSnapshot(
-    collection(db, "aulas"),
-    function (snapshot) {
-
-        aulas = [];
-
-        snapshot.forEach(function (documento) {
-
-            aulas.push({
-                id: documento.id,
-                ...documento.data()
-            });
-
-        });
-
-        console.log("Aulas carregadas:", aulas);
-
-        mostrarAulas();
-        renderizarCalendario();
-    }
-);
-
-console.log("CHEGUEI AO LOGIN");
-
-// ============================================
-// LOGIN
-// ============================================
-
-const utilizadores = [
-
-    {
-        username: "andria",
-        password: "druxa2099"
-    },
-
-    {
-        username: "joaof",
-        password: "lumiar2026"
-    }
-
-];
-
-
-const loginButton =
-    document.getElementById("loginButton");
-
-
-if (loginButton) {
-
-    loginButton.addEventListener(
-        "click",
-        function () {
-
-            const username =
-                document
-                    .getElementById("username")
-                    .value
-                    .trim();
-
-            const password =
-                document
-                    .getElementById("password")
-                    .value
-                    .trim();
-
-
-            const utilizador =
-                utilizadores.find(function (u) {
-
-                    return (
-                        u.username === username &&
-                        u.password === password
-                    );
-
-                });
-
-
-            if (utilizador) {
-
-                document.getElementById(
-                    "loginPage"
-                ).style.display = "none";
-
-                document.getElementById(
-                    "app"
-                ).style.display = "block";
-
-                document.getElementById(
-                    "loginMessage"
-                ).innerHTML = "";
-
-            }
-
-            else {
-
-                document.getElementById(
-                    "loginMessage"
-                ).innerHTML =
-                    "Utilizador ou palavra-passe incorretos.";
-
-                document.getElementById(
-                    "loginMessage"
-                ).style.color = "red";
-
-            }
-
-        }
-    );
-}
-
-
-// ============================================
-// LOGOUT
-// ============================================
-
-const logoutButton =
-    document.getElementById("logoutButton");
-
-
-if (logoutButton) {
-
-    logoutButton.addEventListener(
-        "click",
-        function () {
-
-            document.getElementById(
-                "app"
-            ).style.display = "none";
-
-            document.getElementById(
-                "loginPage"
-            ).style.display = "flex";
-
-            document.getElementById(
-                "username"
-            ).value = "";
-
-            document.getElementById(
-                "password"
-            ).value = "";
-
-            document.getElementById(
-                "loginMessage"
-            ).innerHTML = "";
-
-        }
-    );
-}
-
-
-// ============================================
-// ADICIONAR / EDITAR ALUNO
-// ============================================
-
-const addStudentButton =
-    document.getElementById("addStudentButton");
-
-
-if (addStudentButton) {
-
-    addStudentButton.addEventListener(
-        "click",
-        async function () {
-
-            const numero =
-                document
-                    .getElementById("studentNumber")
-                    .value
-                    .trim();
-
-            const nome =
-                document
-                    .getElementById("studentName")
-                    .value
-                    .trim();
-
-            const validadeLicenca =
-                document
-                    .getElementById("licenceExpiry")
-                    .value;
-
-            const validadeCodigo =
-                document
-                    .getElementById("codeExpiry")
-                    .value;
-
-            const qrCode =
-                document
-                    .getElementById("qrCode")
-                    .value
-                    .trim();
-
-            const estadoAluno =
-                document
-                    .getElementById("studentStatus")
-                    .value;
-
-
-            if (numero === "" || nome === "") {
-
-                mostrarNotificacao(
-                    "Preenche o número e o nome do aluno.",
-                    "erro"
-                );
-
-                return;
-            }
-
-
-            const aluno = {
-
-                numero: numero,
-
-                nome: nome,
-
-                validadeLicenca:
-                    validadeLicenca,
-
-                validadeCodigo:
-                    validadeCodigo,
-
-                qrCode:
-                    qrCode,
-
-                estado:
-                    estadoAluno,
-
-                estadoExame:
-                    alunoEmEdicao
-                        ? alunoEmEdicao.estadoExame
-                        : "Sem exames registados",
-
-                historicoExames:
-                    alunoEmEdicao
-                        ? (
-                            alunoEmEdicao.historicoExames || []
-                        )
-                        : [],
-
-                ultimaReprovacao:
-                    alunoEmEdicao
-                        ? (
-                            alunoEmEdicao.ultimaReprovacao || null
-                        )
-                        : null,
-
-                aulasNaUltimaReprovacao:
-                    alunoEmEdicao
-                        ? (
-                            alunoEmEdicao.aulasNaUltimaReprovacao || 0
-                        )
-                        : 0,
-
-                aulasReprovacaoFeitas:
-                    alunoEmEdicao
-                        ? (
-                            alunoEmEdicao.aulasReprovacaoFeitas || 0
-                        )
-                        : 0,
-
-                aulasRealizadas:
-                    alunoEmEdicao
-                        ? (
-                            alunoEmEdicao.aulasRealizadas || 0
-                        )
-                        : 0,
-
-                historicoAulas:
-                    alunoEmEdicao
-                        ? (
-                            alunoEmEdicao.historicoAulas || []
-                        )
-                        : []
-
-            };
-
-
-            try {
-
-                if (alunoEmEdicao) {
-
-                    await updateDoc(
-                        doc(
-                            db,
-                            "alunos",
-                            alunoEmEdicao.id
-                        ),
-                        aluno
-                    );
-
-                    mostrarNotificacao(
-                        "Aluno atualizado com sucesso ✅"
-                    );
-
-                    alunoEmEdicao = null;
-
-                    document.getElementById(
-                        "addStudentButton"
-                    ).innerText =
-                        "Adicionar Aluno";
-
-                }
-
-                else {
-
-                    const novoAluno =
-                        await addDoc(
-                            collection(db, "alunos"),
-                            aluno
-                        );
-
-
-                    await updateDoc(
-                        doc(
-                            db,
-                            "alunos",
-                            novoAluno.id
-                        ),
-                        {
-                            idAluno:
-                                novoAluno.id
-                        }
-                    );
-
-
-                    mostrarNotificacao(
-                        "Aluno adicionado com sucesso ✅"
-                    );
-                }
-
-
-                limparFormulario();
-
-                atualizarDashboard();
-
-            }
-
-            catch (erro) {
-
-                console.error(erro);
-
-                mostrarNotificacao(
-                    "Erro: " + erro.message,
-                    "erro"
-                );
-            }
-
-        }
-    );
-}
-
-
-// ============================================
-// LIMPAR FORMULÁRIO
-// ============================================
-
-function limparFormulario() {
-
-    const campos = [
-
-        "studentNumber",
-        "studentName",
-        "licenceExpiry",
-        "codeExpiry",
-        "qrCode"
-
-    ];
-
-
-    campos.forEach(function (id) {
-
-        const campo =
-            document.getElementById(id);
-
-        if (campo) {
-            campo.value = "";
-        }
-
-    });
-
-
-    const estado =
-        document.getElementById("studentStatus");
-
-    if (estado) {
-        estado.value = "Ativo";
-    }
-}
-
-
-// ============================================
-// PESQUISAR ALUNOS
-// ============================================
-
-const searchStudent =
-    document.getElementById("searchStudent");
-
-
-if (searchStudent) {
-
-    searchStudent.addEventListener(
-        "input",
-        function () {
-
-            mostrarAlunos();
-
-        }
-    );
-}
-
-
-// ============================================
-// MOSTRAR ALUNOS
-// ============================================
-
-function mostrarAlunos() {
-
-    const lista =
-        document.getElementById("studentsList");
-
-    if (!lista) {
-        return;
-    }
-
-
-    const campoPesquisa =
-        document.getElementById("searchStudent");
-
-
-    const pesquisa =
-        campoPesquisa
-            ? campoPesquisa.value
-                .toLowerCase()
-                .trim()
-            : "";
-
-
-    const alunosFiltrados =
-        [...alunos]
-
-            .sort(function (a, b) {
-
-                return (
-                    Number(a.numero) -
-                    Number(b.numero)
-                );
-
-            })
-
-            .filter(function (aluno) {
-
-                const nome =
-                    String(
-                        aluno.nome || ""
-                    ).toLowerCase();
-
-                const numero =
-                    String(
-                        aluno.numero || ""
-                    ).toLowerCase();
-
-
-                return (
-                    nome.includes(pesquisa) ||
-                    numero.includes(pesquisa)
-                );
-
-            });
-
-
-    if (alunosFiltrados.length === 0) {
-
-        lista.innerHTML =
-            "Ainda não existem alunos.";
-
-        return;
-    }
-
-
-    lista.innerHTML = "";
-
-
-    alunosFiltrados.forEach(
-        function (aluno) {
-
-            const cartao =
-                document.createElement("div");
-
-            cartao.className =
-                "student-card";
-
-
-            let historico =
-                "Sem aulas registadas";
-
-
-            if (
-                aluno.historicoAulas &&
-                aluno.historicoAulas.length > 0
-            ) {
-
-                historico =
-                    aluno.historicoAulas.join("<br>");
-
-            }
-
-
-            let teoria = "";
-
-            try {
-
-                teoria =
-                    verificarTeoriaCompleta(aluno);
-
-            }
-
-            catch (erro) {
-
-                console.log(
-                    "Erro na teoria:",
-                    erro
-                );
-
-            }
-
-
-            let reprovacao = "";
-
-            try {
-
-                reprovacao =
-                    mostrarEstadoReprovacao(aluno);
-
-            }
-
-            catch (erro) {
-
-                console.log(
-                    "Erro na reprovação:",
-                    erro
-                );
-
-            }
-
-
-            cartao.innerHTML = `
-
-                <h3>
-                    👨‍🎓 ${aluno.nome || "Sem nome"}
-                </h3>
-
-                <p>
-                    <strong>N.º de aluno:</strong>
-                    ${aluno.numero || "-"}
-                </p>
-
-                <p>
-                    <strong>Validade da licença:</strong>
-                    ${formatarData(aluno.validadeLicenca)}
-                </p>
-
-                <p>
-                    <strong>Aulas realizadas:</strong>
-                    ${aluno.aulasRealizadas || 0}
-                </p>
-
-                ${teoria}
-
-                <p>
-                    <strong>Estado do exame:</strong>
-                    ${aluno.estadoExame || "Sem exames registados"}
-                </p>
-
-                ${reprovacao}
-
-                <p>
-                    <strong>Validade do código:</strong>
-                    ${formatarData(aluno.validadeCodigo)}
-                </p>
-
-                <p>
-                    <strong>QR Code:</strong>
-                </p>
-
-                <img
-                    src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(aluno.id || "")}"
-                    alt="QR Code do aluno"
-                >
-
-                <p>
-                    <strong>Estado:</strong>
-                    ${aluno.estado || "-"}
-                </p>
-
-                <p>
-                    <strong>Histórico de aulas:</strong><br>
-                    ${historico}
-                </p>
-
-                <button
-                    class="add-lesson-button"
-                    data-docid="${aluno.id}">
-                    ➕ Registar Aula
-                </button>
-
-                <button
-                    class="exam-button"
-                    data-docid="${aluno.id}">
-                    📝 Resultado de Exame
-                </button>
-
-                <button
-                    class="edit-button"
-                    data-docid="${aluno.id}">
-                    ✏️ Editar
-                </button>
-
-                <button
-                    class="danger-button delete-button"
-                    data-docid="${aluno.id}">
-                    🗑️ Apagar Aluno
-                </button>
-
-            `;
-
-
-            lista.appendChild(cartao);
-
-        }
-    );
-
-
-    adicionarEventosDosBotoes();
-}
-
-
-// ============================================
-// BOTÕES DOS ALUNOS
-// ============================================
-
-function adicionarEventosDosBotoes() {
-
-    // ========================================
-    // REGISTAR AULA ANTIGO
-    // ========================================
-
-    document
-        .querySelectorAll(".add-lesson-button")
-        .forEach(function (botao) {
-
-            botao.onclick = function () {
-
-                const docid =
-                    this.getAttribute(
-                        "data-docid"
-                    );
-
-                const aluno =
-                    alunos.find(function (a) {
-
-                        return a.id === docid;
-
-                    });
-
-
-                if (!aluno) {
-
-                    mostrarNotificacao(
-                        "Aluno não encontrado.",
-                        "erro"
-                    );
-
-                    return;
-                }
-
-
-                mostrarNotificacao(
-                    "As aulas devem agora ser criadas através do calendário.",
-                    "erro"
-                );
-
-            };
-
-        });
-
-
-    // ========================================
-    // RESULTADO DE EXAME
-    // ========================================
-
-    document
-        .querySelectorAll(".exam-button")
-        .forEach(function (botao) {
-
-            botao.onclick = function () {
-
-                const docid =
-                    this.getAttribute(
-                        "data-docid"
-                    );
-
-
-                const aluno =
-                    alunos.find(function (a) {
-
-                        return a.id === docid;
-
-                    });
-
-
-                if (!aluno) {
-
-                    mostrarNotificacao(
-                        "Aluno não encontrado.",
-                        "erro"
-                    );
-
-                    return;
-                }
-
-
-                alunoResultadoExame =
-                    aluno;
-
-
-                const examDate =
-                    document.getElementById(
-                        "examDate"
-                    );
-
-
-                const examResult =
-                    document.getElementById(
-                        "examResult"
-                    );
-
-
-                if (examDate) {
-
-                    examDate.value =
-                        new Date()
-                            .toISOString()
-                            .split("T")[0];
-
-                }
-
-
-                if (examResult) {
-
-                    examResult.value =
-                        "Aprovado";
-
-                }
-
-
-                document.getElementById(
-                    "examModal"
-                ).style.display = "flex";
-
-            };
-
-        });
-
-
-    // ========================================
-    // EDITAR ALUNO
-    // ========================================
-
-    document
-        .querySelectorAll(".edit-button")
-        .forEach(function (botao) {
-
-            botao.onclick = function () {
-
-                const docid =
-                    this.getAttribute(
-                        "data-docid"
-                    );
-
-
-                const aluno =
-                    alunos.find(function (a) {
-
-                        return a.id === docid;
-
-                    });
-
-
-                if (!aluno) {
-
-                    mostrarNotificacao(
-                        "Aluno não encontrado.",
-                        "erro"
-                    );
-
-                    return;
-                }
-
-
-                alunoEmEdicao =
-                    aluno;
-
-
-                document.getElementById(
-                    "studentNumber"
-                ).value =
-                    aluno.numero || "";
-
-
-                document.getElementById(
-                    "studentName"
-                ).value =
-                    aluno.nome || "";
-
-
-                document.getElementById(
-                    "licenceExpiry"
-                ).value =
-                    aluno.validadeLicenca || "";
-
-
-                document.getElementById(
-                    "codeExpiry"
-                ).value =
-                    aluno.validadeCodigo || "";
-
-
-                document.getElementById(
-                    "qrCode"
-                ).value =
-                    aluno.qrCode || "";
-
-
-                document.getElementById(
-                    "studentStatus"
-                ).value =
-                    aluno.estado || "Ativo";
-
-
-                document.getElementById(
-                    "addStudentButton"
-                ).innerText =
-                    "💾 Guardar Alterações";
-
-
-                window.scrollTo({
-
-                    top: 0,
-
-                    behavior: "smooth"
-
-                });
-
-            };
-
-        });
-
-
-    // ========================================
-    // APAGAR ALUNO
-    // ========================================
-
-    document
-        .querySelectorAll(".delete-button")
-        .forEach(function (botao) {
-
-            botao.onclick = async function () {
-
-                const docid =
-                    this.getAttribute(
-                        "data-docid"
-                    );
-
-
-                if (
-                    !confirm(
-                        "Tens a certeza que queres apagar este aluno?"
-                    )
-                ) {
-
-                    return;
-
-                }
-
-
-                try {
-
-                    await deleteDoc(
-                        doc(
-                            db,
-                            "alunos",
-                            docid
-                        )
-                    );
-
-
-                    mostrarNotificacao(
-                        "Aluno apagado com sucesso ✅"
-                    );
-
-                }
-
-                catch (erro) {
-
-                    mostrarNotificacao(
-                        "Erro ao apagar aluno: " +
-                        erro.message,
-                        "erro"
-                    );
-
-                }
-
-            };
-
-        });
-
-}
-
-
-// ============================================
 // DASHBOARD
 // ============================================
 
@@ -1086,23 +21,36 @@ function atualizarDashboard() {
         );
 
 
+    const totalAlerts =
+        document.getElementById(
+            "totalAlerts"
+        );
+
+
     const alunosAtivos =
-        alunos.filter(function (aluno) {
+        alunos.filter(
+            function (aluno) {
 
-            return aluno.estado === "Ativo";
+                return (
+                    aluno.estado ===
+                    "Ativo"
+                );
 
-        });
+            }
+        );
 
 
     const examesAprovados =
-        alunos.filter(function (aluno) {
+        alunos.filter(
+            function (aluno) {
 
-            return (
-                aluno.estadoExame ===
-                "Aprovado"
-            );
+                return (
+                    aluno.estadoExame ===
+                    "Aprovado"
+                );
 
-        });
+            }
+        );
 
 
     if (totalStudents) {
@@ -1122,6 +70,7 @@ function atualizarDashboard() {
 
 
     mostrarAlertas();
+
 }
 
 
@@ -1147,33 +96,37 @@ function mostrarAlertas() {
 
 
     const tresMesesDepois =
-        new Date();
+        new Date(
+            hoje
+        );
 
 
     tresMesesDepois.setMonth(
-        hoje.getMonth() + 3
+        tresMesesDepois.getMonth() + 3
     );
 
 
-    let alertas = [];
+    const alertas = [];
 
 
-    alunos.forEach(function (aluno) {
+    alunos.forEach(
+        function (aluno) {
 
-        verificarValidade(
-            aluno,
-            aluno.validadeLicenca,
-            "Licença de aprendizagem"
-        );
+            verificarValidade(
+                aluno,
+                aluno.validadeLicenca,
+                "Licença de aprendizagem"
+            );
 
 
-        verificarValidade(
-            aluno,
-            aluno.validadeCodigo,
-            "Validade do código"
-        );
+            verificarValidade(
+                aluno,
+                aluno.validadeCodigo,
+                "Validade do código"
+            );
 
-    });
+        }
+    );
 
 
     function verificarValidade(
@@ -1188,10 +141,20 @@ function mostrarAlertas() {
 
 
         const dataValidade =
-            new Date(data);
+            new Date(
+                data + "T00:00:00"
+            );
 
 
-        if (dataValidade < hoje) {
+        if (isNaN(dataValidade.getTime())) {
+            return;
+        }
+
+
+        if (
+            dataValidade <
+            hoje
+        ) {
 
             alertas.push(`
 
@@ -1200,7 +163,7 @@ function mostrarAlertas() {
                     🔴
 
                     <strong>
-                        ${aluno.nome}
+                        ${aluno.nome || "Aluno"}
                     </strong>
 
                     <br>
@@ -1226,7 +189,7 @@ function mostrarAlertas() {
                     ⚠️
 
                     <strong>
-                        ${aluno.nome}
+                        ${aluno.nome || "Aluno"}
                     </strong>
 
                     <br>
@@ -1245,7 +208,9 @@ function mostrarAlertas() {
     }
 
 
-    if (alertas.length === 0) {
+    if (
+        alertas.length === 0
+    ) {
 
         listaAlertas.innerHTML = `
 
@@ -1270,18 +235,19 @@ function mostrarAlertas() {
     }
 
 
-    const totalAlerts =
+    const totalAlertas =
         document.getElementById(
             "totalAlerts"
         );
 
 
-    if (totalAlerts) {
+    if (totalAlertas) {
 
-        totalAlerts.innerText =
+        totalAlertas.innerText =
             alertas.length;
 
     }
+
 }
 
 
@@ -1289,10 +255,13 @@ function mostrarAlertas() {
 // TEORIA COMPLETA
 // ============================================
 
-function verificarTeoriaCompleta(aluno) {
+function verificarTeoriaCompleta(
+    aluno
+) {
 
     if (
-        (aluno.aulasRealizadas || 0) >= 28
+        (aluno.aulasRealizadas || 0) >=
+        28
     ) {
 
         return `
@@ -1323,6 +292,7 @@ function verificarTeoriaCompleta(aluno) {
 
 
     return "";
+
 }
 
 
@@ -1330,23 +300,37 @@ function verificarTeoriaCompleta(aluno) {
 // FORMATAR DATA
 // ============================================
 
-function formatarData(data) {
+function formatarData(
+    data
+) {
 
     if (!data) {
         return "Não definida";
     }
 
 
-    return new Date(data)
-        .toLocaleDateString("pt-PT");
+    const dataObj =
+        new Date(
+            data + "T00:00:00"
+        );
+
+
+    if (
+        isNaN(
+            dataObj.getTime()
+        )
+    ) {
+
+        return "Data inválida";
+
+    }
+
+
+    return dataObj.toLocaleDateString(
+        "pt-PT"
+    );
+
 }
-
-
-// ============================================
-// ============================================
-// AULAS
-// ============================================
-// ============================================
 
 
 // ============================================
@@ -1366,7 +350,9 @@ function atualizarListaDaAula() {
     }
 
 
-    if (alunosDaAula.length === 0) {
+    if (
+        alunosDaAula.length === 0
+    ) {
 
         lista.innerHTML =
             "Ainda não existem alunos nesta aula.";
@@ -1378,31 +364,39 @@ function atualizarListaDaAula() {
     lista.innerHTML = "";
 
 
-    alunosDaAula.forEach(function (aluno) {
+    alunosDaAula.forEach(
+        function (aluno) {
 
-        const div =
-            document.createElement("div");
-
-        div.className =
-            "student-card";
-
-
-        div.innerHTML = `
-
-            <strong>
-                ${aluno.numero}
-            </strong>
-
-            -
-            
-            ${aluno.nome}
-
-        `;
+            const div =
+                document.createElement(
+                    "div"
+                );
 
 
-        lista.appendChild(div);
+            div.className =
+                "student-card";
 
-    });
+
+            div.innerHTML = `
+
+                <strong>
+                    ${aluno.numero}
+                </strong>
+
+                -
+
+                ${aluno.nome}
+
+            `;
+
+
+            lista.appendChild(
+                div
+            );
+
+        }
+    );
+
 }
 
 
@@ -1410,7 +404,9 @@ function atualizarListaDaAula() {
 // ABRIR AULA EXISTENTE
 // ============================================
 
-function abrirAula(aula) {
+function abrirAula(
+    aula
+) {
 
     if (!aula) {
 
@@ -1422,53 +418,83 @@ function abrirAula(aula) {
         return;
     }
 
-    // ========================================
-    // GUARDAR AULA QUE ESTAMOS A EDITAR
-    // ========================================
-
-    aulaEmEdicao = aula;
 
     // ========================================
-    // LIMPAR LISTA ATUAL
+    // GUARDAR AULA EM EDIÇÃO
+    // ========================================
+
+    aulaEmEdicao =
+        aula;
+
+
+    // ========================================
+    // LIMPAR LISTA
     // ========================================
 
     alunosDaAula = [];
 
+
     // ========================================
-    // CARREGAR OS ALUNOS DA AULA
+    // CARREGAR ALUNOS
     // ========================================
 
-    (aula.alunos || []).forEach(function (numero) {
+    (
+        aula.alunos ||
+        []
+    ).forEach(
+        function (numero) {
 
-        const aluno = alunos.find(function (a) {
+            const aluno =
+                alunos.find(
+                    function (a) {
 
-            return String(a.numero) === String(numero);
+                        return (
+                            String(a.numero) ===
+                            String(numero)
+                        );
 
-        });
+                    }
+                );
 
-        if (aluno) {
 
-            alunosDaAula.push(aluno);
+            if (aluno) {
+
+                alunosDaAula.push(
+                    aluno
+                );
+
+            }
 
         }
+    );
 
-    });
 
     // ========================================
-    // PREENCHER DADOS DA AULA
+    // PREENCHER FORMULÁRIO
     // ========================================
 
     const campoId =
-        document.getElementById("lessonId");
+        document.getElementById(
+            "lessonId"
+        );
+
 
     const campoMateria =
-        document.getElementById("lessonSubject");
+        document.getElementById(
+            "lessonSubject"
+        );
+
 
     const campoData =
-        document.getElementById("lessonDate");
+        document.getElementById(
+            "lessonDate"
+        );
+
 
     const campoHora =
-        document.getElementById("lessonTime");
+        document.getElementById(
+            "lessonTime"
+        );
 
 
     if (campoId) {
@@ -1504,30 +530,19 @@ function abrirAula(aula) {
 
 
     // ========================================
-    // MOSTRAR OS ALUNOS DA AULA
+    // MOSTRAR ALUNOS
     // ========================================
 
     atualizarListaDaAula();
 
 
     // ========================================
-    // ABRIR PÁGINA DAS AULAS
+    // ABRIR PÁGINA
     // ========================================
 
-    document.getElementById("homePage").style.display =
-        "none";
-
-    document.getElementById("studentsPage").style.display =
-        "none";
-
-    document.getElementById("lessonsPage").style.display =
-        "block";
-
-    document.getElementById("calendarPage").style.display =
-        "none";
-
-    document.getElementById("reportsPage").style.display =
-        "none";
+    mostrarPagina(
+        "lessonsPage"
+    );
 
 
     // ========================================
@@ -1540,129 +555,35 @@ function abrirAula(aula) {
 
 
     // ========================================
-    // IR PARA A ZONA DA AULA
-    // ========================================
-
-    const formulario =
-        document.getElementById("saveLesson");
-
-    if (formulario) {
-
-        setTimeout(function () {
-
-            formulario.scrollIntoView({
-
-                behavior: "smooth",
-
-                block: "center"
-
-            });
-
-        }, 100);
-
-    }
-
-}
-    // ========================================
-    // PREENCHER FORMULÁRIO
-    // ========================================
-
-    const lessonId =
-        document.getElementById(
-            "lessonId"
-        );
-
-
-    const lessonSubject =
-        document.getElementById(
-            "lessonSubject"
-        );
-
-
-    const lessonDate =
-        document.getElementById(
-            "lessonDate"
-        );
-
-
-    const lessonTime =
-        document.getElementById(
-            "lessonTime"
-        );
-
-
-    if (lessonId) {
-
-        lessonId.value =
-            aula.idAula || "";
-
-    }
-
-
-    if (lessonSubject) {
-
-        lessonSubject.value =
-            aula.materia || "";
-
-    }
-
-
-    if (lessonDate) {
-
-        lessonDate.value =
-            aula.data || "";
-
-    }
-
-
-    if (lessonTime) {
-
-        lessonTime.value =
-            aula.hora || "";
-
-    }
-
-
-    atualizarListaDaAula();
-
-
-    // ========================================
-    // IR PARA PÁGINA DAS AULAS
-    // ========================================
-
-    mostrarPagina("lessonsPage");
-
-
-    mostrarNotificacao(
-        "Aula aberta. Podes adicionar os alunos."
-    );
-
-
-    // ========================================
     // IR PARA FORMULÁRIO
     // ========================================
 
-    setTimeout(function () {
+    setTimeout(
+        function () {
 
-        const formulario =
-            document.getElementById(
-                "saveLesson"
-            );
+            const formulario =
+                document.getElementById(
+                    "saveLesson"
+                );
 
 
-        if (formulario) {
+            if (formulario) {
 
-            formulario.scrollIntoView({
+                formulario.scrollIntoView({
 
-                behavior: "smooth",
+                    behavior:
+                        "smooth",
 
-                block: "center"
+                    block:
+                        "center"
 
-            });
+                });
 
-        }
+            }
 
-    }, 100);
+        },
+        100
+    );
 
 }
 
@@ -1698,7 +619,9 @@ if (addStudentToLesson) {
                 campo.value.trim();
 
 
-            if (numero === "") {
+            if (
+                numero === ""
+            ) {
 
                 mostrarNotificacao(
                     "Introduz o número do aluno.",
@@ -1710,14 +633,16 @@ if (addStudentToLesson) {
 
 
             const aluno =
-                alunos.find(function (a) {
+                alunos.find(
+                    function (a) {
 
-                    return (
-                        String(a.numero) ===
-                        String(numero)
-                    );
+                        return (
+                            String(a.numero) ===
+                            String(numero)
+                        );
 
-                });
+                    }
+                );
 
 
             if (!aluno) {
@@ -1732,11 +657,16 @@ if (addStudentToLesson) {
 
 
             const existe =
-                alunosDaAula.find(function (a) {
+                alunosDaAula.some(
+                    function (a) {
 
-                    return a.id === aluno.id;
+                        return (
+                            a.id ===
+                            aluno.id
+                        );
 
-                });
+                    }
+                );
 
 
             if (existe) {
@@ -1750,10 +680,13 @@ if (addStudentToLesson) {
             }
 
 
-            alunosDaAula.push(aluno);
+            alunosDaAula.push(
+                aluno
+            );
 
 
-            campo.value = "";
+            campo.value =
+                "";
 
 
             atualizarListaDaAula();
@@ -1766,6 +699,7 @@ if (addStudentToLesson) {
 
         }
     );
+
 }
 
 
@@ -1802,64 +736,69 @@ if (selectMultipleStudents) {
             }
 
 
-            caixa.innerHTML = "";
+            caixa.innerHTML =
+                "";
 
 
             [...alunos]
 
-                .sort(function (a, b) {
+                .sort(
+                    function (a, b) {
 
-                    return (
-                        Number(a.numero) -
-                        Number(b.numero)
-                    );
-
-                })
-
-                .forEach(function (aluno) {
-
-                    const marcado =
-                        alunosDaAula.some(
-                            function (a) {
-
-                                return (
-                                    a.id ===
-                                    aluno.id
-                                );
-
-                            }
+                        return (
+                            Number(a.numero) -
+                            Number(b.numero)
                         );
 
+                    }
+                )
 
-                    caixa.innerHTML += `
+                .forEach(
+                    function (aluno) {
 
-                        <label
-                            style="
-                                display:block;
-                                margin-bottom:7px;
-                                cursor:pointer;
-                            "
-                        >
+                        const marcado =
+                            alunosDaAula.some(
+                                function (a) {
 
-                            <input
-                                type="checkbox"
-                                value="${aluno.numero}"
-                                ${
-                                    marcado
-                                        ? "checked"
-                                        : ""
+                                    return (
+                                        a.id ===
+                                        aluno.id
+                                    );
+
                                 }
+                            );
+
+
+                        caixa.innerHTML += `
+
+                            <label
+                                style="
+                                    display:block;
+                                    margin-bottom:7px;
+                                    cursor:pointer;
+                                "
                             >
 
-                            ${aluno.numero}
-                            -
-                            ${aluno.nome}
+                                <input
+                                    type="checkbox"
+                                    value="${aluno.numero}"
+                                    ${
+                                        marcado
+                                            ? "checked"
+                                            : ""
+                                    }
+                                >
 
-                        </label>
+                                ${aluno.numero}
+                                -
+                                ${aluno.nome}
 
-                    `;
+                            </label>
 
-                });
+                        `;
+
+                    }
+                );
 
 
             caixa.style.display =
@@ -1875,6 +814,7 @@ if (selectMultipleStudents) {
 
         }
     );
+
 }
 
 
@@ -1908,14 +848,16 @@ if (addSelectedStudents) {
 
 
                     const aluno =
-                        alunos.find(function (a) {
+                        alunos.find(
+                            function (a) {
 
-                            return (
-                                String(a.numero) ===
-                                String(numero)
-                            );
+                                return (
+                                    String(a.numero) ===
+                                    String(numero)
+                                );
 
-                        });
+                            }
+                        );
 
 
                     if (!aluno) {
@@ -1985,6 +927,7 @@ if (addSelectedStudents) {
 
         }
     );
+
 }
 
 
@@ -2004,10 +947,6 @@ if (saveLesson) {
         "click",
         async function () {
 
-            // =================================
-            // VERIFICAR SE EXISTE AULA
-            // =================================
-
             if (!aulaEmEdicao) {
 
                 mostrarNotificacao(
@@ -2019,39 +958,61 @@ if (saveLesson) {
             }
 
 
-            // =================================
-            // OBTER DADOS
-            // =================================
+            const campoId =
+                document.getElementById(
+                    "lessonId"
+                );
+
+
+            const campoMateria =
+                document.getElementById(
+                    "lessonSubject"
+                );
+
+
+            const campoData =
+                document.getElementById(
+                    "lessonDate"
+                );
+
+
+            const campoHora =
+                document.getElementById(
+                    "lessonTime"
+                );
+
+
+            if (
+                !campoId ||
+                !campoMateria ||
+                !campoData ||
+                !campoHora
+            ) {
+
+                mostrarNotificacao(
+                    "Campos da aula não encontrados.",
+                    "erro"
+                );
+
+                return;
+            }
+
 
             const idAula =
-                document
-                    .getElementById("lessonId")
-                    .value
-                    .trim();
+                campoId.value.trim();
 
 
             const materia =
-                document
-                    .getElementById("lessonSubject")
-                    .value
-                    .trim();
+                campoMateria.value.trim();
 
 
             const data =
-                document
-                    .getElementById("lessonDate")
-                    .value;
+                campoData.value;
 
 
             const hora =
-                document
-                    .getElementById("lessonTime")
-                    .value;
+                campoHora.value;
 
-
-            // =================================
-            // VALIDAR
-            // =================================
 
             if (
                 idAula === "" ||
@@ -2069,10 +1030,6 @@ if (saveLesson) {
             }
 
 
-            // =================================
-            // NÚMEROS DOS ALUNOS
-            // =================================
-
             const numerosAlunos =
                 alunosDaAula.map(
                     function (aluno) {
@@ -2085,12 +1042,29 @@ if (saveLesson) {
 
             try {
 
-                // =================================
-                // ALUNOS ANTIGOS
-                // =================================
-
                 const alunosAntigos =
                     aulaEmEdicao.alunos || [];
+
+
+                const novosAlunos =
+                    alunosDaAula.filter(
+                        function (aluno) {
+
+                            return (
+                                !alunosAntigos.some(
+                                    function (numero) {
+
+                                        return (
+                                            String(numero) ===
+                                            String(aluno.numero)
+                                        );
+
+                                    }
+                                )
+                            );
+
+                        }
+                    );
 
 
                 // =================================
@@ -2125,33 +1099,7 @@ if (saveLesson) {
 
 
                 // =================================
-                // DETERMINAR NOVOS ALUNOS
-                // =================================
-
-                const novosAlunos =
-                    alunosDaAula.filter(
-                        function (aluno) {
-
-                            return (
-                                !alunosAntigos.some(
-                                    function (numero) {
-
-                                        return (
-                                            String(numero) ===
-                                            String(aluno.numero)
-                                        );
-
-                                    }
-                                )
-                            );
-
-                        }
-                    );
-
-
-                // =================================
-                // ATUALIZAR CONTADORES
-                // APENAS DOS NOVOS ALUNOS
+                // ATUALIZAR NOVOS ALUNOS
                 // =================================
 
                 for (
@@ -2159,7 +1107,10 @@ if (saveLesson) {
                 ) {
 
                     const novasAulas =
-                        (aluno.aulasRealizadas || 0) + 1;
+                        (
+                            aluno.aulasRealizadas ||
+                            0
+                        ) + 1;
 
 
                     const dadosAtualizar = {
@@ -2168,22 +1119,25 @@ if (saveLesson) {
                             novasAulas,
 
                         historicoAulas:
-                            arrayUnion(idAula)
+                            arrayUnion(
+                                idAula
+                            )
 
                     };
 
 
-                    // =============================
-                    // REPROVAÇÃO
-                    // =============================
-
-                    if (aluno.ultimaReprovacao) {
+                    if (
+                        aluno.ultimaReprovacao
+                    ) {
 
                         const aulasReprovacao =
-                            novasAulas -
-                            (
-                                aluno.aulasNaUltimaReprovacao ||
-                                0
+                            Math.max(
+                                0,
+                                novasAulas -
+                                (
+                                    aluno.aulasNaUltimaReprovacao ||
+                                    0
+                                )
                             );
 
 
@@ -2195,41 +1149,52 @@ if (saveLesson) {
                             );
 
 
-                        let historico =
-                            aluno.historicoExames || [];
+                        const historico =
+                            [
+                                ...(
+                                    aluno.historicoExames ||
+                                    []
+                                )
+                            ];
 
 
                         if (
                             historico.length > 0
                         ) {
 
-                            const ultimaEntrada =
+                            const ultimo =
                                 historico[
                                     historico.length - 1
                                 ];
 
 
                             if (
-                                ultimaEntrada.resultado ===
-                                    "Reprovado" &&
-                                !ultimaEntrada.aulasConcluidas
+                                ultimo.resultado ===
+                                "Reprovado" &&
+                                !ultimo.aulasConcluidas
                             ) {
 
-                                ultimaEntrada.aulasReprovacao =
-                                    Math.min(
-                                        aulasReprovacao,
-                                        5
-                                    );
+                                const novoUltimo =
+                                    {
+
+                                        ...ultimo,
+
+                                        aulasReprovacao:
+                                            Math.min(
+                                                aulasReprovacao,
+                                                5
+                                            ),
+
+                                        aulasConcluidas:
+                                            aulasReprovacao >= 5
+
+                                    };
 
 
-                                if (
-                                    aulasReprovacao >= 5
-                                ) {
-
-                                    ultimaEntrada.aulasConcluidas =
-                                        true;
-
-                                }
+                                historico[
+                                    historico.length - 1
+                                ] =
+                                    novoUltimo;
 
                             }
 
@@ -2256,15 +1221,8 @@ if (saveLesson) {
 
 
                 // =================================
-                // FINALIZAR
+                // ATUALIZAR ESTADO LOCAL
                 // =================================
-
-                mostrarNotificacao(
-                    "Alunos da aula guardados com sucesso ✅"
-                );
-
-
-                // Atualizar referência local
 
                 aulaEmEdicao = {
 
@@ -2288,11 +1246,16 @@ if (saveLesson) {
                 };
 
 
-                renderizarCalendario();
+                mostrarNotificacao(
+                    "Alunos da aula guardados com sucesso ✅"
+                );
 
+
+                renderizarCalendario();
 
                 atualizarListaDaAula();
 
+                atualizarDashboard();
 
             }
 
@@ -2314,6 +1277,7 @@ if (saveLesson) {
 
         }
     );
+
 }
 
 
@@ -2334,7 +1298,9 @@ function mostrarAulas() {
     }
 
 
-    if (aulas.length === 0) {
+    if (
+        aulas.length === 0
+    ) {
 
         lista.innerHTML =
             "Ainda não existem aulas.";
@@ -2343,141 +1309,156 @@ function mostrarAulas() {
     }
 
 
-    lista.innerHTML = "";
+    lista.innerHTML =
+        "";
 
 
     [...aulas]
 
-        .sort(function (a, b) {
+        .sort(
+            function (a, b) {
 
-            return (
-                new Date(b.data) -
-                new Date(a.data)
-            );
-
-        })
-
-        .forEach(function (aula) {
-
-            let alunosTexto =
-                "Nenhum aluno adicionado.";
-
-
-            if (
-                aula.alunos &&
-                aula.alunos.length > 0
-            ) {
-
-                alunosTexto = "";
-
-
-                aula.alunos.forEach(
-                    function (numero) {
-
-                        const aluno =
-                            alunos.find(
-                                function (a) {
-
-                                    return (
-                                        String(a.numero) ===
-                                        String(numero)
-                                    );
-
-                                }
-                            );
-
-
-                        if (aluno) {
-
-                            alunosTexto +=
-                                "• " +
-                                aluno.numero +
-                                " - " +
-                                aluno.nome +
-                                "<br>";
-
-                        }
-
-                        else {
-
-                            alunosTexto +=
-                                "• " +
-                                numero +
-                                "<br>";
-
-                        }
-
-                    }
+                return (
+                    new Date(
+                        b.data
+                    ) -
+                    new Date(
+                        a.data
+                    )
                 );
 
             }
+        )
+
+        .forEach(
+            function (aula) {
+
+                let alunosTexto =
+                    "Nenhum aluno adicionado.";
 
 
-            const cartao =
-                document.createElement("div");
+                if (
+                    aula.alunos &&
+                    aula.alunos.length > 0
+                ) {
+
+                    alunosTexto =
+                        "";
 
 
-            cartao.className =
-                "student-card";
+                    aula.alunos.forEach(
+                        function (numero) {
+
+                            const aluno =
+                                alunos.find(
+                                    function (a) {
+
+                                        return (
+                                            String(a.numero) ===
+                                            String(numero)
+                                        );
+
+                                    }
+                                );
 
 
-            cartao.innerHTML = `
+                            if (aluno) {
 
-                <h3>
-                    📚 ${aula.idAula || "-"}
-                </h3>
+                                alunosTexto +=
+                                    "• " +
+                                    aluno.numero +
+                                    " - " +
+                                    aluno.nome +
+                                    "<br>";
 
-                <p>
-                    <strong>Matéria:</strong>
-                    ${aula.materia || "-"}
-                </p>
+                            }
 
-                <p>
-                    <strong>Data:</strong>
-                    ${formatarData(aula.data)}
-                </p>
+                            else {
 
-                <p>
-                    <strong>Hora:</strong>
-                    ${aula.hora || "-"}
-                </p>
+                                alunosTexto +=
+                                    "• " +
+                                    numero +
+                                    "<br>";
 
-                <p>
-                    <strong>Alunos:</strong>
-                    ${
-                        aula.alunos
-                            ? aula.alunos.length
-                            : 0
-                    }
-                </p>
+                            }
 
-                <p>
-                    ${alunosTexto}
-                </p>
+                        }
+                    );
 
-                <button
-                    class="editLessonButton"
-                    data-id="${aula.id}"
-                >
-                    👨‍🎓 Abrir Aula / Alunos
-                </button>
-
-                <button
-                    class="deleteLessonButton danger-button"
-                    data-id="${aula.id}"
-                >
-                    🗑️ Apagar Aula
-                </button>
-
-            `;
+                }
 
 
-            lista.appendChild(cartao);
+                const cartao =
+                    document.createElement(
+                        "div"
+                    );
 
-        });
+
+                cartao.className =
+                    "student-card";
+
+
+                cartao.innerHTML = `
+
+                    <h3>
+                        📚 ${aula.idAula || "-"}
+                    </h3>
+
+                    <p>
+                        <strong>Matéria:</strong>
+                        ${aula.materia || "-"}
+                    </p>
+
+                    <p>
+                        <strong>Data:</strong>
+                        ${formatarData(aula.data)}
+                    </p>
+
+                    <p>
+                        <strong>Hora:</strong>
+                        ${aula.hora || "-"}
+                    </p>
+
+                    <p>
+                        <strong>Alunos:</strong>
+                        ${
+                            aula.alunos
+                                ? aula.alunos.length
+                                : 0
+                        }
+                    </p>
+
+                    <p>
+                        ${alunosTexto}
+                    </p>
+
+                    <button
+                        class="editLessonButton"
+                        data-id="${aula.id}"
+                    >
+                        👨‍🎓 Abrir Aula / Alunos
+                    </button>
+
+                    <button
+                        class="deleteLessonButton danger-button"
+                        data-id="${aula.id}"
+                    >
+                        🗑️ Apagar Aula
+                    </button>
+
+                `;
+
+
+                lista.appendChild(
+                    cartao
+                );
+
+            }
+        );
 
 
     adicionarEventosDasAulas();
+
 }
 
 
@@ -2492,30 +1473,20 @@ function adicionarEventosDasAulas() {
     // ========================================
 
     document
-        .querySelectorAll(".deleteLessonButton")
-        .forEach(function (botao) {
+        .querySelectorAll(
+            ".deleteLessonButton"
+        )
+        .forEach(
+            function (botao) {
 
-            botao.onclick =
-                async function () {
+                botao.onclick =
+                    async function () {
 
-                    const id =
-                        this.getAttribute(
-                            "data-id"
-                        );
+                        const id =
+                            this.getAttribute(
+                                "data-id"
+                            );
 
-
-                    if (
-                        !confirm(
-                            "Pretendes apagar esta aula?"
-                        )
-                    ) {
-
-                        return;
-
-                    }
-
-
-                    try {
 
                         const aula =
                             aulas.find(
@@ -2529,15 +1500,39 @@ function adicionarEventosDasAulas() {
                             );
 
 
-                        // =================================
-                        // DEVOLVER AULAS AOS ALUNOS
-                        // =================================
+                        if (!aula) {
 
-                        if (aula) {
+                            mostrarNotificacao(
+                                "Aula não encontrada.",
+                                "erro"
+                            );
+
+                            return;
+                        }
+
+
+                        if (
+                            !confirm(
+                                "Pretendes apagar esta aula?"
+                            )
+                        ) {
+
+                            return;
+                        }
+
+
+                        try {
+
+                            // =================================
+                            // ATUALIZAR ALUNOS
+                            // =================================
 
                             for (
                                 const numero
-                                of (aula.alunos || [])
+                                of (
+                                    aula.alunos ||
+                                    []
+                                )
                             ) {
 
                                 const aluno =
@@ -2566,11 +1561,21 @@ function adicionarEventosDasAulas() {
                                         function (item) {
 
                                             return (
-                                                item !==
-                                                aula.idAula
+                                                String(item) !==
+                                                String(aula.idAula)
                                             );
 
                                         }
+                                    );
+
+
+                                const novoTotal =
+                                    Math.max(
+                                        (
+                                            aluno.aulasRealizadas ||
+                                            0
+                                        ) - 1,
+                                        0
                                     );
 
 
@@ -2583,13 +1588,7 @@ function adicionarEventosDasAulas() {
                                     {
 
                                         aulasRealizadas:
-                                            Math.max(
-                                                (
-                                                    aluno.aulasRealizadas ||
-                                                    1
-                                                ) - 1,
-                                                0
-                                            ),
+                                            novoTotal,
 
                                         historicoAulas:
                                             novoHistorico
@@ -2599,37 +1598,67 @@ function adicionarEventosDasAulas() {
 
                             }
 
+
+                            // =================================
+                            // APAGAR AULA
+                            // =================================
+
+                            await deleteDoc(
+                                doc(
+                                    db,
+                                    "aulas",
+                                    id
+                                )
+                            );
+
+
+                            if (
+                                aulaEmEdicao &&
+                                aulaEmEdicao.id === id
+                            ) {
+
+                                aulaEmEdicao =
+                                    null;
+
+                                alunosDaAula =
+                                    [];
+
+                            }
+
+
+                            mostrarNotificacao(
+                                "Aula apagada com sucesso ✅"
+                            );
+
+
+                            mostrarAulas();
+
+                            renderizarCalendario();
+
+                            atualizarDashboard();
+
                         }
 
+                        catch (erro) {
 
-                        await deleteDoc(
-                            doc(
-                                db,
-                                "aulas",
-                                id
-                            )
-                        );
+                            console.error(
+                                "Erro ao apagar aula:",
+                                erro
+                            );
 
 
-                        mostrarNotificacao(
-                            "Aula apagada com sucesso ✅"
-                        );
+                            mostrarNotificacao(
+                                "Erro ao apagar aula: " +
+                                erro.message,
+                                "erro"
+                            );
 
-                    }
+                        }
 
-                    catch (erro) {
+                    };
 
-                        mostrarNotificacao(
-                            "Erro ao apagar aula: " +
-                            erro.message,
-                            "erro"
-                        );
-
-                    }
-
-                };
-
-        });
+            }
+        );
 
 
     // ========================================
@@ -2637,35 +1666,41 @@ function adicionarEventosDasAulas() {
     // ========================================
 
     document
-        .querySelectorAll(".editLessonButton")
-        .forEach(function (botao) {
+        .querySelectorAll(
+            ".editLessonButton"
+        )
+        .forEach(
+            function (botao) {
 
-            botao.onclick =
-                function () {
+                botao.onclick =
+                    function () {
 
-                    const id =
-                        this.getAttribute(
-                            "data-id"
+                        const id =
+                            this.getAttribute(
+                                "data-id"
+                            );
+
+
+                        const aula =
+                            aulas.find(
+                                function (a) {
+
+                                    return (
+                                        a.id === id
+                                    );
+
+                                }
+                            );
+
+
+                        abrirAula(
+                            aula
                         );
 
+                    };
 
-                    const aula =
-                        aulas.find(
-                            function (a) {
-
-                                return (
-                                    a.id === id
-                                );
-
-                            }
-                        );
-
-
-                    abrirAula(aula);
-
-                };
-
-        });
+            }
+        );
 
 }
 
@@ -2735,23 +1770,30 @@ if (scanButton) {
 
                 function (decodedText) {
 
-                    html5QrCode.stop()
-                        .then(function () {
-
-                            reader.style.display =
-                                "none";
-
-                        })
-                        .catch(function () {
-
-                            reader.style.display =
-                                "none";
-
-                        });
-
-
                     decodedText =
-                        decodedText.trim();
+                        String(
+                            decodedText
+                        ).trim();
+
+
+                    html5QrCode
+                        .stop()
+                        .then(
+                            function () {
+
+                                reader.style.display =
+                                    "none";
+
+                            }
+                        )
+                        .catch(
+                            function () {
+
+                                reader.style.display =
+                                    "none";
+
+                            }
+                        );
 
 
                     const aluno =
@@ -2760,16 +1802,24 @@ if (scanButton) {
 
                                 return (
 
-                                    a.idAluno ===
+                                    String(
+                                        a.idAluno || ""
+                                    ) ===
                                     decodedText ||
 
-                                    a.id ===
+                                    String(
+                                        a.id || ""
+                                    ) ===
                                     decodedText ||
 
-                                    String(a.numero) ===
-                                    String(decodedText) ||
+                                    String(
+                                        a.numero || ""
+                                    ) ===
+                                    decodedText ||
 
-                                    a.qrCode ===
+                                    String(
+                                        a.qrCode || ""
+                                    ) ===
                                     decodedText
 
                                 );
@@ -2829,34 +1879,45 @@ if (scanButton) {
                 },
 
                 function () {
+
                     // Ignorar erros de leitura
+
                 }
 
-            ).catch(function (erro) {
+            )
+            .catch(
+                function (erro) {
 
-                console.error(erro);
+                    console.error(
+                        "Erro QR Code:",
+                        erro
+                    );
 
-                reader.style.display =
-                    "none";
+
+                    reader.style.display =
+                        "none";
 
 
-                mostrarNotificacao(
-                    "Não foi possível abrir a câmara.",
-                    "erro"
-                );
+                    mostrarNotificacao(
+                        "Não foi possível abrir a câmara.",
+                        "erro"
+                    );
 
-            });
+                }
+            );
 
         }
     );
-}
 
+}
 
 // ============================================
 // MENU / PÁGINAS
 // ============================================
 
-function mostrarPagina(pagina) {
+function mostrarPagina(
+    pagina
+) {
 
     const paginas = [
 
@@ -2869,23 +1930,27 @@ function mostrarPagina(pagina) {
     ];
 
 
-    paginas.forEach(function (id) {
+    paginas.forEach(
+        function (id) {
 
-        const elemento =
-            document.getElementById(id);
+            const elemento =
+                document.getElementById(
+                    id
+                );
 
 
-        if (!elemento) {
-            return;
+            if (!elemento) {
+                return;
+            }
+
+
+            elemento.style.display =
+                id === pagina
+                    ? "block"
+                    : "none";
+
         }
-
-
-        elemento.style.display =
-            id === pagina
-                ? "block"
-                : "none";
-
-    });
+    );
 
 }
 
@@ -2909,6 +1974,8 @@ if (homeMenu) {
             mostrarPagina(
                 "homePage"
             );
+
+            atualizarDashboard();
 
         }
     );
@@ -3027,9 +2094,7 @@ if (reportsMenu) {
 
 
 // ============================================
-// ============================================
 // CALENDÁRIO
-// ============================================
 // ============================================
 
 
@@ -3060,6 +2125,19 @@ if (addMonthButton) {
             }
 
 
+            const nomeMesLimpo =
+                nomeMes.trim();
+
+
+            if (
+                nomeMesLimpo === ""
+            ) {
+
+                return;
+
+            }
+
+
             try {
 
                 await addDoc(
@@ -3070,7 +2148,7 @@ if (addMonthButton) {
                     {
 
                         nome:
-                            nomeMes,
+                            nomeMesLimpo,
 
                         criadoEm:
                             new Date()
@@ -3088,6 +2166,12 @@ if (addMonthButton) {
 
             catch (erro) {
 
+                console.error(
+                    "Erro ao guardar mês:",
+                    erro
+                );
+
+
                 mostrarNotificacao(
                     "Erro ao guardar mês: " +
                     erro.message,
@@ -3098,6 +2182,7 @@ if (addMonthButton) {
 
         }
     );
+
 }
 
 
@@ -3112,7 +2197,8 @@ onSnapshot(
     ),
     function (snapshot) {
 
-        mesesCalendario = [];
+        mesesCalendario =
+            [];
 
 
         snapshot.forEach(
@@ -3133,6 +2219,21 @@ onSnapshot(
 
         renderizarCalendario();
 
+    },
+    function (erro) {
+
+        console.error(
+            "Erro ao carregar meses:",
+            erro
+        );
+
+
+        mostrarNotificacao(
+            "Erro ao carregar meses: " +
+            erro.message,
+            "erro"
+        );
+
     }
 );
 
@@ -3148,7 +2249,8 @@ onSnapshot(
     ),
     function (snapshot) {
 
-        diasFechados = [];
+        diasFechados =
+            [];
 
 
         snapshot.forEach(
@@ -3169,6 +2271,21 @@ onSnapshot(
 
         renderizarCalendario();
 
+    },
+    function (erro) {
+
+        console.error(
+            "Erro ao carregar dias fechados:",
+            erro
+        );
+
+
+        mostrarNotificacao(
+            "Erro ao carregar dias fechados: " +
+            erro.message,
+            "erro"
+        );
+
     }
 );
 
@@ -3177,31 +2294,45 @@ onSnapshot(
 // PÁSCOA
 // ============================================
 
-function calcularPascoa(ano) {
+function calcularPascoa(
+    ano
+) {
 
-    const a = ano % 19;
+    const a =
+        ano % 19;
+
 
     const b =
-        Math.floor(ano / 100);
+        Math.floor(
+            ano / 100
+        );
+
 
     const c =
         ano % 100;
 
+
     const d =
-        Math.floor(b / 4);
+        Math.floor(
+            b / 4
+        );
+
 
     const e =
         b % 4;
+
 
     const f =
         Math.floor(
             (b + 8) / 25
         );
 
+
     const g =
         Math.floor(
             (b - f + 1) / 3
         );
+
 
     const h =
         (
@@ -3212,11 +2343,16 @@ function calcularPascoa(ano) {
             15
         ) % 30;
 
+
     const i =
-        Math.floor(c / 4);
+        Math.floor(
+            c / 4
+        );
+
 
     const k =
         c % 4;
+
 
     const l =
         (
@@ -3227,6 +2363,7 @@ function calcularPascoa(ano) {
             k
         ) % 7;
 
+
     const m =
         Math.floor(
             (
@@ -3235,6 +2372,7 @@ function calcularPascoa(ano) {
                 22 * l
             ) / 451
         );
+
 
     const mes =
         Math.floor(
@@ -3245,6 +2383,7 @@ function calcularPascoa(ano) {
                 114
             ) / 31
         );
+
 
     const dia =
         (
@@ -3262,6 +2401,7 @@ function calcularPascoa(ano) {
         mes - 1,
         dia
     );
+
 }
 
 
@@ -3269,9 +2409,12 @@ function calcularPascoa(ano) {
 // FERIADOS
 // ============================================
 
-function obterFeriados(ano) {
+function obterFeriados(
+    ano
+) {
 
-    const feriados = [];
+    const feriados =
+        [];
 
 
     function adicionar(
@@ -3293,75 +2436,119 @@ function obterFeriados(ano) {
 
 
     adicionar(
-        new Date(ano, 0, 1),
+        new Date(
+            ano,
+            0,
+            1
+        ),
         "Ano Novo"
     );
 
 
     adicionar(
-        new Date(ano, 3, 25),
+        new Date(
+            ano,
+            3,
+            25
+        ),
         "Dia da Liberdade"
     );
 
 
     adicionar(
-        new Date(ano, 4, 1),
+        new Date(
+            ano,
+            4,
+            1
+        ),
         "Dia do Trabalhador"
     );
 
 
     adicionar(
-        new Date(ano, 5, 10),
+        new Date(
+            ano,
+            5,
+            10
+        ),
         "Dia de Portugal"
     );
 
 
     adicionar(
-        new Date(ano, 5, 13),
+        new Date(
+            ano,
+            5,
+            13
+        ),
         "Santo António — Lisboa"
     );
 
 
     adicionar(
-        new Date(ano, 9, 5),
+        new Date(
+            ano,
+            9,
+            5
+        ),
         "Implantação da República"
     );
 
 
     adicionar(
-        new Date(ano, 10, 1),
+        new Date(
+            ano,
+            10,
+            1
+        ),
         "Dia de Todos os Santos"
     );
 
 
     adicionar(
-        new Date(ano, 11, 1),
+        new Date(
+            ano,
+            11,
+            1
+        ),
         "Restauração da Independência"
     );
 
 
     adicionar(
-        new Date(ano, 11, 8),
+        new Date(
+            ano,
+            11,
+            8
+        ),
         "Imaculada Conceição"
     );
 
 
     adicionar(
-        new Date(ano, 11, 25),
+        new Date(
+            ano,
+            11,
+            25
+        ),
         "Natal"
     );
 
 
     const pascoa =
-        calcularPascoa(ano);
+        calcularPascoa(
+            ano
+        );
 
 
     const sexta =
-        new Date(pascoa);
+        new Date(
+            pascoa
+        );
 
 
     sexta.setDate(
-        pascoa.getDate() - 2
+        sexta.getDate() - 2
     );
 
 
@@ -3372,17 +2559,21 @@ function obterFeriados(ano) {
 
 
     adicionar(
-        new Date(pascoa),
+        new Date(
+            pascoa
+        ),
         "Páscoa"
     );
 
 
     const corpo =
-        new Date(pascoa);
+        new Date(
+            pascoa
+        );
 
 
     corpo.setDate(
-        pascoa.getDate() + 60
+        corpo.getDate() + 60
     );
 
 
@@ -3393,6 +2584,7 @@ function obterFeriados(ano) {
 
 
     return feriados;
+
 }
 
 
@@ -3423,6 +2615,7 @@ function obterFeriado(
 
         }
     );
+
 }
 
 
@@ -3440,11 +2633,22 @@ function obterDataString(
 
         ano +
         "-" +
-        String(mes + 1).padStart(2, "0") +
+        String(
+            mes + 1
+        ).padStart(
+            2,
+            "0"
+        ) +
         "-" +
-        String(dia).padStart(2, "0")
+        String(
+            dia
+        ).padStart(
+            2,
+            "0"
+        )
 
     );
+
 }
 
 
@@ -3466,6 +2670,7 @@ function obterDiaFechado(
 
         }
     );
+
 }
 
 
@@ -3502,7 +2707,10 @@ function mostrarMenuDoDia(
         );
 
 
-    if (feriado === "true") {
+    if (
+        feriado ===
+        "true"
+    ) {
 
         mostrarNotificacao(
             "Este dia está bloqueado por ser feriado.",
@@ -3649,7 +2857,6 @@ function mostrarMenuDoDia(
             ) {
 
                 return;
-
             }
 
 
@@ -3743,35 +2950,40 @@ function mostrarMenuDoDia(
     setTimeout(
         function () {
 
-            document.addEventListener(
-                "click",
-                function fecharMenu(event) {
+            function fecharMenu(
+                event
+            ) {
 
-                    if (
-                        !menu.contains(
-                            event.target
-                        ) &&
-                        event.target !==
-                            cabecalho
-                    ) {
+                if (
+                    !menu.contains(
+                        event.target
+                    ) &&
+                    event.target !==
+                        cabecalho
+                ) {
 
-                        menu.remove();
+                    menu.remove();
 
-                        document.removeEventListener(
-                            "click",
-                            fecharMenu
-                        );
-
-                    }
+                    document.removeEventListener(
+                        "click",
+                        fecharMenu
+                    );
 
                 }
+
+            }
+
+
+            document.addEventListener(
+                "click",
+                fecharMenu
             );
 
         },
         0
     );
-}
 
+}
 
 // ============================================
 // CRIAR AULA DIRETAMENTE PELO CALENDÁRIO
@@ -3781,6 +2993,33 @@ async function criarAulaPeloCalendario(
     data,
     hora
 ) {
+
+    // ========================================
+    // VERIFICAR SE JÁ EXISTE
+    // ========================================
+
+    const existe =
+        aulas.find(
+            function (aula) {
+
+                return (
+                    aula.data === data &&
+                    aula.hora === hora
+                );
+
+            }
+        );
+
+
+    if (existe) {
+
+        abrirAula(
+            existe
+        );
+
+        return;
+    }
+
 
     // ========================================
     // PEDIR NÚMERO DA AULA
@@ -3801,7 +3040,10 @@ async function criarAulaPeloCalendario(
         idAula.trim();
 
 
-    if (idAulaLimpo === "") {
+    if (
+        idAulaLimpo === ""
+    ) {
+
         return;
     }
 
@@ -3825,84 +3067,21 @@ async function criarAulaPeloCalendario(
         materia.trim();
 
 
-    if (materiaLimpa === "") {
-        return;
-    }
-
-
-    // ========================================
-    // VERIFICAR SE JÁ EXISTE AULA
-    // ========================================
-
-    const existe =
-        aulas.find(function (aula) {
-
-            return (
-                aula.data === data &&
-                aula.hora === hora
-            );
-
-        });
-
-
-    if (existe) {
-
-        abrirAula(existe);
+    if (
+        materiaLimpa === ""
+    ) {
 
         return;
     }
 
 
     // ========================================
-    // CRIAR AULA SEM ALUNOS
+    // CRIAR AULA
     // ========================================
 
     try {
 
-        const novaAula =
-            await addDoc(
-                collection(
-                    db,
-                    "aulas"
-                ),
-                {
-
-                    idAula:
-                        idAulaLimpo,
-
-                    materia:
-                        materiaLimpa,
-
-                    data:
-                        data,
-
-                    hora:
-                        hora,
-
-                    alunos:
-                        [],
-
-                    criadaEm:
-                        new Date()
-                            .toISOString()
-
-                }
-            );
-
-
-        mostrarNotificacao(
-            "Aula criada no calendário ✅"
-        );
-
-
-        // =====================================
-        // ABRIR AULA PARA ADICIONAR ALUNOS
-        // =====================================
-
-        const aulaCriada = {
-
-            id:
-                novaAula.id,
+        const dadosNovaAula = {
 
             idAula:
                 idAulaLimpo,
@@ -3917,10 +3096,52 @@ async function criarAulaPeloCalendario(
                 hora,
 
             alunos:
-                []
+                [],
+
+            criadaEm:
+                new Date()
+                    .toISOString()
 
         };
 
+
+        const novaAula =
+            await addDoc(
+                collection(
+                    db,
+                    "aulas"
+                ),
+                dadosNovaAula
+            );
+
+
+        const aulaCriada = {
+
+            id:
+                novaAula.id,
+
+            ...dadosNovaAula
+
+        };
+
+
+        // =====================================
+        // ATUALIZAR LISTA LOCAL
+        // =====================================
+
+        aulas.push(
+            aulaCriada
+        );
+
+
+        mostrarNotificacao(
+            "Aula criada no calendário ✅"
+        );
+
+
+        // =====================================
+        // ABRIR AULA
+        // =====================================
 
         abrirAula(
             aulaCriada
@@ -3930,7 +3151,11 @@ async function criarAulaPeloCalendario(
 
     catch (erro) {
 
-        console.error(erro);
+        console.error(
+            "Erro ao criar aula:",
+            erro
+        );
+
 
         mostrarNotificacao(
             "Erro ao criar aula: " +
@@ -3939,6 +3164,7 @@ async function criarAulaPeloCalendario(
         );
 
     }
+
 }
 
 
@@ -3996,7 +3222,6 @@ function renderizarCalendario() {
         "11:00",
         "12:00",
         "13:00",
-
         "17:00",
         "18:00",
         "19:00",
@@ -4023,16 +3248,19 @@ function renderizarCalendario() {
     ];
 
 
-    let html = "";
+    let html =
+        "";
 
 
     mesesCalendario.forEach(
         function (mes) {
 
             const partes =
-                mes.nome
-                    .trim()
-                    .split(/\s+/);
+                String(
+                    mes.nome || ""
+                )
+                .trim()
+                .split(/\s+/);
 
 
             const nomeMesTexto =
@@ -4041,13 +3269,16 @@ function renderizarCalendario() {
 
             const ano =
                 parseInt(
-                    partes[1]
+                    partes[1],
+                    10
                 );
 
 
             const mesNumero =
                 nomesMeses.indexOf(
-                    nomeMesTexto.toLowerCase()
+                    String(
+                        nomeMesTexto || ""
+                    ).toLowerCase()
                 );
 
 
@@ -4061,7 +3292,7 @@ function renderizarCalendario() {
                     <div class="calendar-month">
 
                         <h3>
-                            📅 ${mes.nome}
+                            📅 ${mes.nome || ""}
                         </h3>
 
                         <p>
@@ -4086,10 +3317,13 @@ function renderizarCalendario() {
 
 
             const feriados =
-                obterFeriados(ano);
+                obterFeriados(
+                    ano
+                );
 
 
-            const diasUteis = [];
+            const diasUteis =
+                [];
 
 
             for (
@@ -4115,7 +3349,9 @@ function renderizarCalendario() {
                 if (
                     diaSemana === 0
                 ) {
+
                     continue;
+
                 }
 
 
@@ -4179,6 +3415,12 @@ function renderizarCalendario() {
                         "calendar-day-header";
 
 
+                    const fechado =
+                        obterDiaFechado(
+                            dia.dataString
+                        );
+
+
                     if (
                         dia.feriado
                     ) {
@@ -4189,9 +3431,7 @@ function renderizarCalendario() {
                     }
 
                     else if (
-                        obterDiaFechado(
-                            dia.dataString
-                        )
+                        fechado
                     ) {
 
                         classe +=
@@ -4242,9 +3482,7 @@ function renderizarCalendario() {
                                         </small>
                                       `
                                     :
-                                obterDiaFechado(
-                                    dia.dataString
-                                )
+                                fechado
                                     ? `
                                         <small>
                                             FECHADO
@@ -4459,12 +3697,11 @@ function renderizarCalendario() {
 
                             }
 
-
-                            // =================================
-                            // CÉLULA VAZIA
-                            // =================================
-
                             else {
+
+                                // =================================
+                                // CÉLULA VAZIA
+                                // =================================
 
                                 html += `
 
@@ -4532,6 +3769,7 @@ function renderizarCalendario() {
 
                         event.stopPropagation();
 
+
                         mostrarMenuDoDia(
                             this
                         );
@@ -4562,10 +3800,6 @@ function renderizarCalendario() {
                             );
 
 
-                        // ==========================
-                        // FERIADO
-                        // ==========================
-
                         if (
                             bloqueado ===
                             "holiday"
@@ -4579,10 +3813,6 @@ function renderizarCalendario() {
                             return;
                         }
 
-
-                        // ==========================
-                        // FECHADO
-                        // ==========================
 
                         if (
                             bloqueado ===
@@ -4616,10 +3846,6 @@ function renderizarCalendario() {
                             );
 
 
-                        // =================================
-                        // EXISTE AULA
-                        // =================================
-
                         if (
                             lessonId
                         ) {
@@ -4637,30 +3863,39 @@ function renderizarCalendario() {
                                 );
 
 
-                            abrirAula(
-                                aula
-                            );
+                            if (aula) {
+
+                                abrirAula(
+                                    aula
+                                );
+
+                            }
+
+                            else {
+
+                                mostrarNotificacao(
+                                    "Aula não encontrada.",
+                                    "erro"
+                                );
+
+                            }
 
 
                             return;
                         }
 
 
-                        // =================================
-                        // CÉLULA VAZIA
-                        // =================================
-
                         await criarAulaPeloCalendario(
                             data,
                             horario
                         );
 
-                    }
+                    };
+
             }
         );
 
 }
-
 
 // ============================================
 // ESTADO DE REPROVAÇÃO
@@ -4671,6 +3906,7 @@ function mostrarEstadoReprovacao(
 ) {
 
     if (
+        !aluno ||
         !aluno.ultimaReprovacao
     ) {
 
@@ -4682,6 +3918,7 @@ function mostrarEstadoReprovacao(
     let html = `
 
         <p>
+
             <strong>
                 Última reprovação:
             </strong>
@@ -4695,9 +3932,12 @@ function mostrarEstadoReprovacao(
     `;
 
 
+    const aulasFeitas =
+        aluno.aulasReprovacaoFeitas || 0;
+
+
     if (
-        (aluno.aulasReprovacaoFeitas || 0) >=
-        5
+        aulasFeitas >= 5
     ) {
 
         html += `
@@ -4731,9 +3971,7 @@ function mostrarEstadoReprovacao(
 
                 📚 Aulas de reprovação:
 
-                ${
-                    aluno.aulasReprovacaoFeitas || 0
-                }/5
+                ${aulasFeitas}/5
 
             </p>
 
@@ -4743,6 +3981,7 @@ function mostrarEstadoReprovacao(
 
 
     return html;
+
 }
 
 
@@ -4761,10 +4000,22 @@ if (cancelExamResult) {
     cancelExamResult.onclick =
         function () {
 
-            document.getElementById(
-                "examModal"
-            ).style.display =
-                "none";
+            const modal =
+                document.getElementById(
+                    "examModal"
+                );
+
+
+            if (modal) {
+
+                modal.style.display =
+                    "none";
+
+            }
+
+
+            alunoResultadoExame =
+                null;
 
         };
 
@@ -4786,7 +4037,9 @@ if (saveExamResult) {
     saveExamResult.onclick =
         async function () {
 
-            if (!alunoResultadoExame) {
+            if (
+                !alunoResultadoExame
+            ) {
 
                 mostrarNotificacao(
                     "Nenhum aluno selecionado.",
@@ -4797,22 +4050,59 @@ if (saveExamResult) {
             }
 
 
-            const data =
+            const campoData =
                 document.getElementById(
                     "examDate"
-                ).value;
+                );
+
+
+            const campoResultado =
+                document.getElementById(
+                    "examResult"
+                );
+
+
+            if (
+                !campoData ||
+                !campoResultado
+            ) {
+
+                mostrarNotificacao(
+                    "Campos do exame não encontrados.",
+                    "erro"
+                );
+
+                return;
+            }
+
+
+            const data =
+                campoData.value;
 
 
             const resultado =
-                document.getElementById(
-                    "examResult"
-                ).value;
+                campoResultado.value;
 
 
-            if (data === "") {
+            if (
+                data === ""
+            ) {
 
                 mostrarNotificacao(
                     "Seleciona a data do exame.",
+                    "erro"
+                );
+
+                return;
+            }
+
+
+            if (
+                resultado === ""
+            ) {
+
+                mostrarNotificacao(
+                    "Seleciona o resultado do exame.",
                     "erro"
                 );
 
@@ -4854,6 +4144,10 @@ if (saveExamResult) {
                 };
 
 
+                // =================================
+                // REPROVADO
+                // =================================
+
                 if (
                     resultado ===
                     "Reprovado"
@@ -4878,6 +4172,32 @@ if (saveExamResult) {
                 }
 
 
+                // =================================
+                // APROVADO
+                // =================================
+
+                if (
+                    resultado ===
+                    "Aprovado"
+                ) {
+
+                    dadosAtualizar
+                        .ultimaReprovacao =
+                            null;
+
+
+                    dadosAtualizar
+                        .aulasNaUltimaReprovacao =
+                            0;
+
+
+                    dadosAtualizar
+                        .aulasReprovacaoFeitas =
+                            0;
+
+                }
+
+
                 await updateDoc(
                     doc(
                         db,
@@ -4888,19 +4208,42 @@ if (saveExamResult) {
                 );
 
 
-                document.getElementById(
-                    "examModal"
-                ).style.display =
-                    "none";
+                const modal =
+                    document.getElementById(
+                        "examModal"
+                    );
+
+
+                if (modal) {
+
+                    modal.style.display =
+                        "none";
+
+                }
 
 
                 mostrarNotificacao(
                     "Resultado do exame guardado com sucesso ✅"
                 );
 
+
+                alunoResultadoExame =
+                    null;
+
+
+                atualizarDashboard();
+
+                mostrarAlunos();
+
             }
 
             catch (erro) {
+
+                console.error(
+                    "Erro ao guardar exame:",
+                    erro
+                );
+
 
                 mostrarNotificacao(
                     "Erro ao guardar: " +
@@ -4916,7 +4259,7 @@ if (saveExamResult) {
 
 
 // ============================================
-// EXPORTAR RELATÓRIO
+// EXPORTAR RELATÓRIO EXCEL
 // ============================================
 
 const exportReportButton =
@@ -4945,106 +4288,152 @@ if (exportReportButton) {
             }
 
 
-            const livro =
-                XLSX.utils.book_new();
+            try {
+
+                const livro =
+                    XLSX.utils.book_new();
 
 
-            const dadosAlunos =
-                alunos.map(
-                    function (aluno) {
+                // =================================
+                // DADOS DOS ALUNOS
+                // =================================
 
-                        return {
+                const dadosAlunos =
+                    alunos.map(
+                        function (aluno) {
 
-                            "N.º":
-                                aluno.numero,
+                            return {
 
-                            "Nome":
-                                aluno.nome,
+                                "N.º":
+                                    aluno.numero,
 
-                            "Estado":
-                                aluno.estado,
+                                "Nome":
+                                    aluno.nome,
 
-                            "Aulas":
-                                aluno.aulasRealizadas || 0,
+                                "Estado":
+                                    aluno.estado,
 
-                            "Exame":
-                                aluno.estadoExame,
+                                "Aulas":
+                                    aluno.aulasRealizadas ||
+                                    0,
 
-                            "Validade Licença":
-                                aluno.validadeLicenca,
+                                "Exame":
+                                    aluno.estadoExame ||
+                                    "Sem exames",
 
-                            "Validade Código":
-                                aluno.validadeCodigo
+                                "Validade Licença":
+                                    aluno.validadeLicenca ||
+                                    "",
 
-                        };
+                                "Validade Código":
+                                    aluno.validadeCodigo ||
+                                    ""
 
-                    }
+                            };
+
+                        }
+                    );
+
+
+                const folhaAlunos =
+                    XLSX.utils.json_to_sheet(
+                        dadosAlunos
+                    );
+
+
+                XLSX.utils.book_append_sheet(
+                    livro,
+                    folhaAlunos,
+                    "Alunos"
                 );
 
 
-            const folhaAlunos =
-                XLSX.utils.json_to_sheet(
-                    dadosAlunos
+                // =================================
+                // DADOS DAS AULAS
+                // =================================
+
+                const dadosAulas =
+                    aulas.map(
+                        function (aula) {
+
+                            return {
+
+                                "ID da Aula":
+                                    aula.idAula ||
+                                    "",
+
+                                "Data":
+                                    aula.data ||
+                                    "",
+
+                                "Hora":
+                                    aula.hora ||
+                                    "",
+
+                                "Matéria":
+                                    aula.materia ||
+                                    "",
+
+                                "Alunos":
+                                    (
+                                        aula.alunos ||
+                                        []
+                                    ).join(", ")
+
+                            };
+
+                        }
+                    );
+
+
+                const folhaAulas =
+                    XLSX.utils.json_to_sheet(
+                        dadosAulas
+                    );
+
+
+                XLSX.utils.book_append_sheet(
+                    livro,
+                    folhaAulas,
+                    "Aulas"
                 );
 
 
-            XLSX.utils.book_append_sheet(
-                livro,
-                folhaAlunos,
-                "Alunos"
-            );
+                // =================================
+                // GUARDAR
+                // =================================
 
-
-            const dadosAulas =
-                aulas.map(
-                    function (aula) {
-
-                        return {
-
-                            "ID da Aula":
-                                aula.idAula,
-
-                            "Data":
-                                aula.data,
-
-                            "Hora":
-                                aula.hora,
-
-                            "Matéria":
-                                aula.materia,
-
-                            "Alunos":
-                                (
-                                    aula.alunos ||
-                                    []
-                                ).join(", ")
-
-                        };
-
-                    }
+                XLSX.writeFile(
+                    livro,
+                    "Relatorio_English_Check.xlsx"
                 );
 
 
-            const folhaAulas =
-                XLSX.utils.json_to_sheet(
-                    dadosAulas
+                mostrarNotificacao(
+                    "Relatório Excel criado com sucesso ✅"
+                );
+
+            }
+
+            catch (erro) {
+
+                console.error(
+                    "Erro ao exportar Excel:",
+                    erro
                 );
 
 
-            XLSX.utils.book_append_sheet(
-                livro,
-                folhaAulas,
-                "Aulas"
-            );
+                mostrarNotificacao(
+                    "Erro ao exportar relatório: " +
+                    erro.message,
+                    "erro"
+                );
 
-
-            XLSX.writeFile(
-                livro,
-                "Relatorio_English_Check.xlsx"
-            );
+            }
 
         }
     );
+
 }
 
 
@@ -5078,165 +4467,229 @@ if (printActiveStudentsButton) {
             }
 
 
-            const {
-                jsPDF
-            } = window.jspdf;
+            try {
+
+                const {
+                    jsPDF
+                } =
+                    window.jspdf;
 
 
-            const pdf =
-                new jsPDF();
+                const pdf =
+                    new jsPDF();
 
 
-            pdf.setFont(
-                "helvetica",
-                "bold"
-            );
+                pdf.setFont(
+                    "helvetica",
+                    "bold"
+                );
 
 
-            pdf.setFontSize(18);
+                pdf.setFontSize(
+                    18
+                );
 
 
-            pdf.text(
-                "English Check",
-                20,
-                20
-            );
+                pdf.text(
+                    "English Check",
+                    20,
+                    20
+                );
 
 
-            pdf.setFontSize(14);
+                pdf.setFontSize(
+                    14
+                );
 
 
-            pdf.text(
-                "Lista de Alunos Ativos",
-                20,
-                30
-            );
+                pdf.text(
+                    "Lista de Alunos Ativos",
+                    20,
+                    30
+                );
 
 
-            pdf.setFont(
-                "helvetica",
-                "normal"
-            );
+                pdf.setFont(
+                    "helvetica",
+                    "normal"
+                );
 
 
-            pdf.setFontSize(10);
+                pdf.setFontSize(
+                    10
+                );
 
 
-            pdf.text(
-                "Data: " +
-                new Date()
-                    .toLocaleDateString("pt-PT"),
-                20,
-                38
-            );
+                pdf.text(
+                    "Data: " +
+                    new Date()
+                        .toLocaleDateString(
+                            "pt-PT"
+                        ),
+                    20,
+                    38
+                );
 
 
-            let y = 50;
+                let y =
+                    50;
 
 
-            const alunosAtivos =
-                [...alunos]
+                const alunosAtivos =
+                    [...alunos]
 
-                    .filter(
-                        function (aluno) {
+                        .filter(
+                            function (aluno) {
 
-                            return (
-                                aluno.estado ===
-                                "Ativo"
-                            );
+                                return (
+                                    aluno.estado ===
+                                    "Ativo"
+                                );
 
-                        }
-                    )
+                            }
+                        )
 
-                    .sort(
-                        function (a, b) {
+                        .sort(
+                            function (a, b) {
 
-                            return (
-                                Number(a.numero) -
-                                Number(b.numero)
-                            );
+                                return (
+                                    Number(
+                                        a.numero
+                                    ) -
+                                    Number(
+                                        b.numero
+                                    )
+                                );
 
-                        }
-                    );
-
-
-            alunosAtivos.forEach(
-                function (aluno, index) {
-
-                    if (
-                        y > 275
-                    ) {
-
-                        pdf.addPage();
-
-                        y = 20;
-
-                    }
+                            }
+                        );
 
 
-                    pdf.setFont(
-                        "helvetica",
-                        "bold"
-                    );
-
+                if (
+                    alunosAtivos.length ===
+                    0
+                ) {
 
                     pdf.text(
-                        (
-                            index + 1
-                        ) +
-                        ". " +
-                        aluno.nome,
+                        "Não existem alunos ativos.",
                         20,
                         y
                     );
 
-
-                    pdf.setFont(
-                        "helvetica",
-                        "normal"
-                    );
-
-
-                    pdf.text(
-                        "N.º: " +
-                        aluno.numero,
-                        25,
-                        y + 6
-                    );
-
-
-                    pdf.text(
-                        "Aulas: " +
-                        (
-                            aluno.aulasRealizadas ||
-                            0
-                        ),
-                        70,
-                        y + 6
-                    );
-
-
-                    pdf.text(
-                        "Exame: " +
-                        (
-                            aluno.estadoExame ||
-                            "Sem exames"
-                        ),
-                        120,
-                        y + 6
-                    );
-
-
-                    y += 18;
-
                 }
-            );
 
 
-            pdf.save(
-                "Alunos_Ativos.pdf"
-            );
+                alunosAtivos.forEach(
+                    function (
+                        aluno,
+                        index
+                    ) {
+
+                        if (
+                            y > 275
+                        ) {
+
+                            pdf.addPage();
+
+                            y = 20;
+
+                        }
+
+
+                        pdf.setFont(
+                            "helvetica",
+                            "bold"
+                        );
+
+
+                        pdf.text(
+                            (
+                                index + 1
+                            ) +
+                            ". " +
+                            (
+                                aluno.nome ||
+                                "Sem nome"
+                            ),
+                            20,
+                            y
+                        );
+
+
+                        pdf.setFont(
+                            "helvetica",
+                            "normal"
+                        );
+
+
+                        pdf.text(
+                            "N.º: " +
+                            (
+                                aluno.numero ||
+                                "-"
+                            ),
+                            25,
+                            y + 6
+                        );
+
+
+                        pdf.text(
+                            "Aulas: " +
+                            (
+                                aluno.aulasRealizadas ||
+                                0
+                            ),
+                            70,
+                            y + 6
+                        );
+
+
+                        pdf.text(
+                            "Exame: " +
+                            (
+                                aluno.estadoExame ||
+                                "Sem exames"
+                            ),
+                            120,
+                            y + 6
+                        );
+
+
+                        y +=
+                            18;
+
+                    }
+                );
+
+
+                pdf.save(
+                    "Alunos_Ativos.pdf"
+                );
+
+
+                mostrarNotificacao(
+                    "PDF criado com sucesso ✅"
+                );
+
+            }
+
+            catch (erro) {
+
+                console.error(
+                    "Erro ao criar PDF:",
+                    erro
+                );
+
+
+                mostrarNotificacao(
+                    "Erro ao criar PDF: " +
+                    erro.message,
+                    "erro"
+                );
+
+            }
 
         }
     );
+
 }
