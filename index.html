@@ -5,11 +5,17 @@
 
     <meta charset="UTF-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>English Check</title>
 
-    <link rel="stylesheet" href="style.css">
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
 
 </head>
 
@@ -17,53 +23,47 @@
 <body>
 
 
-    <!-- LOGIN -->
+    <!-- ============================================
+         LOGIN
+         ============================================ -->
 
-    <div class="login-page" id="loginPage">
+    <div
+        class="login-page"
+        id="loginPage"
+    >
 
         <div class="login-box">
 
             <h1>English Check</h1>
 
-            <p>Gestão de Aulas de Código da Estrada</p>
+            <p>
+                Gestão de Aulas de Código da Estrada
+            </p>
 
 
             <label>
-
                 Username
-
             </label>
 
             <input
-
                 id="username"
-
                 placeholder="Username"
-
             >
 
 
             <label>
-
                 Password
-
             </label>
 
             <input
-
                 id="password"
-
                 type="password"
-
                 placeholder="Password"
-
             >
 
 
             <button id="loginButton">
-
                 Entrar
-
             </button>
 
 
@@ -74,666 +74,851 @@
     </div>
 
 
-    <!-- APLICAÇÃO -->
 
-    <div class="app" id="app">
+    <!-- ============================================
+         APLICAÇÃO
+         ============================================ -->
 
+    <div
+        class="app"
+        id="app"
+    >
 
-       <div class="topbar">
 
-    <h1>English Check</h1>
+        <!-- ========================================
+             TOPO / MENU
+             ======================================== -->
 
-    <div>
+        <div class="topbar">
 
-        <button id="homeMenu">
-    🏠 Início
-</button>
+            <h1>
+                English Check
+            </h1>
 
-<button id="studentsMenu">
-    👨‍🎓 Alunos
-</button>
 
-<button id="lessonsMenu">
-    📚 Aulas
-</button>
+            <div>
 
-<button id="calendarMenu">
-    📅 Calendário
-</button>
-
-<button id="reportsMenu">
-    📊 Relatórios
-</button>
-
-<button class="logout-button"
-    id="logoutButton">
-    Sair
-</button>
-
-    </div>
-
-</div>
-
-<div class="container">
-
-    <div id="homePage">
-
-            <!-- ESTATÍSTICAS -->
-
-<div class="stats">
-
-    <div class="stat-card">
-
-        👨‍🎓 Alunos Ativos
-
-        <h2 id="totalStudents">
-            0
-        </h2>
-
-    </div>
-
-    <div class="stat-card">
-
-        ⚠️ Alertas
-
-        <h2 id="totalAlerts">
-            0
-        </h2>
-
-    </div>
-
-    <div class="stat-card">
-
-        ✅ Exames Aprovados
-
-        <h2 id="totalApproved">
-            0
-        </h2>
-
-    </div>
-
-</div>
-
-            <!-- ALERTAS -->
-
-            <div class="section">
-
-                <h2>
-
-                    🔔 Alertas de Validade
-
-                </h2>
-
-
-                <p>
-
-                    Mostra as licenças e códigos que terminam nos próximos 3 meses.
-
-                </p>
-
-
-                <div id="alertsList">
-
-                    Não existem alertas.
-
-                </div>
-
-            </div>
-
-
-            <!-- ADICIONAR ALUNO -->
-
-            <div class="section">
-
-
-                <h2>
-
-                    ➕ Adicionar Aluno
-
-                </h2>
-
-
-                <div class="form-grid">
-
-
-                    <div>
-
-                        <label>
-
-                            N.º de aluno
-
-                        </label>
-
-
-                        <input
-
-                            id="studentNumber"
-
-                            placeholder="Exemplo: 001"
-
-                        >
-
-                    </div>
-
-
-                    <div>
-
-                        <label>
-
-                            Nome completo
-
-                        </label>
-
-
-                        <input
-
-                            id="studentName"
-
-                            placeholder="Nome do aluno"
-
-                        >
-
-                    </div>
-
-
-                    <div>
-
-                        <label>
-
-                            Validade da licença de aprendizagem
-
-                        </label>
-
-
-                        <input
-
-                            id="licenceExpiry"
-
-                            type="date"
-
-                        >
-
-                    </div>
-
-
-                    <div>
-
-                        
-
-                    <div>
-
-                        <label>
-
-                            Validade do código
-
-                        </label>
-
-
-                        <input
-
-                            id="codeExpiry"
-
-                            type="date"
-
-                        >
-
-                    </div>
-
-
-                    <div>
-
-                        <label>
-
-                            QR Code / Código do aluno
-
-                        </label>
-
-
-                        <input
-
-                            id="qrCode"
-
-                            placeholder="Exemplo: ALUNO-001"
-
-                        >
-
-                    </div>
-
-
-                    <div>
-
-                        <label>
-
-                            Estado do aluno
-
-                        </label>
-
-
-                        <select id="studentStatus">
-
-
-                            <option value="Ativo">
-
-                                Ativo
-
-                            </option>
-
-
-                            <option value="Inativo">
-
-                                Inativo
-
-                            </option>
-
-
-                        </select>
-
-                    </div>
-
-
-                </div>
-
-
-                <button id="addStudentButton">
-
-                    Adicionar Aluno
-
+                <button id="homeMenu">
+                    🏠 Início
                 </button>
 
 
+                <button id="studentsMenu">
+                    👨‍🎓 Alunos
+                </button>
+
+
+                <button id="lessonsMenu">
+                    📚 Aulas
+                </button>
+
+
+                <button id="calendarMenu">
+                    📅 Calendário
+                </button>
+
+
+                <button id="reportsMenu">
+                    📊 Relatórios
+                </button>
+
+
+                <button
+                    class="logout-button"
+                    id="logoutButton"
+                >
+                    Sair
+                </button>
+
             </div>
 
-<!-- ============================================
-     EDITOR / NOVA AULA
-     ============================================ -->
-
-<div
-    id="lessonEditorOverlay"
-    class="lesson-editor-overlay"
-    style="display:none;"
->
-
-    <div
-        id="lessonEditorModal"
-        class="lesson-editor-modal"
-    >
-
-        <button
-            type="button"
-            id="closeLessonEditor"
-            class="close-lesson-editor"
-        >
-            ✕
-        </button>
-
-        <div class="section">
-
-            <h2 id="lessonEditorTitle">
-                📚 Nova Aula
-            </h2>
+        </div>
 
 
-            <label>N.º da Aula</label>
 
-            <select id="lessonId">
+        <!-- ========================================
+             CONTEÚDO PRINCIPAL
+             ======================================== -->
 
-                <option value="">
-                    Selecionar aula
-                </option>
-
-                <option value="01">
-                    01 — The Driver's Profile
-                </option>
-
-                <option value="02">
-                    02 — The Driver and Their Physical and Psychological Condition
-                </option>
-
-                <option value="03">
-                    03 — The Driver and Other Road Users
-                </option>
-
-                <option value="04">
-                    04 — Civic Behaviour and Road Safety
-                </option>
-
-                <option value="05/06">
-                    05/06 — Driving Task, Reaction Time and Distances
-                </option>
-
-                <option value="07">
-                    07 — Alternative Name Used for First Module Tests
-                </option>
-
-                <option value="08">
-                    08 — Hierarchy of Instructions to Traffic Lights
-                </option>
-
-                <option value="09">
-                    09 — Vertical Signs to Warning Signs
-                </option>
-
-                <option value="10">
-                    10 — Regulatory Signs
-                </option>
-
-                <option value="11">
-                    11 — Information Signs
-                </option>
-
-                <option value="12">
-                    12 — Road Markings and Drivers' Signals
-                </option>
-
-                <option value="13">
-                    13 — Starting and Resuming Movement to Reduced Visibility
-                </option>
-
-                <option value="14">
-                    14 — Vehicle Lighting to the Prohibition of Certain Devices
-                </option>
-
-                <option value="15">
-                    15 — Speeds
-                </option>
-
-                <option value="16">
-                    16 — Priorities to Passing oncoming Vehicles
-                </option>
-
-                <option value="17">
-                    17 — Overtaking to Reversing
-                </option>
-
-                <option value="18">
-                    18 — Stopping and Parking
-                </option>
-
-                <option value="19">
-                    19 — Vehicle Weights, Dimensions and Systems
-                </option>
-
-                <option value="20">
-                    20 — Periodic Inspections to Safety Equipment
-                </option>
-
-                <option value="21">
-                    21 — Road Classification to Driving in Adverse Environmental Conditions
-                </option>
-
-                <option value="22">
-                    22 — Legal Requirements for Driving
-                </option>
-
-                <option value="23">
-                    23 — Liability for Offences to Behaviour in the Event of an Accident
-                </option>
-
-                <option value="24">
-                    24 — Exam Preparation Assessment
-                </option>
-
-            </select>
+        <div class="container">
 
 
-            <label>Matéria</label>
+            <!-- ======================================
+                 PÁGINA INÍCIO
+                 ====================================== -->
 
-            <input
-                id="lessonSubject"
-                type="text"
-                readonly
-                placeholder="A matéria aparece automaticamente"
-            >
+            <div id="homePage">
 
 
-            <label>Data</label>
+                <!-- ESTATÍSTICAS -->
 
-            <input
-                id="lessonDate"
-                type="date"
-            >
+                <div class="stats">
 
+                    <div class="stat-card">
 
-            <label>Hora</label>
+                        👨‍🎓 Alunos Ativos
 
-            <input
-                id="lessonTime"
-                type="time"
-            >
+                        <h2 id="totalStudents">
+                            0
+                        </h2>
 
-
-            <label>N.º do aluno</label>
-
-            <input
-                id="lessonStudentNumber"
-                placeholder="Ex.: 001"
-            >
+                    </div>
 
 
-            <button
-                type="button"
-                id="addStudentToLesson"
-            >
-                Adicionar aluno à aula
-            </button>
+                    <div class="stat-card">
+
+                        ⚠️ Alertas
+
+                        <h2 id="totalAlerts">
+                            0
+                        </h2>
+
+                    </div>
 
 
-            <button
-                type="button"
-                id="selectMultipleStudents"
-            >
-                👥 Selecionar vários alunos
-            </button>
+                    <div class="stat-card">
+
+                        ✅ Exames Aprovados
+
+                        <h2 id="totalApproved">
+                            0
+                        </h2>
+
+                    </div>
+
+                </div>
 
 
-            <button
-                type="button"
-                id="scanQRCodeButton"
-            >
-                📷 Ler QR Code
-            </button>
 
+                <!-- ALERTAS -->
+
+                <div class="section">
+
+                    <h2>
+                        🔔 Alertas de Validade
+                    </h2>
+
+
+                    <p>
+                        Mostra as licenças e códigos que terminam nos próximos 3 meses.
+                    </p>
+
+
+                    <div id="alertsList">
+                        Não existem alertas.
+                    </div>
+
+                </div>
+
+
+
+                <!-- ==================================
+                     ADICIONAR ALUNO
+                     ================================== -->
+
+                <div class="section">
+
+                    <h2>
+                        ➕ Adicionar Aluno
+                    </h2>
+
+
+                    <div class="form-grid">
+
+
+                        <!-- NÚMERO -->
+
+                        <div>
+
+                            <label>
+                                N.º de aluno
+                            </label>
+
+                            <input
+                                id="studentNumber"
+                                placeholder="Exemplo: 001"
+                            >
+
+                        </div>
+
+
+                        <!-- NOME -->
+
+                        <div>
+
+                            <label>
+                                Nome completo
+                            </label>
+
+                            <input
+                                id="studentName"
+                                placeholder="Nome do aluno"
+                            >
+
+                        </div>
+
+
+                        <!-- VALIDADE LICENÇA -->
+
+                        <div>
+
+                            <label>
+                                Validade da licença de aprendizagem
+                            </label>
+
+                            <input
+                                id="licenceExpiry"
+                                type="date"
+                            >
+
+                        </div>
+
+
+                        <!-- VALIDADE CÓDIGO -->
+
+                        <div>
+
+                            <label>
+                                Validade do código
+                            </label>
+
+                            <input
+                                id="codeExpiry"
+                                type="date"
+                            >
+
+                        </div>
+
+
+                        <!-- QR CODE -->
+
+                        <div>
+
+                            <label>
+                                QR Code / Código do aluno
+                            </label>
+
+                            <input
+                                id="qrCode"
+                                placeholder="Exemplo: ALUNO-001"
+                            >
+
+                        </div>
+
+
+                        <!-- ESTADO -->
+
+                        <div>
+
+                            <label>
+                                Estado do aluno
+                            </label>
+
+                            <select id="studentStatus">
+
+                                <option value="Ativo">
+                                    Ativo
+                                </option>
+
+                                <option value="Inativo">
+                                    Inativo
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                    </div>
+
+
+                    <button id="addStudentButton">
+                        Adicionar Aluno
+                    </button>
+
+                </div>
+
+
+            </div>
+            <!-- FIM homePage -->
+
+
+
+            <!-- ======================================
+                 PÁGINA AULAS
+                 ====================================== -->
 
             <div
-                id="reader"
-                style="display:none; margin-top:15px;"
-            ></div>
+                id="lessonsPage"
+                style="display:none;"
+            >
+
+                <div class="section">
+
+                    <h2>
+                        📚 Lista de Aulas
+                    </h2>
 
 
-            <div id="lessonStudents">
-                Nenhum aluno adicionado.
+                    <div id="lessonsList">
+                        Ainda não existem aulas.
+                    </div>
+
+                </div>
+
             </div>
 
 
+
+            <!-- ======================================
+                 PÁGINA ALUNOS
+                 ====================================== -->
+
             <div
-                id="multipleStudentsBox"
-                style="
-                    display:none;
-                    border:1px solid #ccc;
-                    padding:10px;
-                    margin-top:10px;
-                    max-height:250px;
-                    overflow-y:auto;
-                "
-            ></div>
-
-
-            <button
-                type="button"
-                id="addSelectedStudents"
-                style="display:none; margin-top:10px;"
+                id="studentsPage"
+                style="display:none;"
             >
-                ✅ Adicionar Selecionados
-            </button>
+
+                <div class="section">
+
+                    <h2>
+                        👨‍🎓 Lista de Alunos
+                    </h2>
 
 
-            <button
-                type="button"
-                id="saveLesson"
+                    <input
+                        id="searchStudent"
+                        placeholder="Pesquisar por nome ou número"
+                    >
+
+
+                    <div id="studentsList">
+                        Ainda não existem alunos.
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- ======================================
+                 PÁGINA RELATÓRIOS
+                 ====================================== -->
+
+            <div
+                id="reportsPage"
+                style="display:none;"
             >
-                Guardar Aula
-            </button>
+
+                <div class="section">
+
+                    <h2>
+                        📊 Relatórios
+                    </h2>
+
+
+                    <p>
+                        Escolhe uma opção:
+                    </p>
+
+
+                    <button id="exportReportButton">
+                        📥 Exportar Relatório Completo
+                    </button>
+
+
+                    <br>
+                    <br>
+
+
+                    <button id="printActiveStudentsButton">
+                        🖨️ Imprimir Alunos Ativos
+                    </button>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- ======================================
+                 CALENDÁRIO
+                 ====================================== -->
+
+            <div
+                id="calendarPage"
+                style="display:none;"
+            >
+
+                <div class="section">
+
+                    <h2>
+                        📅 Calendário de Aulas
+                    </h2>
+
+
+                    <div class="calendar-controls">
+
+                        <button id="addMonthButton">
+                            ➕ Adicionar novo mês
+                        </button>
+
+                    </div>
+
+
+                    <div id="monthsContainer">
+
+                        <div class="calendar-empty">
+
+                            📅
+
+                            <p>
+                                Ainda não existe nenhum mês.
+                            </p>
+
+
+                            <p>
+
+                                Clica em
+                                <strong>
+                                    ➕ Adicionar novo mês
+                                </strong>
+
+                                para começar.
+
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
 
         </div>
-
-    </div>
-
-</div>
-
-<!-- ============================================
-     PÁGINA AULAS
-     ============================================ -->
-
-<div id="lessonsPage" style="display:none;">
-
-    <div class="section">
-
-        <h2>📚 Lista de Aulas</h2>
-
-        <div id="lessonsList">
-            Ainda não existem aulas.
-        </div>
-
-    </div>
-
-</div>
+        <!-- FIM container -->
 
 
-<!-- ============================================
-     PÁGINA ALUNOS
-     ============================================ -->
 
-<div id="studentsPage" style="display:none;">
+        <!-- ========================================
+             EDITOR / NOVA AULA
+             MODAL FLUTUANTE
+             ======================================== -->
 
-    <div class="section">
-
-        <h2>👨‍🎓 Lista de Alunos</h2>
-
-        <input
-            id="searchStudent"
-            placeholder="Pesquisar por nome ou número"
+        <div
+            id="lessonEditorOverlay"
+            class="lesson-editor-overlay"
+            style="display:none;"
         >
 
-        <div id="studentsList">
-            Ainda não existem alunos.
+            <div
+                id="lessonEditorModal"
+                class="lesson-editor-modal"
+            >
+
+
+                <!-- FECHAR -->
+
+                <button
+                    type="button"
+                    id="closeLessonEditor"
+                    class="close-lesson-editor"
+                >
+                    ✕
+                </button>
+
+
+
+                <div class="section">
+
+
+                    <h2 id="lessonEditorTitle">
+                        📚 Nova Aula
+                    </h2>
+
+
+
+                    <!-- N.º DA AULA -->
+
+                    <label>
+                        N.º da Aula
+                    </label>
+
+
+                    <select id="lessonId">
+
+                        <option value="">
+                            Selecionar aula
+                        </option>
+
+
+                        <option value="01">
+                            01 — The Driver's Profile
+                        </option>
+
+
+                        <option value="02">
+                            02 — The Driver and Their Physical and Psychological Condition
+                        </option>
+
+
+                        <option value="03">
+                            03 — The Driver and Other Road Users
+                        </option>
+
+
+                        <option value="04">
+                            04 — Civic Behaviour and Road Safety
+                        </option>
+
+
+                        <option value="05/06">
+                            05/06 — Driving Task, Reaction Time and Distances
+                        </option>
+
+
+                        <option value="07">
+                            07 — Alternative Name Used for First Module Tests
+                        </option>
+
+
+                        <option value="08">
+                            08 — Hierarchy of Instructions to Traffic Lights
+                        </option>
+
+
+                        <option value="09">
+                            09 — Vertical Signs to Warning Signs
+                        </option>
+
+
+                        <option value="10">
+                            10 — Regulatory Signs
+                        </option>
+
+
+                        <option value="11">
+                            11 — Information Signs
+                        </option>
+
+
+                        <option value="12">
+                            12 — Road Markings and Drivers' Signals
+                        </option>
+
+
+                        <option value="13">
+                            13 — Starting and Resuming Movement to Reduced Visibility
+                        </option>
+
+
+                        <option value="14">
+                            14 — Vehicle Lighting to the Prohibition of Certain Devices
+                        </option>
+
+
+                        <option value="15">
+                            15 — Speeds
+                        </option>
+
+
+                        <option value="16">
+                            16 — Priorities to Passing oncoming Vehicles
+                        </option>
+
+
+                        <option value="17">
+                            17 — Overtaking to Reversing
+                        </option>
+
+
+                        <option value="18">
+                            18 — Stopping and Parking
+                        </option>
+
+
+                        <option value="19">
+                            19 — Vehicle Weights, Dimensions and Systems
+                        </option>
+
+
+                        <option value="20">
+                            20 — Periodic Inspections to Safety Equipment
+                        </option>
+
+
+                        <option value="21">
+                            21 — Road Classification to Driving in Adverse Environmental Conditions
+                        </option>
+
+
+                        <option value="22">
+                            22 — Legal Requirements for Driving
+                        </option>
+
+
+                        <option value="23">
+                            23 — Liability for Offences to Behaviour in the Event of an Accident
+                        </option>
+
+
+                        <option value="24">
+                            24 — Exam Preparation Assessment
+                        </option>
+
+                    </select>
+
+
+
+                    <!-- MATÉRIA -->
+
+                    <label>
+                        Matéria
+                    </label>
+
+
+                    <input
+                        id="lessonSubject"
+                        type="text"
+                        readonly
+                        placeholder="A matéria aparece automaticamente"
+                    >
+
+
+
+                    <!-- DATA -->
+
+                    <label>
+                        Data
+                    </label>
+
+
+                    <input
+                        id="lessonDate"
+                        type="date"
+                    >
+
+
+
+                    <!-- HORA -->
+
+                    <label>
+                        Hora
+                    </label>
+
+
+                    <input
+                        id="lessonTime"
+                        type="time"
+                    >
+
+
+
+                    <!-- ALUNO -->
+
+                    <label>
+                        N.º do aluno
+                    </label>
+
+
+                    <input
+                        id="lessonStudentNumber"
+                        placeholder="Ex.: 001"
+                    >
+
+
+                    <button
+                        type="button"
+                        id="addStudentToLesson"
+                    >
+                        Adicionar aluno à aula
+                    </button>
+
+
+
+                    <!-- VÁRIOS ALUNOS -->
+
+                    <button
+                        type="button"
+                        id="selectMultipleStudents"
+                    >
+                        👥 Selecionar vários alunos
+                    </button>
+
+
+
+                    <!-- QR CODE -->
+
+                    <button
+                        type="button"
+                        id="scanQRCodeButton"
+                    >
+                        📷 Ler QR Code
+                    </button>
+
+
+
+                    <div
+                        id="reader"
+                        style="display:none; margin-top:15px;"
+                    ></div>
+
+
+
+                    <!-- ALUNOS DA AULA -->
+
+                    <div id="lessonStudents">
+
+                        Nenhum aluno adicionado.
+
+                    </div>
+
+
+
+                    <!-- SELEÇÃO MÚLTIPLA -->
+
+                    <div
+                        id="multipleStudentsBox"
+                        style="
+                            display:none;
+                            border:1px solid #ccc;
+                            padding:10px;
+                            margin-top:10px;
+                            max-height:250px;
+                            overflow-y:auto;
+                        "
+                    ></div>
+
+
+
+                    <button
+                        type="button"
+                        id="addSelectedStudents"
+                        style="display:none; margin-top:10px;"
+                    >
+                        ✅ Adicionar Selecionados
+                    </button>
+
+
+
+                    <!-- GUARDAR -->
+
+                    <button
+                        type="button"
+                        id="saveLesson"
+                    >
+                        Guardar Aula
+                    </button>
+
+
+                </div>
+
+            </div>
+
         </div>
 
-    </div>
-
-</div>
 
 
-<!-- ============================================
-     PÁGINA RELATÓRIOS
-     ============================================ -->
+        <!-- ========================================
+             MODAL RESULTADO DE EXAME
+             ======================================== -->
 
-<div id="reportsPage" style="display:none;">
-
-    <div class="section">
-
-        <h2>📊 Relatórios</h2>
-
-        <p>
-            Escolhe uma opção:
-        </p>
-
-        <button id="exportReportButton">
-            📥 Exportar Relatório Completo
-        </button>
-
-        <br><br>
-
-        <button id="printActiveStudentsButton">
-            🖨️ Imprimir Alunos Ativos
-        </button>
-
-    </div>
-
-</div>
-
-<!-- MODAL RESULTADO DE EXAME -->
-
-<div id="examModal" class="modal" style="display:none;">
-
-    <div class="modal-content">
-
-        <h2>📝 Registar Resultado de Exame</h2>
-
-        <label>Data do exame</label>
-
-        <input
-            type="date"
-            id="examDate"
+        <div
+            id="examModal"
+            class="modal"
+            style="display:none;"
         >
 
-        <label>Resultado</label>
+            <div class="modal-content">
 
-        <select id="examResult">
+                <h2>
+                    📝 Registar Resultado de Exame
+                </h2>
 
-            <option value="Aprovado">
-                Aprovado
-            </option>
 
-            <option value="Reprovado">
-                Reprovado
-            </option>
+                <label>
+                    Data do exame
+                </label>
 
-        </select>
 
-        <br><br>
+                <input
+                    type="date"
+                    id="examDate"
+                >
 
-        <button id="saveExamResult">
-            Guardar
-        </button>
 
-        <button id="cancelExamResult">
-            Cancelar
-        </button>
+                <label>
+                    Resultado
+                </label>
+
+
+                <select id="examResult">
+
+                    <option value="Aprovado">
+                        Aprovado
+                    </option>
+
+
+                    <option value="Reprovado">
+                        Reprovado
+                    </option>
+
+                </select>
+
+
+                <br>
+                <br>
+
+
+                <button id="saveExamResult">
+                    Guardar
+                </button>
+
+
+                <button id="cancelExamResult">
+                    Cancelar
+                </button>
+
+            </div>
+
+        </div>
+
 
     </div>
+    <!-- FIM app -->
 
-</div>
-<div id="calendarPage" style="display: none;">
 
-    <h2>📅 Calendário de Aulas</h2>
 
-<div class="calendar-controls">
-
-    <button id="addMonthButton">
-        ➕ Adicionar novo mês
-    </button>
-
-</div>
-
-<div id="monthsContainer">
-
-    <div class="calendar-empty">
-
-        📅
-
-        <p>
-            Ainda não existe nenhum mês.
-        </p>
-
-        <p>
-            Clica em <strong>➕ Adicionar novo mês</strong>
-            para começar.
-        </p>
-
-    </div>
-
-</div>
-</div>    </div>
+    <!-- ============================================
+         BIBLIOTECAS
+         ============================================ -->
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
-<script src="https://unpkg.com/html5-qrcode"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>  
+    <script src="https://unpkg.com/html5-qrcode"></script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-<script type="module" src="script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+
+
+    <!-- ============================================
+         JAVASCRIPT DA APLICAÇÃO
+         ============================================ -->
+
+    <script
+        type="module"
+        src="script.js"
+    ></script>
+
 
 </body>
+
 </html>
