@@ -2330,6 +2330,109 @@ renderizarCalendario();
 
 }
 
+// ============================================
+// MOSTRAR ALUNOS
+// ============================================
+
+function mostrarAlunos() {
+
+    const lista =
+        document.getElementById(
+            "studentsList"
+        );
+
+
+    if (!lista) {
+        return;
+    }
+
+
+    if (
+        alunos.length === 0
+    ) {
+
+        lista.innerHTML =
+            "Ainda não existem alunos.";
+
+        return;
+    }
+
+
+    lista.innerHTML =
+        "";
+
+
+    const alunosOrdenados =
+        [...alunos].sort(
+            function (a, b) {
+
+                return (
+                    Number(a.numero || 0) -
+                    Number(b.numero || 0)
+                );
+
+            }
+        );
+
+
+    alunosOrdenados.forEach(
+        function (aluno) {
+
+            const cartao =
+                document.createElement(
+                    "div"
+                );
+
+
+            cartao.className =
+                "student-card";
+
+
+            cartao.innerHTML = `
+
+                <h3>
+                    👨‍🎓
+                    ${aluno.numero || "-"}
+                    -
+                    ${aluno.nome || "-"}
+                </h3>
+
+                <p>
+                    <strong>Estado:</strong>
+                    ${aluno.estado || "-"}
+                </p>
+
+                <p>
+                    <strong>Aulas:</strong>
+                    ${aluno.aulasRealizadas || 0}
+                </p>
+
+                <p>
+                    <strong>Exame:</strong>
+                    ${aluno.estadoExame || "Sem exame"}
+                </p>
+
+                <p>
+                    <strong>Validade Licença:</strong>
+                    ${aluno.validadeLicenca || "-"}
+                </p>
+
+                <p>
+                    <strong>Validade Código:</strong>
+                    ${aluno.validadeCodigo || "-"}
+                </p>
+
+            `;
+
+
+            lista.appendChild(
+                cartao
+            );
+
+        }
+    );
+
+}
 
 // ============================================
 // MOSTRAR AULAS
