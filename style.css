@@ -1002,88 +1002,86 @@ label {
     background: #b80000;
 }
 
-    /* ============================================
-       JANELA FLUTUANTE DA AULA
-       ============================================ */
+/* ============================================
+   JANELA FLUTUANTE DA AULA
+   ============================================ */
 
-    .lesson-editor-overlay {
+.lesson-editor-overlay {
 
-        position: fixed;
+    position: fixed;
 
-        inset: 0;
+    inset: 0;
 
-        z-index: 99999;
+    z-index: 99999;
 
-        background: rgba(0, 0, 0, 0.65);
+    background: rgba(0, 0, 0, 0.65);
 
-        display: flex;
+    display: flex;
 
-        align-items: center;
+    align-items: center;
 
-        justify-content: center;
+    justify-content: center;
 
-        padding: 20px;
+    padding: 20px;
 
-    }
-
-
-    .lesson-editor-modal {
-
-        position: relative;
-
-        width: 100%;
-
-        max-width: 650px;
-
-        max-height: 90vh;
-
-        overflow-y: auto;
-
-        background: white;
-
-        border-radius: 18px;
-
-        box-shadow:
-            0 20px 60px rgba(0, 0, 0, 0.4);
-
-    }
+}
 
 
-    .close-lesson-editor {
+.lesson-editor-modal {
 
-        position: absolute;
+    position: relative;
 
-        top: 12px;
+    width: 100%;
 
-        right: 12px;
+    max-width: 650px;
 
-        z-index: 10;
+    max-height: 90vh;
 
-        width: 40px;
+    overflow-y: auto;
 
-        height: 40px;
+    background: white;
 
-        border: none;
+    border-radius: 18px;
 
-        border-radius: 50%;
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.4);
 
-        background: #111;
-
-        color: white;
-
-        font-size: 20px;
-
-        font-weight: bold;
-
-        cursor: pointer;
-
-    }
+}
 
 
-    .close-lesson-editor:hover {
+.close-lesson-editor {
 
-        background: #333;
+    position: absolute;
 
-    }
+    top: 12px;
 
-</style>
+    right: 12px;
+
+    z-index: 10;
+
+    width: 40px;
+
+    height: 40px;
+
+    border: none;
+
+    border-radius: 50%;
+
+    background: #111;
+
+    color: white;
+
+    font-size: 20px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+}
+
+
+.close-lesson-editor:hover {
+
+    background: #333;
+
+}
