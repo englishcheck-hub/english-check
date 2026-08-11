@@ -1415,6 +1415,8 @@ if (saveLesson) {
         "click",
         async function () {
 
+            alert("BOTÃO GUARDAR AULA FOI CLICADO");
+
             if (!aulaEmEdicao) {
 
                 mostrarNotificacao(
