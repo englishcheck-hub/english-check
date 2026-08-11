@@ -1834,27 +1834,45 @@ if (saveLesson) {
                 }
 
 
-                // ====================================
-                // ATUALIZAR INTERFACE
-                // ====================================
+// ====================================
+// ATUALIZAR DASHBOARD
+// ====================================
 
-                atualizarListaDaAula();
-
-                mostrarAulas();
-
-                renderizarCalendario();
-
-                atualizarDashboard();
+atualizarDashboard();
 
 
-                // ====================================
-                // CONFIRMAÇÃO
-                // ====================================
+// ====================================
+// FECHAR AULA
+// ====================================
 
-                mostrarNotificacao(
-                    "Aula guardada com sucesso ✅"
-                );
+aulaEmEdicao = null;
 
+alunosDaAula = [];
+
+
+// ====================================
+// MOSTRAR NOTIFICAÇÃO
+// ====================================
+
+mostrarNotificacao(
+    "Aula editada com sucesso ✅"
+);
+
+
+// ====================================
+// VOLTAR AO CALENDÁRIO
+// ====================================
+
+mostrarPagina(
+    "calendarPage"
+);
+
+
+// ====================================
+// ATUALIZAR CALENDÁRIO
+// ====================================
+
+renderizarCalendario();
 
             }
 
