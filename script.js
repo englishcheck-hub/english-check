@@ -3,6 +3,474 @@
 // GESTÃO DE AULAS DE CÓDIGO DA ESTRADA
 // ============================================
 
+
+// ============================================
+// FIREBASE
+// ============================================
+
+import {
+    initializeApp
+} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+
+
+import {
+    getFirestore,
+    collection,
+    addDoc,
+    deleteDoc,
+    updateDoc,
+    doc,
+    onSnapshot,
+    arrayUnion
+} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+
+// ============================================
+// CONFIGURAÇÃO FIREBASE
+// ============================================
+
+const firebaseConfig = {
+
+    apiKey:
+        "AIzaSyDszFM_wU6LDvlsf1lXYzmInRnAgMEdp7w",
+
+    authDomain:
+        "english-check-a82ef.firebaseapp.com",
+
+    projectId:
+        "english-check-a82ef",
+
+    storageBucket:
+        "english-check-a82ef.firebasestorage.app",
+
+    messagingSenderId:
+        "524538268036",
+
+    appId:
+        "1:524538268036:web:0d8bd3e1cd81a910cbb5d1",
+
+    measurementId:
+        "G-F1WCZ9E7KR"
+
+};
+
+
+// ============================================
+// INICIAR FIREBASE
+// ============================================
+
+const app =
+    initializeApp(
+        firebaseConfig
+    );
+
+
+const db =
+    getFirestore(
+        app
+    );
+
+
+// ============================================
+// DADOS
+// ============================================
+
+let alunos = [];
+
+let aulas = [];
+
+
+// ============================================
+// ALUNOS DA AULA
+// ============================================
+
+let alunosDaAula = [];
+
+
+// ============================================
+// AULA EM EDIÇÃO
+// ============================================
+
+let aulaEmEdicao = null;
+
+
+// ============================================
+// MESES DO CALENDÁRIO
+// ============================================
+
+let mesesCalendario = [];
+
+
+// ============================================
+// DIAS FECHADOS
+// ============================================
+
+let diasFechados = [];
+
+
+// ============================================
+// ALUNO DO RESULTADO DO EXAME
+// ============================================
+
+let alunoResultadoExame = null;
+
+
+// ============================================
+// LER ALUNOS DO FIREBASE
+// ============================================
+
+onSnapshot(
+
+    collection(
+        db,
+        "alunos"
+    ),
+
+    function (snapshot) {
+
+        alunos = [];
+
+
+        snapshot.forEach(
+            function (documento) {
+
+                alunos.push({
+
+                    id:
+                        documento.id,
+
+                    ...documento.data()
+
+                });
+
+            }
+        );
+
+
+        console.log(
+            "Alunos carregados:",
+            alunos
+        );
+
+
+        if (
+            typeof atualizarDashboard ===
+            "function"
+        ) {
+
+            atualizarDashboard();
+
+        }
+
+
+        if (
+            typeof mostrarAlunos ===
+            "function"
+        ) {
+
+            mostrarAlunos();
+
+        }
+
+
+        if (
+            typeof mostrarAulas ===
+            "function"
+        ) {
+
+            mostrarAulas();
+
+        }
+
+    },
+
+    function (erro) {
+
+        console.error(
+            "Erro ao carregar alunos:",
+            erro
+        );
+
+    }
+
+);
+
+
+// ============================================
+// LER AULAS DO FIREBASE
+// ============================================
+
+onSnapshot(
+
+    collection(
+        db,
+        "aulas"
+    ),
+
+    function (snapshot) {
+
+        aulas = [];
+
+
+        snapshot.forEach(
+            function (documento) {
+
+                aulas.push({
+
+                    id:
+                        documento.id,
+
+                    ...documento.data()
+
+                });
+
+            }
+        );
+
+
+        console.log(
+            "Aulas carregadas:",
+            aulas
+        );
+
+
+        if (
+            typeof mostrarAulas ===
+            "function"
+        ) {
+
+            mostrarAulas();
+
+        }
+
+
+        if (
+            typeof renderizarCalendario ===
+            "function"
+        ) {
+
+            renderizarCalendario();
+
+        }
+
+    },
+
+    function (erro) {
+
+        console.error(
+            "Erro ao carregar aulas:",
+            erro
+        );
+
+    }
+
+);
+
+
+// ============================================
+// LOGIN
+// ============================================
+
+const utilizadores = [
+
+    {
+        username:
+            "andria",
+
+        password:
+            "druxa2099"
+
+    },
+
+    {
+        username:
+            "joaof",
+
+        password:
+            "lumiar2026"
+
+    }
+
+];
+
+
+// ============================================
+// BOTÃO LOGIN
+// ============================================
+
+const loginButton =
+    document.getElementById(
+        "loginButton"
+    );
+
+
+if (loginButton) {
+
+    loginButton.addEventListener(
+
+        "click",
+
+        function () {
+
+            const username =
+                document
+                    .getElementById(
+                        "username"
+                    )
+                    .value
+                    .trim();
+
+
+            const password =
+                document
+                    .getElementById(
+                        "password"
+                    )
+                    .value
+                    .trim();
+
+
+            const utilizador =
+                utilizadores.find(
+                    function (u) {
+
+                        return (
+
+                            u.username ===
+                            username
+
+                            &&
+
+                            u.password ===
+                            password
+
+                        );
+
+                    }
+                );
+
+
+            // =================================
+            // LOGIN CORRETO
+            // =================================
+
+            if (utilizador) {
+
+                document
+                    .getElementById(
+                        "loginPage"
+                    )
+                    .style.display =
+                    "none";
+
+
+                document
+                    .getElementById(
+                        "app"
+                    )
+                    .style.display =
+                    "block";
+
+
+                document
+                    .getElementById(
+                        "loginMessage"
+                    )
+                    .innerHTML = "";
+
+            }
+
+
+            // =================================
+            // LOGIN INCORRETO
+            // =================================
+
+            else {
+
+                document
+                    .getElementById(
+                        "loginMessage"
+                    )
+                    .innerHTML =
+                    "Utilizador ou palavra-passe incorretos.";
+
+
+                document
+                    .getElementById(
+                        "loginMessage"
+                    )
+                    .style.color =
+                    "red";
+
+            }
+
+        }
+
+    );
+
+}
+
+
+// ============================================
+// LOGOUT
+// ============================================
+
+const logoutButton =
+    document.getElementById(
+        "logoutButton"
+    );
+
+
+if (logoutButton) {
+
+    logoutButton.addEventListener(
+
+        "click",
+
+        function () {
+
+            document
+                .getElementById(
+                    "app"
+                )
+                .style.display =
+                "none";
+
+
+            document
+                .getElementById(
+                    "loginPage"
+                )
+                .style.display =
+                "flex";
+
+
+            document
+                .getElementById(
+                    "username"
+                )
+                .value = "";
+
+
+            document
+                .getElementById(
+                    "password"
+                )
+                .value = "";
+
+
+            document
+                .getElementById(
+                    "loginMessage"
+                )
+                .innerHTML = "";
+
+        }
+
+    );
+
+}
+
 // ============================================
 // DASHBOARD
 // ============================================
