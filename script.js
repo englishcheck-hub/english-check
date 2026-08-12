@@ -1274,20 +1274,33 @@ if (!Array.isArray(alunosDaAula)) {
     alunosDaAula = [];
 }
 
+// ============================================
+// ALUNOS DA AULA — CONTROLOS
+// ============================================
+
+if (!overlay) {
+
+    console.error(
+        "ERRO: overlay da aula não existe."
+    );
+
+    return;
+}
+
 
 // ============================================
 // BOTÃO ADICIONAR ALUNO PELO NÚMERO
 // ============================================
 
-const botaoAdicionar =
+const botaoAdicionarAluno =
     overlay.querySelector(
         "#addStudentToLesson"
     );
 
 
-if (botaoAdicionar) {
+if (botaoAdicionarAluno) {
 
-    botaoAdicionar.onclick =
+    botaoAdicionarAluno.onclick =
         function (event) {
 
             event.preventDefault();
@@ -1330,10 +1343,7 @@ if (botaoAdicionar) {
             }
 
 
-            // ========================================
-            // PROCURAR ALUNO
-            // ========================================
-
+            // Procurar pelo número do aluno
             const aluno =
                 alunos.find(
                     function (a) {
@@ -1344,8 +1354,7 @@ if (botaoAdicionar) {
                             )
                             .trim()
                             .toLowerCase() ===
-                            numero
-                                .toLowerCase()
+                            numero.toLowerCase()
                         );
 
                     }
@@ -1365,11 +1374,8 @@ if (botaoAdicionar) {
             }
 
 
-            // ========================================
-            // VERIFICAR SE JÁ ESTÁ NA AULA
-            // ========================================
-
-            const existe =
+            // Verificar se já está na aula
+            const jaExiste =
                 alunosDaAula.some(
                     function (a) {
 
@@ -1382,7 +1388,7 @@ if (botaoAdicionar) {
                 );
 
 
-            if (existe) {
+            if (jaExiste) {
 
                 mostrarNotificacao(
                     "Este aluno já está nesta aula.",
@@ -1397,10 +1403,7 @@ if (botaoAdicionar) {
             }
 
 
-            // ========================================
-            // ADICIONAR ALUNO
-            // ========================================
-
+            // Adicionar
             alunosDaAula.push(
                 aluno
             );
@@ -1455,7 +1458,7 @@ if (botaoSelecionarVarios) {
             if (!caixa) {
 
                 mostrarNotificacao(
-                    "Caixa de seleção de alunos não encontrada.",
+                    "Caixa de alunos não encontrada.",
                     "erro"
                 );
 
@@ -1463,15 +1466,12 @@ if (botaoSelecionarVarios) {
             }
 
 
-            // ========================================
-            // LIMPAR CAIXA
-            // ========================================
-
+            // Limpar caixa
             caixa.innerHTML = "";
 
 
             // ========================================
-            // CAMPO DE PESQUISA
+            // PESQUISA
             // ========================================
 
             const campoPesquisa =
@@ -1484,12 +1484,8 @@ if (botaoSelecionarVarios) {
                 "text";
 
 
-            campoPesquisa.id =
-                "searchMultipleStudents";
-
-
             campoPesquisa.placeholder =
-                "Pesquisar por nº ou nome...";
+                "Pesquisar por número ou nome...";
 
 
             campoPesquisa.autocomplete =
@@ -1504,20 +1500,20 @@ if (botaoSelecionarVarios) {
                 "border-box";
 
 
-            campoPesquisa.style.marginBottom =
-                "10px";
-
-
             campoPesquisa.style.padding =
                 "10px";
 
 
-            campoPesquisa.style.borderRadius =
-                "8px";
+            campoPesquisa.style.marginBottom =
+                "10px";
 
 
             campoPesquisa.style.border =
                 "1px solid #ccc";
+
+
+            campoPesquisa.style.borderRadius =
+                "8px";
 
 
             caixa.appendChild(
@@ -1526,45 +1522,40 @@ if (botaoSelecionarVarios) {
 
 
             // ========================================
-            // ÁREA DOS ALUNOS
+            // LISTA
             // ========================================
 
-            const listaAlunos =
+            const lista =
                 document.createElement(
                     "div"
                 );
 
 
-            listaAlunos.id =
-                "multipleStudentsList";
-
-
             caixa.appendChild(
-                listaAlunos
+                lista
             );
 
 
             // ========================================
-            // MOSTRAR ALUNOS
+            // MOSTRAR LISTA
             // ========================================
 
-            function mostrarListaAlunos(
-                textoPesquisa
+            function mostrarLista(
+                texto
             ) {
 
-                listaAlunos.innerHTML =
-                    "";
+                lista.innerHTML = "";
 
 
                 const pesquisa =
                     String(
-                        textoPesquisa || ""
+                        texto || ""
                     )
                     .trim()
                     .toLowerCase();
 
 
-                const alunosFiltrados =
+                const encontrados =
                     [...alunos]
                         .filter(
                             function (aluno) {
@@ -1580,16 +1571,14 @@ if (botaoSelecionarVarios) {
 
                                 const numero =
                                     String(
-                                        aluno.numero ||
-                                        ""
+                                        aluno.numero || ""
                                     )
                                     .toLowerCase();
 
 
                                 const nome =
                                     String(
-                                        aluno.nome ||
-                                        ""
+                                        aluno.nome || ""
                                     )
                                     .toLowerCase();
 
@@ -1621,15 +1610,11 @@ if (botaoSelecionarVarios) {
                         );
 
 
-                // ====================================
-                // NENHUM RESULTADO
-                // ====================================
-
                 if (
-                    alunosFiltrados.length === 0
+                    encontrados.length === 0
                 ) {
 
-                    listaAlunos.innerHTML = `
+                    lista.innerHTML = `
 
                         <p
                             style="
@@ -1646,11 +1631,7 @@ if (botaoSelecionarVarios) {
                 }
 
 
-                // ====================================
-                // CRIAR LISTA
-                // ====================================
-
-                alunosFiltrados.forEach(
+                encontrados.forEach(
                     function (aluno) {
 
                         const linha =
@@ -1664,23 +1645,23 @@ if (botaoSelecionarVarios) {
 
 
                         linha.style.padding =
-                            "8px";
+                            "10px";
 
 
                         linha.style.marginBottom =
                             "5px";
 
 
+                        linha.style.background =
+                            "#f5f5f5";
+
+
                         linha.style.borderRadius =
-                            "6px";
+                            "8px";
 
 
                         linha.style.cursor =
                             "pointer";
-
-
-                        linha.style.background =
-                            "#f5f5f5";
 
 
                         const checkbox =
@@ -1697,11 +1678,7 @@ if (botaoSelecionarVarios) {
                             aluno.numero;
 
 
-                        // =================================
-                        // VERIFICAR SE JÁ ESTÁ NA AULA
-                        // =================================
-
-                        const jaSelecionado =
+                        const jaEstaNaAula =
                             alunosDaAula.some(
                                 function (a) {
 
@@ -1715,7 +1692,7 @@ if (botaoSelecionarVarios) {
 
 
                         checkbox.checked =
-                            jaSelecionado;
+                            jaEstaNaAula;
 
 
                         linha.appendChild(
@@ -1723,7 +1700,7 @@ if (botaoSelecionarVarios) {
                         );
 
 
-                        const texto =
+                        linha.appendChild(
                             document.createTextNode(
                                 " " +
                                 (
@@ -1735,15 +1712,11 @@ if (botaoSelecionarVarios) {
                                     aluno.nome ||
                                     "-"
                                 )
-                            );
-
-
-                        linha.appendChild(
-                            texto
+                            )
                         );
 
 
-                        listaAlunos.appendChild(
+                        lista.appendChild(
                             linha
                         );
 
@@ -1753,41 +1726,26 @@ if (botaoSelecionarVarios) {
             }
 
 
-            // ========================================
-            // MOSTRAR TODOS INICIALMENTE
-            // ========================================
-
-            mostrarListaAlunos(
-                ""
-            );
+            // Mostrar todos inicialmente
+            mostrarLista("");
 
 
-            // ========================================
-            // PESQUISAR ENQUANTO ESCREVE
-            // ========================================
-
+            // Pesquisar enquanto escreve
             campoPesquisa.oninput =
                 function () {
 
-                    mostrarListaAlunos(
+                    mostrarLista(
                         campoPesquisa.value
                     );
 
                 };
 
 
-            // ========================================
-            // MOSTRAR CAIXA
-            // ========================================
-
             caixa.style.display =
                 "block";
 
 
-            // ========================================
-            // BOTÃO ADICIONAR SELECIONADOS
-            // ========================================
-
+            // Mostrar botão
             const botaoAdicionarSelecionados =
                 overlay.querySelector(
                     "#addSelectedStudents"
@@ -1836,6 +1794,12 @@ if (botaoAdicionarSelecionados) {
 
 
             if (!caixa) {
+
+                mostrarNotificacao(
+                    "Caixa de seleção não encontrada.",
+                    "erro"
+                );
+
                 return;
             }
 
@@ -1846,7 +1810,7 @@ if (botaoAdicionarSelecionados) {
                 );
 
 
-            let quantidadeAdicionada =
+            let quantidade =
                 0;
 
 
@@ -1881,7 +1845,7 @@ if (botaoAdicionarSelecionados) {
                     }
 
 
-                    const existe =
+                    const jaExiste =
                         alunosDaAula.some(
                             function (a) {
 
@@ -1894,14 +1858,14 @@ if (botaoAdicionarSelecionados) {
                         );
 
 
-                    if (!existe) {
+                    if (!jaExiste) {
 
                         alunosDaAula.push(
                             aluno
                         );
 
 
-                        quantidadeAdicionada++;
+                        quantidade++;
 
                     }
 
@@ -1909,16 +1873,8 @@ if (botaoAdicionarSelecionados) {
             );
 
 
-            // ========================================
-            // ATUALIZAR LISTA DA AULA
-            // ========================================
-
             atualizarListaDaAula();
 
-
-            // ========================================
-            // ESCONDER SELEÇÃO
-            // ========================================
 
             caixa.style.display =
                 "none";
@@ -1928,24 +1884,23 @@ if (botaoAdicionarSelecionados) {
                 "none";
 
 
-            if (
-                quantidadeAdicionada > 0
-            ) {
+            if (quantidade === 0) {
 
                 mostrarNotificacao(
-                    quantidadeAdicionada +
-                    (
-                        quantidadeAdicionada === 1
-                            ? " aluno adicionado à aula."
-                            : " alunos adicionados à aula."
-                    )
+                    "Nenhum aluno novo foi selecionado.",
+                    "erro"
                 );
 
             }
             else {
 
                 mostrarNotificacao(
-                    "Nenhum aluno novo foi adicionado."
+                    quantidade +
+                    (
+                        quantidade === 1
+                            ? " aluno adicionado à aula."
+                            : " alunos adicionados à aula."
+                    )
                 );
 
             }
@@ -1980,7 +1935,7 @@ if (botaoGuardar) {
             if (!aulaEmEdicao) {
 
                 mostrarNotificacao(
-                    "Nenhuma aula está em edição.",
+                    "Não existe nenhuma aula em edição.",
                     "erro"
                 );
 
@@ -1988,16 +1943,10 @@ if (botaoGuardar) {
             }
 
 
-            // ========================================
-            // VERIFICAR ID FIRESTORE
-            // ========================================
-
-            if (
-                !aulaEmEdicao.id
-            ) {
+            if (!aulaEmEdicao.id) {
 
                 mostrarNotificacao(
-                    "A aula não tem um ID válido.",
+                    "Esta aula não tem um ID válido.",
                     "erro"
                 );
 
@@ -2006,7 +1955,7 @@ if (botaoGuardar) {
 
 
             // ========================================
-            // CAMPOS DA AULA
+            // CAMPOS
             // ========================================
 
             const campoId =
@@ -2041,7 +1990,7 @@ if (botaoGuardar) {
             ) {
 
                 mostrarNotificacao(
-                    "Não foram encontrados todos os campos da aula.",
+                    "Não foi possível encontrar os campos da aula.",
                     "erro"
                 );
 
@@ -2050,7 +1999,7 @@ if (botaoGuardar) {
 
 
             // ========================================
-            // LER DADOS
+            // VALORES
             // ========================================
 
             const idAula =
@@ -2069,10 +2018,6 @@ if (botaoGuardar) {
                 campoHora.value;
 
 
-            // ========================================
-            // VALIDAR
-            // ========================================
-
             if (
                 idAula === "" ||
                 materia === "" ||
@@ -2090,20 +2035,18 @@ if (botaoGuardar) {
 
 
             // ========================================
-            // NÚMEROS DOS ALUNOS
+            // ALUNOS
             // ========================================
 
             const numerosAlunos =
-                (
-                    alunosDaAula || []
-                )
-                .map(
-                    function (aluno) {
+                (alunosDaAula || [])
+                    .map(
+                        function (aluno) {
 
-                        return aluno.numero;
+                            return aluno.numero;
 
-                    }
-                );
+                        }
+                    );
 
 
             // ========================================
@@ -2123,49 +2066,37 @@ if (botaoGuardar) {
             // ========================================
 
             const novosAlunos =
-                (
-                    alunosDaAula || []
-                )
-                .filter(
-                    function (aluno) {
+                (alunosDaAula || [])
+                    .filter(
+                        function (aluno) {
 
-                        return (
-                            !alunosAntigos.some(
+                            return !alunosAntigos.some(
                                 function (numero) {
 
                                     return (
-                                        String(
-                                            numero
-                                        ) ===
-                                        String(
-                                            aluno.numero
-                                        )
+                                        String(numero) ===
+                                        String(aluno.numero)
                                     );
 
                                 }
-                            )
-                        );
+                            );
 
-                    }
-                );
+                        }
+                    );
 
 
             try {
 
                 // ====================================
-                // GUARDAR AULA
+                // ATUALIZAR AULA
                 // ====================================
 
-                const referenciaAula =
+                await updateDoc(
                     doc(
                         db,
                         "aulas",
                         aulaEmEdicao.id
-                    );
-
-
-                await updateDoc(
-                    referenciaAula,
+                    ),
                     {
 
                         idAula:
@@ -2188,7 +2119,7 @@ if (botaoGuardar) {
 
 
                 // ====================================
-                // ATUALIZAR NOVOS ALUNOS
+                // ATUALIZAR ALUNOS NOVOS
                 // ====================================
 
                 for (
@@ -2220,7 +2151,7 @@ if (botaoGuardar) {
 
 
                     // =================================
-                    // ALUNO COM REPROVAÇÃO
+                    // REPROVAÇÃO
                     // =================================
 
                     if (
@@ -2246,25 +2177,26 @@ if (botaoGuardar) {
 
 
                         const historico =
-                            [
-                                ...(
-                                    aluno.historicoExames ||
-                                    []
-                                )
-                            ];
+                            Array.isArray(
+                                aluno.historicoExames
+                            )
+                                ? [
+                                    ...aluno.historicoExames
+                                ]
+                                : [];
 
 
                         if (
                             historico.length > 0
                         ) {
 
-                            const ultimoIndice =
+                            const indice =
                                 historico.length - 1;
 
 
                             const ultimo =
                                 historico[
-                                    ultimoIndice
+                                    indice
                                 ];
 
 
@@ -2276,7 +2208,7 @@ if (botaoGuardar) {
                             ) {
 
                                 historico[
-                                    ultimoIndice
+                                    indice
                                 ] = {
 
                                     ...ultimo,
@@ -2304,10 +2236,6 @@ if (botaoGuardar) {
                     }
 
 
-                    // =================================
-                    // GUARDAR ALUNO
-                    // =================================
-
                     await updateDoc(
                         doc(
                             db,
@@ -2321,7 +2249,7 @@ if (botaoGuardar) {
 
 
                 // ====================================
-                // ATUALIZAR AULA LOCALMENTE
+                // ATUALIZAR OBJETO LOCAL
                 // ====================================
 
                 aulaEmEdicao = {
@@ -2396,19 +2324,18 @@ if (botaoGuardar) {
 
 
                 // ====================================
-                // ATUALIZAR ECRÃ
+                // ATUALIZAR INTERFACE
                 // ====================================
 
                 atualizarDashboard();
 
+                mostrarAulas();
 
-                mostrarNotificacao(
-                    "Aula editada com sucesso ✅"
-                );
+                renderizarCalendario();
 
 
                 // ====================================
-                // FECHAR OVERLAY
+                // FECHAR EDITOR
                 // ====================================
 
                 overlay.remove();
@@ -2423,13 +2350,17 @@ if (botaoGuardar) {
 
 
                 // ====================================
-                // ATUALIZAR CALENDÁRIO
+                // NOTIFICAÇÃO
                 // ====================================
 
-                mostrarAulas();
+                mostrarNotificacao(
+                    "Aula guardada com sucesso ✅"
+                );
 
-                renderizarCalendario();
 
+                // ====================================
+                // CALENDÁRIO
+                // ====================================
 
                 mostrarPagina(
                     "calendarPage"
@@ -2442,12 +2373,6 @@ if (botaoGuardar) {
                 console.error(
                     "ERRO AO GUARDAR AULA:",
                     erro
-                );
-
-
-                console.error(
-                    "Aula em edição:",
-                    aulaEmEdicao
                 );
 
 
@@ -2465,6 +2390,8 @@ if (botaoGuardar) {
         };
 
 }
+
+          
 // ============================================
 // MOSTRAR ALUNOS + PESQUISA
 // ============================================
