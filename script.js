@@ -3376,152 +3376,108 @@ function mostrarPagina(
 
 
 // ============================================
-// MENU INÍCIO
+// MENU / NAVEGAÇÃO
 // ============================================
 
-const homeMenu =
-    document.getElementById(
-        "homeMenu"
-    );
+function configurarMenu() {
+
+    const homeMenu =
+        document.getElementById("homeMenu");
+
+    const studentsMenu =
+        document.getElementById("studentsMenu");
+
+    const lessonsMenu =
+        document.getElementById("lessonsMenu");
+
+    const calendarMenu =
+        document.getElementById("calendarMenu");
+
+    const reportsMenu =
+        document.getElementById("reportsMenu");
 
 
-if (homeMenu) {
+    if (homeMenu) {
 
-    homeMenu.addEventListener(
-        "click",
-        function (event) {
+        homeMenu.onclick = function () {
 
-            event.preventDefault();
-
-            mostrarPagina(
-                "homePage"
-            );
+            mostrarPagina("homePage");
 
             atualizarDashboard();
 
-        }
-    );
+        };
 
-}
-
-
-// ============================================
-// MENU ALUNOS
-// ============================================
-
-const studentsMenu =
-    document.getElementById(
-        "studentsMenu"
-    );
+    }
 
 
-if (studentsMenu) {
+    if (studentsMenu) {
 
-    studentsMenu.addEventListener(
-        "click",
-        function (event) {
+        studentsMenu.onclick = function () {
 
-            event.preventDefault();
-
-            mostrarPagina(
-                "studentsPage"
-            );
+            mostrarPagina("studentsPage");
 
             mostrarAlunos();
 
-        }
-    );
+        };
 
-}
-
-
-// ============================================
-// MENU AULAS
-// ============================================
-
-const lessonsMenu =
-    document.getElementById(
-        "lessonsMenu"
-    );
+    }
 
 
-if (lessonsMenu) {
+    if (lessonsMenu) {
 
-    lessonsMenu.addEventListener(
-        "click",
-        function (event) {
+        lessonsMenu.onclick = function () {
 
-            event.preventDefault();
-
-            mostrarPagina(
-                "lessonsPage"
-            );
+            mostrarPagina("lessonsPage");
 
             mostrarAulas();
 
-        }
-    );
+        };
 
-}
-
-
-// ============================================
-// MENU CALENDÁRIO
-// ============================================
-
-const calendarMenu =
-    document.getElementById(
-        "calendarMenu"
-    );
+    }
 
 
-if (calendarMenu) {
+    if (calendarMenu) {
 
-    calendarMenu.addEventListener(
-        "click",
-        function (event) {
+        calendarMenu.onclick = function () {
 
-            event.preventDefault();
-
-            mostrarPagina(
-                "calendarPage"
-            );
+            mostrarPagina("calendarPage");
 
             renderizarCalendario();
 
-        }
-    );
+        };
+
+    }
+
+
+    if (reportsMenu) {
+
+        reportsMenu.onclick = function () {
+
+            mostrarPagina("reportsPage");
+
+        };
+
+    }
 
 }
 
 
 // ============================================
-// MENU RELATÓRIOS
+// ATIVAR MENU
 // ============================================
 
-const reportsMenu =
-    document.getElementById(
-        "reportsMenu"
+if (document.readyState === "loading") {
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        configurarMenu
     );
 
+} else {
 
-if (reportsMenu) {
-
-    reportsMenu.addEventListener(
-        "click",
-        function (event) {
-
-            event.preventDefault();
-
-            mostrarPagina(
-                "reportsPage"
-            );
-
-        }
-    );
+    configurarMenu();
 
 }
-
 
 // ============================================
 // CALENDÁRIO
