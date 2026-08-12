@@ -152,6 +152,8 @@ onSnapshot(
             alunos
         );
 
+        alert("Número de alunos carregados: " + alunos.length);
+
 
         if (
             typeof atualizarDashboard ===
