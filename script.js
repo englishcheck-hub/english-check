@@ -2331,7 +2331,7 @@ renderizarCalendario();
 }
 
 // ============================================
-// MOSTRAR ALUNOS
+// MOSTRAR ALUNOS + PESQUISA
 // ============================================
 
 function mostrarAlunos() {
@@ -2347,35 +2347,110 @@ function mostrarAlunos() {
     }
 
 
+    const campoPesquisa =
+        document.getElementById(
+            "searchStudent"
+        );
+
+
+    const textoPesquisa =
+        campoPesquisa
+            ? campoPesquisa.value
+                .trim()
+                .toLowerCase()
+            : "";
+
+
+    // ========================================
+    // FILTRAR ALUNOS
+    // ========================================
+
+    const alunosFiltrados =
+        [...alunos]
+            .filter(
+                function (aluno) {
+
+                    if (
+                        textoPesquisa === ""
+                    ) {
+
+                        return true;
+
+                    }
+
+
+                    const numero =
+                        String(
+                            aluno.numero || ""
+                        )
+                        .toLowerCase();
+
+
+                    const nome =
+                        String(
+                            aluno.nome || ""
+                        )
+                        .toLowerCase();
+
+
+                    return (
+                        numero.includes(
+                            textoPesquisa
+                        ) ||
+                        nome.includes(
+                            textoPesquisa
+                        )
+                    );
+
+                }
+            )
+            .sort(
+                function (a, b) {
+
+                    return (
+                        Number(
+                            a.numero || 0
+                        ) -
+                        Number(
+                            b.numero || 0
+                        )
+                    );
+
+                }
+            );
+
+
+    // ========================================
+    // NENHUM ALUNO
+    // ========================================
+
     if (
-        alunos.length === 0
+        alunosFiltrados.length === 0
     ) {
 
-        lista.innerHTML =
-            "Ainda não existem alunos.";
+        lista.innerHTML = `
+            <p>
+                Nenhum aluno encontrado.
+            </p>
+        `;
 
         return;
     }
 
 
+    // ========================================
+    // LIMPAR LISTA
+    // ========================================
+
     lista.innerHTML =
         "";
 
 
-    const alunosOrdenados =
-        [...alunos].sort(
-            function (a, b) {
+    // ========================================
+    // MOSTRAR ALUNOS
+    // ========================================
 
-                return (
-                    Number(a.numero || 0) -
-                    Number(b.numero || 0)
-                );
-
-            }
-        );
-
-
-    alunosOrdenados.forEach(
+    alunosFiltrados.forEach(
         function (aluno) {
 
             const cartao =
@@ -2434,6 +2509,29 @@ function mostrarAlunos() {
 
 }
 
+
+// ============================================
+// PESQUISA EM TEMPO REAL
+// ============================================
+
+const searchStudent =
+    document.getElementById(
+        "searchStudent"
+    );
+
+
+if (searchStudent) {
+
+    searchStudent.addEventListener(
+        "input",
+        function () {
+
+            mostrarAlunos();
+
+        }
+    );
+
+}
 // ============================================
 // MOSTRAR AULAS
 // ============================================
