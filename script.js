@@ -19,11 +19,11 @@ import {
     addDoc,
     deleteDoc,
     updateDoc,
+    setDoc,
     doc,
     onSnapshot,
     arrayUnion
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
 
 // ============================================
 // CONFIGURAÇÃO FIREBASE
