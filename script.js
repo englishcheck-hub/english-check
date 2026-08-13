@@ -4,11 +4,6 @@
 // SCRIPT COMPLETO
 // ============================================================
 
-
-// ============================================================
-// FIREBASE
-// ============================================================
-
 import {
     initializeApp
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -22,13 +17,12 @@ import {
     setDoc,
     doc,
     onSnapshot,
-    getDoc,
-    serverTimestamp
+    getDocs
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 
 // ============================================================
-// CONFIGURAÇÃO FIREBASE
+// FIREBASE
 // ============================================================
 
 const firebaseConfig = {
@@ -67,20 +61,17 @@ const db = getFirestore(app);
 let alunos = [];
 let aulas = [];
 
-let alunosDaAula = [];
-
 let aulaEmEdicao = null;
+let alunoResultadoExame = null;
 
 let mesesCalendario = [];
 let diasFechados = [];
 
 let mesCalendarioAtual = new Date();
 
-let alunoResultadoExame = null;
-
 
 // ============================================================
-// FUNÇÃO $
+// UTILITÁRIO
 // ============================================================
 
 function $(id) {
@@ -89,7 +80,7 @@ function $(id) {
 
 
 // ============================================================
-// NOTIFICAÇÃO
+// NOTIFICAÇÕES
 // ============================================================
 
 function mostrarNotificacao(
@@ -97,8 +88,7 @@ function mostrarNotificacao(
     tipo = "sucesso"
 ) {
 
-    let notificacao =
-        $("notification");
+    let notificacao = $("notification");
 
     if (!notificacao) {
 
@@ -131,9 +121,6 @@ function mostrarNotificacao(
 
         notificacao.style.color =
             "#fff";
-
-        notificacao.style.boxShadow =
-            "0 4px 15px rgba(0,0,0,.25)";
 
         document.body.appendChild(
             notificacao
@@ -188,6 +175,127 @@ const utilizadores = [
 
 
 // ============================================================
+// MATÉRIAS
+// ============================================================
+
+const materias = {
+
+    "01":
+        "Driver Profile",
+
+    "02":
+        "Driver and Physical/Psychological Condition",
+
+    "03":
+        "The Driver and Other Road Users",
+
+    "04":
+        "Civic Behaviour and Road Safety",
+
+    "05/06":
+        "Driving Task, Reaction Time and Distances",
+
+    "07":
+        "Alternative Name Used for First Module Tests",
+
+    "08":
+        "Hierarchy of Instructions to Traffic Lights",
+
+    "09":
+        "Vertical Signs to Warning Signs",
+
+    "10":
+        "Regulatory Signs",
+
+    "11":
+        "Information Signs",
+
+    "12":
+        "Road Markings and Drivers' Signals",
+
+    "13":
+        "Starting and Resuming Movement to Reduced Visibility",
+
+    "14":
+        "Vehicle Lighting to the Prohibition of Certain Devices",
+
+    "15":
+        "Speeds",
+
+    "16":
+        "Priorities to Passing Oncoming Vehicles",
+
+    "17":
+        "Overtaking to Reversing",
+
+    "18":
+        "Stopping and Parking",
+
+    "19":
+        "Vehicle Weights, Dimensions and Systems",
+
+    "20":
+        "Periodic Inspections to Safety Equipment",
+
+    "21":
+        "Road Classification to Driving in Adverse Environmental Conditions",
+
+    "22":
+        "Legal Requirements for Driving",
+
+    "23":
+        "Liability for Offences to Behaviour in the Event of an Accident",
+
+    "24":
+        "Exam Preparation Assessment"
+
+};
+
+
+// ============================================================
+// COR DAS AULAS
+// ============================================================
+
+function obterCorAula(numero) {
+
+    if (
+        numero === "24"
+    ) {
+
+        return "red";
+
+    }
+
+    if (
+        [
+            "08",
+            "09",
+            "10",
+            "11",
+            "12",
+            "13",
+            "14",
+            "15",
+            "16",
+            "17",
+            "18",
+            "19",
+            "20",
+            "21",
+            "22",
+            "23"
+        ].includes(numero)
+    ) {
+
+        return "yellow";
+
+    }
+
+    return "green";
+}
+
+
+// ============================================================
 // LOGIN
 // ============================================================
 
@@ -206,17 +314,26 @@ function iniciarLogin() {
         $("loginMessage");
 
 
-    if (
-        !button ||
-        !username ||
-        !password
-    ) {
+    if (!button) {
 
         console.error(
-            "Elementos do login não encontrados."
+            "loginButton não encontrado."
         );
 
         return;
+
+    }
+
+
+    /*
+     * Garante que a aplicação começa escondida.
+     */
+
+    if ($("app")) {
+
+        $("app").style.display =
+            "none";
+
     }
 
 
@@ -226,42 +343,47 @@ function iniciarLogin() {
             event.preventDefault();
 
             const user =
-                username.value.trim();
+                username
+                    ? username.value.trim()
+                    : "";
 
             const pass =
-                password.value.trim();
+                password
+                    ? password.value.trim()
+                    : "";
 
 
             if (message) {
-                message.innerHTML = "";
+
+                message.innerText = "";
+
             }
 
 
-            if (
-                !user ||
-                !pass
-            ) {
+            if (!user || !pass) {
 
                 if (message) {
 
-                    message.innerHTML =
+                    message.innerText =
                         "Introduz o utilizador e a palavra-passe.";
 
                     message.style.color =
                         "red";
+
                 }
 
                 return;
+
             }
 
 
             const encontrado =
                 utilizadores.find(
-                    function (u) {
+                    function (utilizador) {
 
                         return (
-                            u.username === user &&
-                            u.password === pass
+                            utilizador.username === user &&
+                            utilizador.password === pass
                         );
 
                     }
@@ -272,14 +394,16 @@ function iniciarLogin() {
 
                 if (message) {
 
-                    message.innerHTML =
+                    message.innerText =
                         "Utilizador ou palavra-passe incorretos.";
 
                     message.style.color =
                         "red";
+
                 }
 
                 return;
+
             }
 
 
@@ -287,6 +411,7 @@ function iniciarLogin() {
 
                 $("loginPage").style.display =
                     "none";
+
             }
 
 
@@ -294,37 +419,55 @@ function iniciarLogin() {
 
                 $("app").style.display =
                     "block";
+
             }
 
 
-            password.value = "";
+            if (password) {
+
+                password.value =
+                    "";
+
+            }
+
 
             if (message) {
-                message.innerHTML = "";
+
+                message.innerText =
+                    "";
+
             }
 
 
-            mostrarPagina("homePage");
+            mostrarPagina(
+                "homePage"
+            );
 
             atualizarDashboard();
 
         };
 
 
-    password.onkeydown =
-        function (event) {
+    if (password) {
 
-            if (
-                event.key === "Enter"
-            ) {
+        password.addEventListener(
+            "keydown",
+            function (event) {
 
-                event.preventDefault();
+                if (
+                    event.key === "Enter"
+                ) {
 
-                button.click();
+                    event.preventDefault();
+
+                    button.click();
+
+                }
 
             }
+        );
 
-        };
+    }
 
 }
 
@@ -350,6 +493,7 @@ function iniciarLogout() {
 
                 $("app").style.display =
                     "none";
+
             }
 
 
@@ -357,19 +501,31 @@ function iniciarLogout() {
 
                 $("loginPage").style.display =
                     "flex";
+
             }
 
 
             if ($("username")) {
-                $("username").value = "";
+
+                $("username").value =
+                    "";
+
             }
+
 
             if ($("password")) {
-                $("password").value = "";
+
+                $("password").value =
+                    "";
+
             }
 
+
             if ($("loginMessage")) {
-                $("loginMessage").innerHTML = "";
+
+                $("loginMessage").innerText =
+                    "";
+
             }
 
         };
@@ -378,7 +534,7 @@ function iniciarLogout() {
 
 
 // ============================================================
-// MENU
+// PÁGINAS
 // ============================================================
 
 function mostrarPagina(
@@ -419,82 +575,87 @@ function mostrarPagina(
 
 
 // ============================================================
-// CONFIGURAR MENU
+// MENU
 // ============================================================
 
 function configurarMenu() {
 
-    const menus = {
+    if ($("homeMenu")) {
 
-        homeMenu:
+        $("homeMenu").onclick =
             function () {
 
-                mostrarPagina("homePage");
+                mostrarPagina(
+                    "homePage"
+                );
 
                 atualizarDashboard();
 
-            },
+            };
+
+    }
 
 
-        studentsMenu:
+    if ($("studentsMenu")) {
+
+        $("studentsMenu").onclick =
             function () {
 
-                mostrarPagina("studentsPage");
+                mostrarPagina(
+                    "studentsPage"
+                );
 
                 mostrarAlunos();
 
-            },
+            };
+
+    }
 
 
-        lessonsMenu:
+    if ($("lessonsMenu")) {
+
+        $("lessonsMenu").onclick =
             function () {
 
-                mostrarPagina("lessonsPage");
+                mostrarPagina(
+                    "lessonsPage"
+                );
 
                 mostrarAulas();
 
-            },
+            };
+
+    }
 
 
-        calendarMenu:
+    if ($("calendarMenu")) {
+
+        $("calendarMenu").onclick =
             function () {
 
-                mostrarPagina("calendarPage");
+                mostrarPagina(
+                    "calendarPage"
+                );
 
                 renderizarCalendario();
 
-            },
+            };
+
+    }
 
 
-        reportsMenu:
+    if ($("reportsMenu")) {
+
+        $("reportsMenu").onclick =
             function () {
 
-                mostrarPagina("reportsPage");
+                mostrarPagina(
+                    "reportsPage"
+                );
 
-                atualizarRelatorios();
+            };
 
-            }
-
-    };
-
-
-    Object.keys(menus)
-        .forEach(
-            function (id) {
-
-                const button =
-                    $(id);
-
-                if (!button) {
-                    return;
-                }
-
-
-                button.onclick =
-                    menus[id];
-
-            }
-        );
+    }
 
 }
 
@@ -503,12 +664,12 @@ function configurarMenu() {
 // FORMATAR DATA
 // ============================================================
 
-function formatarData(
-    data
-) {
+function formatarData(data) {
 
     if (!data) {
-        return "Não definida";
+
+        return "Not defined";
+
     }
 
 
@@ -522,209 +683,2961 @@ function formatarData(
         isNaN(d.getTime())
     ) {
 
-        return "Data inválida";
+        return "Invalid date";
+
     }
 
 
     return d.toLocaleDateString(
-        "pt-PT"
+        "en-GB"
     );
 
 }
 
 
 // ============================================================
-// NORMALIZAR DATA
+// ADICIONAR ALUNO
 // ============================================================
 
-function normalizarData(
-    data
-) {
+function configurarAdicionarAluno() {
 
-    if (!data) {
-        return "";
+    const button =
+        $("addStudentButton");
+
+    if (!button) {
+        return;
     }
 
 
-    if (
-        typeof data === "string"
-    ) {
+    button.onclick =
+        async function () {
 
-        return data.substring(
-            0,
-            10
+            const numero =
+                $("studentNumber")
+                    ? $("studentNumber").value.trim()
+                    : "";
+
+            const nome =
+                $("studentName")
+                    ? $("studentName").value.trim()
+                    : "";
+
+            const validadeLicenca =
+                $("licenceExpiry")
+                    ? $("licenceExpiry").value
+                    : "";
+
+            const validadeCodigo =
+                $("codeExpiry")
+                    ? $("codeExpiry").value
+                    : "";
+
+            const qrCode =
+                $("qrCode")
+                    ? $("qrCode").value.trim()
+                    : "";
+
+            const estado =
+                $("studentStatus")
+                    ? $("studentStatus").value
+                    : "Ativo";
+
+
+            if (!numero || !nome) {
+
+                mostrarNotificacao(
+                    "Introduz o número e o nome do aluno.",
+                    "erro"
+                );
+
+                return;
+
+            }
+
+
+            const numeroExiste =
+                alunos.some(
+                    function (aluno) {
+
+                        return String(
+                            aluno.numero || ""
+                        ) === numero;
+
+                    }
+                );
+
+
+            if (numeroExiste) {
+
+                mostrarNotificacao(
+                    "Já existe um aluno com esse número.",
+                    "erro"
+                );
+
+                return;
+
+            }
+
+
+            try {
+
+                await addDoc(
+                    collection(
+                        db,
+                        "alunos"
+                    ),
+                    {
+
+                        numero:
+                            numero,
+
+                        nome:
+                            nome,
+
+                        validadeLicenca:
+                            validadeLicenca,
+
+                        validadeCodigo:
+                            validadeCodigo,
+
+                        qrCode:
+                            qrCode || numero,
+
+                        estado:
+                            estado,
+
+                        estadoExame:
+                            "",
+
+                        dataExame:
+                            "",
+
+                        dataReprovacao:
+                            "",
+
+                        criadoEm:
+                            new Date().toISOString()
+
+                    }
+                );
+
+
+                if ($("studentNumber"))
+                    $("studentNumber").value = "";
+
+                if ($("studentName"))
+                    $("studentName").value = "";
+
+                if ($("licenceExpiry"))
+                    $("licenceExpiry").value = "";
+
+                if ($("codeExpiry"))
+                    $("codeExpiry").value = "";
+
+                if ($("qrCode"))
+                    $("qrCode").value = "";
+
+                if ($("studentStatus"))
+                    $("studentStatus").value = "Ativo";
+
+
+                mostrarNotificacao(
+                    "Aluno adicionado com sucesso."
+                );
+
+            }
+            catch (erro) {
+
+                console.error(
+                    erro
+                );
+
+                mostrarNotificacao(
+                    "Erro ao adicionar o aluno.",
+                    "erro"
+                );
+
+            }
+
+        };
+
+}
+
+
+// ============================================================
+// CONTAGEM DAS AULAS
+// ============================================================
+
+function obterContagemAulas(aluno) {
+
+    const numero =
+        String(
+            aluno.numero || ""
         );
 
-    }
+
+    let total =
+        0;
+
+    let posReprovacao =
+        0;
 
 
-    if (
-        data.toDate
-    ) {
+    aulas.forEach(
+        function (aula) {
 
-        const d =
-            data.toDate();
+            if (
+                !Array.isArray(
+                    aula.alunos
+                )
+            ) {
 
-        return
-            d.getFullYear() +
-            "-" +
-            String(
-                d.getMonth() + 1
-            ).padStart(2, "0") +
-            "-" +
-            String(
-                d.getDate()
-            ).padStart(2, "0");
+                return;
 
-    }
+            }
 
 
-    return "";
+            const presente =
+                aula.alunos.some(
+                    function (valor) {
 
-}
+                        return (
+                            String(valor) ===
+                            numero
+                        );
 
-
-// ============================================================
-// COMPARAR DATAS
-// ============================================================
-
-function dataDepois(
-    dataAula,
-    dataLimite
-) {
-
-    if (
-        !dataAula ||
-        !dataLimite
-    ) {
-        return false;
-    }
+                    }
+                );
 
 
-    return (
-        normalizarData(dataAula) >
-        normalizarData(dataLimite)
+            if (!presente) {
+                return;
+            }
+
+
+            /*
+             * AULA REALIZADA TOTAL
+             */
+
+            total++;
+
+
+            /*
+             * AULAS DEPOIS DA REPROVAÇÃO
+             */
+
+            if (
+                aluno.dataReprovacao &&
+                aula.data &&
+                aula.data >
+                    aluno.dataReprovacao
+            ) {
+
+                posReprovacao++;
+
+            }
+
+        }
     );
 
+
+    return {
+
+        total:
+            total,
+
+        posReprovacao:
+            posReprovacao,
+
+        teoricaCompleta:
+            total >= 28,
+
+        posReprovacaoCompleta:
+            aluno.dataReprovacao
+                ? posReprovacao >= 5
+                : false,
+
+        faltamPosReprovacao:
+            aluno.dataReprovacao
+                ? Math.max(
+                    0,
+                    5 - posReprovacao
+                )
+                : 0
+
+    };
+
 }
 
 
 // ============================================================
-// LER ALUNOS
+// MOSTRAR ALUNOS
 // ============================================================
 
-onSnapshot(
+function mostrarAlunos() {
 
-    collection(
-        db,
-        "alunos"
-    ),
+    const lista =
+        $("studentsList");
 
-    function (snapshot) {
-
-        alunos = [];
+    if (!lista) {
+        return;
+    }
 
 
-        snapshot.forEach(
-            function (documento) {
+    const pesquisa =
+        $("searchStudent")
+            ? $("searchStudent")
+                .value
+                .trim()
+                .toLowerCase()
+            : "";
 
-                alunos.push({
 
-                    id:
-                        documento.id,
+    let resultado =
+        alunos.filter(
+            function (aluno) {
 
-                    ...documento.data()
+                const numero =
+                    String(
+                        aluno.numero || ""
+                    ).toLowerCase();
 
-                });
+                const nome =
+                    String(
+                        aluno.nome || ""
+                    ).toLowerCase();
+
+
+                return (
+                    !pesquisa ||
+                    numero.includes(pesquisa) ||
+                    nome.includes(pesquisa)
+                );
 
             }
         );
 
+
+    resultado.sort(
+        function (a, b) {
+
+            return String(
+                a.numero || ""
+            ).localeCompare(
+                String(
+                    b.numero || ""
+                ),
+                undefined,
+                {
+                    numeric: true
+                }
+            );
+
+        }
+    );
+
+
+    if (
+        resultado.length === 0
+    ) {
+
+        lista.innerHTML =
+            "<p>No students found.</p>";
+
+        return;
+
+    }
+
+
+    lista.innerHTML =
+        "";
+
+
+    resultado.forEach(
+        function (aluno) {
+
+            const contagem =
+                obterContagemAulas(
+                    aluno
+                );
+
+
+            const card =
+                document.createElement(
+                    "div"
+                );
+
+
+            card.className =
+                "student-card";
+
+
+            let aulasTexto =
+                contagem.teoricaCompleta
+                    ? "✅ Teórica completa — 28/28 aulas"
+                    : `⏳ ${contagem.total}/28 aulas`;
+
+
+            let posReprovacao =
+                "";
+
+
+            if (
+                aluno.dataReprovacao
+            ) {
+
+                if (
+                    contagem.posReprovacaoCompleta
+                ) {
+
+                    posReprovacao = `
+                        <p>
+                            <strong>
+                                Pós-reprovação:
+                            </strong>
+                            ${contagem.posReprovacao}/5
+                            ✅ Obrigatórias completas
+                        </p>
+                    `;
+
+                }
+                else {
+
+                    posReprovacao = `
+                        <p>
+                            <strong>
+                                Pós-reprovação:
+                            </strong>
+                            ${contagem.posReprovacao}/5
+                            ⏳ Faltam
+                            ${contagem.faltamPosReprovacao}
+                        </p>
+                    `;
+
+                }
+
+            }
+
+
+            card.innerHTML = `
+
+                <h3>
+                    👨‍🎓
+                    ${escapeHTML(aluno.numero || "-")}
+                    -
+                    ${escapeHTML(aluno.nome || "-")}
+                </h3>
+
+                <p>
+                    <strong>Estado:</strong>
+                    ${escapeHTML(aluno.estado || "-")}
+                </p>
+
+                <p>
+                    <strong>Aulas realizadas:</strong>
+                    ${aulasTexto}
+                </p>
+
+                ${posReprovacao}
+
+                <p>
+                    <strong>Exam:</strong>
+                    ${escapeHTML(
+                        aluno.estadoExame || "Sem exame"
+                    )}
+                </p>
+
+                ${
+                    aluno.dataExame
+                        ? `
+                            <p>
+                                <strong>Exam date:</strong>
+                                ${formatarData(
+                                    aluno.dataExame
+                                )}
+                            </p>
+                        `
+                        : ""
+                }
+
+                ${
+                    aluno.dataReprovacao
+                        ? `
+                            <p>
+                                <strong>Failure date:</strong>
+                                ${formatarData(
+                                    aluno.dataReprovacao
+                                )}
+                            </p>
+                        `
+                        : ""
+                }
+
+                <p>
+                    <strong>
+                        License validity:
+                    </strong>
+                    ${formatarData(
+                        aluno.validadeLicenca
+                    )}
+                </p>
+
+                <p>
+                    <strong>
+                        Code validity:
+                    </strong>
+                    ${formatarData(
+                        aluno.validadeCodigo
+                    )}
+                </p>
+
+                <p>
+                    <strong>
+                        QR Code:
+                    </strong>
+                    ${escapeHTML(
+                        aluno.qrCode ||
+                        aluno.numero ||
+                        ""
+                    )}
+                </p>
+
+                <div class="student-actions">
+
+                    <button
+                        type="button"
+                        class="editStudentButton"
+                        data-id="${aluno.id}"
+                    >
+                        ✏️ Editar ficha
+                    </button>
+
+                    <button
+                        type="button"
+                        class="qrStudentButton"
+                        data-id="${aluno.id}"
+                    >
+                        📱 QR Code
+                    </button>
+
+                    <button
+                        type="button"
+                        class="examStudentButton"
+                        data-id="${aluno.id}"
+                    >
+                        📝 Resultado exame
+                    </button>
+
+                </div>
+
+                <div
+                    class="student-qr"
+                    id="qr-${aluno.id}"
+                    style="display:none;"
+                ></div>
+
+            `;
+
+
+            lista.appendChild(
+                card
+            );
+
+        }
+    );
+
+
+    configurarEventosAlunos();
+
+}
+
+
+// ============================================================
+// ESCAPAR HTML
+// ============================================================
+
+function escapeHTML(valor) {
+
+    return String(valor)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+
+}
+
+
+// ============================================================
+// EVENTOS DOS ALUNOS
+// ============================================================
+
+function configurarEventosAlunos() {
+
+    document
+        .querySelectorAll(
+            ".editStudentButton"
+        )
+        .forEach(
+            function (button) {
+
+                button.onclick =
+                    function () {
+
+                        const aluno =
+                            alunos.find(
+                                function (a) {
+
+                                    return (
+                                        a.id ===
+                                        button.dataset.id
+                                    );
+
+                                }
+                            );
+
+
+                        if (aluno) {
+
+                            editarAluno(
+                                aluno
+                            );
+
+                        }
+
+                    };
+
+            }
+        );
+
+
+    document
+        .querySelectorAll(
+            ".qrStudentButton"
+        )
+        .forEach(
+            function (button) {
+
+                button.onclick =
+                    function () {
+
+                        const aluno =
+                            alunos.find(
+                                function (a) {
+
+                                    return (
+                                        a.id ===
+                                        button.dataset.id
+                                    );
+
+                                }
+                            );
+
+
+                        if (aluno) {
+
+                            mostrarQRCodeAluno(
+                                aluno
+                            );
+
+                        }
+
+                    };
+
+            }
+        );
+
+
+    document
+        .querySelectorAll(
+            ".examStudentButton"
+        )
+        .forEach(
+            function (button) {
+
+                button.onclick =
+                    function () {
+
+                        const aluno =
+                            alunos.find(
+                                function (a) {
+
+                                    return (
+                                        a.id ===
+                                        button.dataset.id
+                                    );
+
+                                }
+                            );
+
+
+                        if (aluno) {
+
+                            abrirModalExame(
+                                aluno
+                            );
+
+                        }
+
+                    };
+
+            }
+        );
+
+}
+
+
+// ============================================================
+// QR CODE DO ALUNO
+// ============================================================
+
+function mostrarQRCodeAluno(
+    aluno
+) {
+
+    const caixa =
+        $("qr-" + aluno.id);
+
+    if (!caixa) {
+        return;
+    }
+
+
+    if (
+        typeof QRCode ===
+        "undefined"
+    ) {
+
+        caixa.style.display =
+            "block";
+
+        caixa.innerHTML =
+            "<p>QR Code library not loaded.</p>";
+
+        return;
+
+    }
+
+
+    if (
+        caixa.style.display ===
+        "block"
+    ) {
+
+        caixa.style.display =
+            "none";
+
+        caixa.innerHTML =
+            "";
+
+        return;
+
+    }
+
+
+    caixa.innerHTML =
+        "";
+
+
+    const codigo =
+        aluno.qrCode ||
+        aluno.numero;
+
+
+    new QRCode(
+        caixa,
+        {
+
+            text:
+                String(codigo),
+
+            width:
+                180,
+
+            height:
+                180
+
+        }
+    );
+
+
+    const legenda =
+        document.createElement(
+            "p"
+        );
+
+
+    legenda.innerHTML = `
+
+        <strong>
+            ${escapeHTML(
+                aluno.nome || ""
+            )}
+        </strong>
+
+        <br>
+
+        Nº ${escapeHTML(
+            aluno.numero || ""
+        )}
+
+    `;
+
+
+    caixa.appendChild(
+        legenda
+    );
+
+
+    caixa.style.display =
+        "block";
+
+}
+
+
+// ============================================================
+// PESQUISA
+// ============================================================
+
+function configurarPesquisa() {
+
+    const campo =
+        $("searchStudent");
+
+    if (!campo) {
+        return;
+    }
+
+
+    campo.addEventListener(
+        "input",
+        function () {
+
+            mostrarAlunos();
+
+        }
+    );
+
+}
+
+
+// ============================================================
+// EDITAR ALUNO
+// ============================================================
+
+function editarAluno(
+    aluno
+) {
+
+    const overlay =
+        document.createElement(
+            "div"
+        );
+
+
+    overlay.className =
+        "lesson-editor-overlay";
+
+
+    overlay.style.display =
+        "flex";
+
+
+    const modal =
+        document.createElement(
+            "div"
+        );
+
+
+    modal.className =
+        "lesson-editor-modal";
+
+
+    modal.innerHTML = `
+
+        <button
+            type="button"
+            class="close-lesson-editor"
+            id="closeStudentEditor"
+        >
+            ✕
+        </button>
+
+        <h2>
+            ✏️ Editar ficha do aluno
+        </h2>
+
+        <label>
+            N.º de aluno
+        </label>
+
+        <input
+            id="editStudentNumber"
+            type="text"
+        >
+
+        <label>
+            Nome
+        </label>
+
+        <input
+            id="editStudentName"
+            type="text"
+        >
+
+        <label>
+            Estado
+        </label>
+
+        <select id="editStudentState">
+
+            <option value="Ativo">
+                Ativo
+            </option>
+
+            <option value="Inativo">
+                Inativo
+            </option>
+
+        </select>
+
+        <label>
+            QR Code / Código do aluno
+        </label>
+
+        <input
+            id="editStudentQR"
+            type="text"
+        >
+
+        <label>
+            Validade da licença
+        </label>
+
+        <input
+            id="editLicenseValidity"
+            type="date"
+        >
+
+        <label>
+            Validade do código
+        </label>
+
+        <input
+            id="editCodeValidity"
+            type="date"
+        >
+
+        <label>
+            Resultado do exame
+        </label>
+
+        <select id="editExamResult">
+
+            <option value="">
+                Sem exame
+            </option>
+
+            <option value="Aprovado">
+                Aprovado
+            </option>
+
+            <option value="Reprovado">
+                Reprovado
+            </option>
+
+        </select>
+
+        <label>
+            Data do exame
+        </label>
+
+        <input
+            id="editExamDate"
+            type="date"
+        >
+
+        <label>
+            Data da reprovação
+        </label>
+
+        <input
+            id="editFailureDate"
+            type="date"
+        >
+
+        <button
+            type="button"
+            id="saveStudentChanges"
+        >
+            💾 Guardar alterações
+        </button>
+
+    `;
+
+
+    overlay.appendChild(
+        modal
+    );
+
+    document.body.appendChild(
+        overlay
+    );
+
+
+    $("editStudentNumber").value =
+        aluno.numero || "";
+
+    $("editStudentName").value =
+        aluno.nome || "";
+
+    $("editStudentState").value =
+        aluno.estado || "Ativo";
+
+    $("editStudentQR").value =
+        aluno.qrCode ||
+        aluno.numero ||
+        "";
+
+    $("editLicenseValidity").value =
+        aluno.validadeLicenca || "";
+
+    $("editCodeValidity").value =
+        aluno.validadeCodigo || "";
+
+    $("editExamResult").value =
+        aluno.estadoExame || "";
+
+    $("editExamDate").value =
+        aluno.dataExame || "";
+
+    $("editFailureDate").value =
+        aluno.dataReprovacao || "";
+
+
+    $("closeStudentEditor").onclick =
+        function () {
+
+            overlay.remove();
+
+        };
+
+
+    $("saveStudentChanges").onclick =
+        async function () {
+
+            const dados = {
+
+                numero:
+                    $("editStudentNumber")
+                        .value
+                        .trim(),
+
+                nome:
+                    $("editStudentName")
+                        .value
+                        .trim(),
+
+                estado:
+                    $("editStudentState")
+                        .value,
+
+                qrCode:
+                    $("editStudentQR")
+                        .value
+                        .trim(),
+
+                validadeLicenca:
+                    $("editLicenseValidity")
+                        .value,
+
+                validadeCodigo:
+                    $("editCodeValidity")
+                        .value,
+
+                estadoExame:
+                    $("editExamResult")
+                        .value,
+
+                dataExame:
+                    $("editExamDate")
+                        .value,
+
+                dataReprovacao:
+                    $("editFailureDate")
+                        .value
+
+            };
+
+
+            if (
+                !dados.numero ||
+                !dados.nome
+            ) {
+
+                mostrarNotificacao(
+                    "O número e o nome são obrigatórios.",
+                    "erro"
+                );
+
+                return;
+
+            }
+
+
+            /*
+             * Se o exame for reprovado e existir
+             * data de exame, usa essa data como
+             * data de reprovação, caso esteja vazia.
+             */
+
+            if (
+                dados.estadoExame ===
+                "Reprovado" &&
+                !dados.dataReprovacao &&
+                dados.dataExame
+            ) {
+
+                dados.dataReprovacao =
+                    dados.dataExame;
+
+            }
+
+
+            /*
+             * Se alterar para aprovado,
+             * não mantemos uma reprovação antiga.
+             */
+
+            if (
+                dados.estadoExame ===
+                "Aprovado"
+            ) {
+
+                dados.dataReprovacao =
+                    "";
+
+            }
+
+
+            try {
+
+                await updateDoc(
+                    doc(
+                        db,
+                        "alunos",
+                        aluno.id
+                    ),
+                    dados
+                );
+
+
+                Object.assign(
+                    aluno,
+                    dados
+                );
+
+
+                overlay.remove();
+
+
+                mostrarAlunos();
+
+                atualizarDashboard();
+
+
+                mostrarNotificacao(
+                    "Ficha do aluno atualizada."
+                );
+
+            }
+            catch (erro) {
+
+                console.error(
+                    erro
+                );
+
+                mostrarNotificacao(
+                    "Erro ao guardar a ficha.",
+                    "erro"
+                );
+
+            }
+
+        };
+
+}
+
+
+// ============================================================
+// MODAL DE EXAME
+// ============================================================
+
+function abrirModalExame(
+    aluno
+) {
+
+    alunoResultadoExame =
+        aluno;
+
+
+    if (!$("examModal")) {
+        return;
+    }
+
+
+    $("examModal").style.display =
+        "flex";
+
+
+    $("examDate").value =
+        aluno.dataExame || "";
+
+
+    $("examResult").value =
+        aluno.estadoExame ||
+        "Aprovado";
+
+}
+
+
+// ============================================================
+// GUARDAR RESULTADO EXAME
+// ============================================================
+
+function configurarExame() {
+
+    if ($("cancelExamResult")) {
+
+        $("cancelExamResult").onclick =
+            function () {
+
+                $("examModal").style.display =
+                    "none";
+
+                alunoResultadoExame =
+                    null;
+
+            };
+
+    }
+
+
+    if ($("saveExamResult")) {
+
+        $("saveExamResult").onclick =
+            async function () {
+
+                if (!alunoResultadoExame) {
+                    return;
+                }
+
+
+                const data =
+                    $("examDate")
+                        ? $("examDate").value
+                        : "";
+
+                const resultado =
+                    $("examResult")
+                        ? $("examResult").value
+                        : "";
+
+
+                if (!data || !resultado) {
+
+                    mostrarNotificacao(
+                        "Preenche a data e o resultado.",
+                        "erro"
+                    );
+
+                    return;
+
+                }
+
+
+                const dados = {
+
+                    estadoExame:
+                        resultado,
+
+                    dataExame:
+                        data,
+
+                    dataReprovacao:
+                        resultado ===
+                        "Reprovado"
+                            ? data
+                            : ""
+
+                };
+
+
+                try {
+
+                    await updateDoc(
+                        doc(
+                            db,
+                            "alunos",
+                            alunoResultadoExame.id
+                        ),
+                        dados
+                    );
+
+
+                    Object.assign(
+                        alunoResultadoExame,
+                        dados
+                    );
+
+
+                    $("examModal").style.display =
+                        "none";
+
+
+                    mostrarAlunos();
+
+                    atualizarDashboard();
+
+
+                    mostrarNotificacao(
+                        "Resultado do exame guardado."
+                    );
+
+
+                    alunoResultadoExame =
+                        null;
+
+                }
+                catch (erro) {
+
+                    console.error(
+                        erro
+                    );
+
+                    mostrarNotificacao(
+                        "Erro ao guardar o resultado.",
+                        "erro"
+                    );
+
+                }
+
+            };
+
+    }
+
+}
+
+
+// ============================================================
+// CRIAR / EDITAR AULA
+// ============================================================
+
+function abrirEditorAula(
+    aula = null
+) {
+
+    aulaEmEdicao =
+        aula;
+
+
+    if (!$("lessonEditorOverlay")) {
+        return;
+    }
+
+
+    $("lessonEditorOverlay").style.display =
+        "flex";
+
+
+    $("lessonEditorTitle").innerText =
+        aula
+            ? "✏️ Editar Aula"
+            : "📚 Nova Aula";
+
+
+    $("lessonId").value =
+        aula
+            ? aula.numero || ""
+            : "";
+
+
+    $("lessonSubject").value =
+        aula
+            ? aula.materia || ""
+            : "";
+
+
+    $("lessonDate").value =
+        aula
+            ? aula.data || ""
+            : "";
+
+
+    $("lessonTime").value =
+        aula
+            ? aula.hora || ""
+            : "";
+
+
+    if (aula) {
+
+        window.alunosDaAula =
+            Array.isArray(
+                aula.alunos
+            )
+                ? [...aula.alunos]
+                : [];
+
+    }
+    else {
+
+        window.alunosDaAula =
+            [];
+
+    }
+
+
+    mostrarAlunosDaAula();
+
+}
+
+
+// ============================================================
+// FECHAR EDITOR
+// ============================================================
+
+function fecharEditorAula() {
+
+    if ($("lessonEditorOverlay")) {
+
+        $("lessonEditorOverlay").style.display =
+            "none";
+
+    }
+
+
+    aulaEmEdicao =
+        null;
+
+
+    window.alunosDaAula =
+        [];
+
+}
+
+
+// ============================================================
+// MATÉRIA AUTOMÁTICA
+// ============================================================
+
+function configurarMaterias() {
+
+    if (!$("lessonId")) {
+        return;
+    }
+
+
+    $("lessonId").addEventListener(
+        "change",
+        function () {
+
+            const numero =
+                this.value;
+
+
+            $("lessonSubject").value =
+                materias[numero] ||
+                "";
+
+        }
+    );
+
+}
+
+
+// ============================================================
+// ADICIONAR ALUNO À AULA
+// ============================================================
+
+function adicionarAlunoAula(
+    numero
+) {
+
+    numero =
+        String(
+            numero || ""
+        ).trim();
+
+
+    if (!numero) {
+
+        mostrarNotificacao(
+            "Introduz o número do aluno.",
+            "erro"
+        );
+
+        return;
+
+    }
+
+
+    const aluno =
+        alunos.find(
+            function (a) {
+
+                return (
+                    String(
+                        a.numero || ""
+                    ) === numero
+                );
+
+            }
+        );
+
+
+    if (!aluno) {
+
+        mostrarNotificacao(
+            "Aluno não encontrado.",
+            "erro"
+        );
+
+        return;
+
+    }
+
+
+    if (
+        !Array.isArray(
+            window.alunosDaAula
+        )
+    ) {
+
+        window.alunosDaAula =
+            [];
+
+    }
+
+
+    if (
+        window.alunosDaAula
+            .some(
+                function (n) {
+
+                    return String(n) ===
+                        numero;
+
+                }
+            )
+    ) {
+
+        mostrarNotificacao(
+            "Esse aluno já está na aula.",
+            "erro"
+        );
+
+        return;
+
+    }
+
+
+    window.alunosDaAula.push(
+        numero
+    );
+
+
+    mostrarAlunosDaAula();
+
+
+    if ($("lessonStudentNumber")) {
+
+        $("lessonStudentNumber").value =
+            "";
+
+    }
+
+}
+
+
+// ============================================================
+// MOSTRAR ALUNOS DA AULA
+// ============================================================
+
+function mostrarAlunosDaAula() {
+
+    const lista =
+        $("lessonStudents");
+
+    if (!lista) {
+        return;
+    }
+
+
+    if (
+        !Array.isArray(
+            window.alunosDaAula
+        ) ||
+        window.alunosDaAula.length === 0
+    ) {
+
+        lista.innerHTML =
+            "Nenhum aluno adicionado.";
+
+        return;
+
+    }
+
+
+    lista.innerHTML =
+        "";
+
+
+    window.alunosDaAula.forEach(
+        function (numero) {
+
+            const aluno =
+                alunos.find(
+                    function (a) {
+
+                        return String(
+                            a.numero || ""
+                        ) ===
+                            String(numero);
+
+                    }
+                );
+
+
+            const linha =
+                document.createElement(
+                    "div"
+                );
+
+
+            linha.style.display =
+                "flex";
+
+            linha.style.justifyContent =
+                "space-between";
+
+            linha.style.alignItems =
+                "center";
+
+            linha.style.padding =
+                "8px";
+
+            linha.style.marginBottom =
+                "5px";
+
+            linha.style.border =
+                "1px solid #ddd";
+
+            linha.style.borderRadius =
+                "6px";
+
+
+            linha.innerHTML = `
+
+                <span>
+                    👨‍🎓
+                    ${escapeHTML(
+                        numero
+                    )}
+                    -
+                    ${escapeHTML(
+                        aluno
+                            ? aluno.nome
+                            : "Aluno não encontrado"
+                    )}
+                </span>
+
+                <button
+                    type="button"
+                    class="removeLessonStudent"
+                    data-number="${escapeHTML(
+                        numero
+                    )}"
+                    style="
+                        background:#c62828;
+                        color:white;
+                        border:none;
+                        border-radius:5px;
+                        padding:5px 9px;
+                        cursor:pointer;
+                    "
+                    title="Retirar aluno da aula"
+                >
+                    ✕
+                </button>
+
+            `;
+
+
+            lista.appendChild(
+                linha
+            );
+
+        }
+    );
+
+
+    lista
+        .querySelectorAll(
+            ".removeLessonStudent"
+        )
+        .forEach(
+            function (button) {
+
+                button.onclick =
+                    function () {
+
+                        const numero =
+                            this.dataset.number;
+
+
+                        window.alunosDaAula =
+                            window.alunosDaAula.filter(
+                                function (n) {
+
+                                    return String(n) !==
+                                        String(numero);
+
+                                }
+                            );
+
+
+                        mostrarAlunosDaAula();
+
+                    };
+
+            }
+        );
+
+}
+
+
+// ============================================================
+// SELECIONAR VÁRIOS ALUNOS
+// ============================================================
+
+function abrirSelecaoMultipla() {
+
+    const box =
+        $("multipleStudentsBox");
+
+    const button =
+        $("addSelectedStudents");
+
+    if (!box || !button) {
+        return;
+    }
+
+
+    if (
+        box.style.display ===
+        "block"
+    ) {
+
+        box.style.display =
+            "none";
+
+        button.style.display =
+            "none";
+
+        return;
+
+    }
+
+
+    box.innerHTML =
+        "";
+
+
+    alunos
+        .filter(
+            function (aluno) {
+
+                return aluno.estado !==
+                    "Inativo";
+
+            }
+        )
+        .sort(
+            function (a, b) {
+
+                return String(
+                    a.numero || ""
+                ).localeCompare(
+                    String(
+                        b.numero || ""
+                    ),
+                    undefined,
+                    {
+                        numeric: true
+                    }
+                );
+
+            }
+        )
+        .forEach(
+            function (aluno) {
+
+                const label =
+                    document.createElement(
+                        "label"
+                    );
+
+
+                label.style.display =
+                    "block";
+
+                label.style.padding =
+                    "5px";
+
+
+                const checked =
+                    Array.isArray(
+                        window.alunosDaAula
+                    ) &&
+                    window.alunosDaAula
+                        .some(
+                            function (n) {
+
+                                return String(n) ===
+                                    String(aluno.numero);
+
+                            }
+                        );
+
+
+                label.innerHTML = `
+
+                    <input
+                        type="checkbox"
+                        class="multipleStudentCheck"
+                        value="${escapeHTML(
+                            aluno.numero
+                        )}"
+                        ${checked ? "checked" : ""}
+                    >
+
+                    ${escapeHTML(
+                        aluno.numero
+                    )}
+                    -
+                    ${escapeHTML(
+                        aluno.nome
+                    )}
+
+                `;
+
+
+                box.appendChild(
+                    label
+                );
+
+            }
+        );
+
+
+    box.style.display =
+        "block";
+
+    button.style.display =
+        "inline-block";
+
+}
+
+
+// ============================================================
+// ADICIONAR SELECIONADOS
+// ============================================================
+
+function adicionarSelecionados() {
+
+    document
+        .querySelectorAll(
+            ".multipleStudentCheck:checked"
+        )
+        .forEach(
+            function (checkbox) {
+
+                const numero =
+                    checkbox.value;
+
+
+                if (
+                    !window.alunosDaAula
+                        .some(
+                            function (n) {
+
+                                return String(n) ===
+                                    String(numero);
+
+                            }
+                        )
+                ) {
+
+                    window.alunosDaAula.push(
+                        numero
+                    );
+
+                }
+
+            }
+        );
+
+
+    mostrarAlunosDaAula();
+
+
+    if ($("multipleStudentsBox")) {
+
+        $("multipleStudentsBox").style.display =
+            "none";
+
+    }
+
+
+    if ($("addSelectedStudents")) {
+
+        $("addSelectedStudents").style.display =
+            "none";
+
+    }
+
+}
+
+
+// ============================================================
+// GUARDAR AULA
+// ============================================================
+
+async function guardarAula() {
+
+    const numero =
+        $("lessonId")
+            ? $("lessonId").value
+            : "";
+
+    const materia =
+        $("lessonSubject")
+            ? $("lessonSubject").value
+            : "";
+
+    const data =
+        $("lessonDate")
+            ? $("lessonDate").value
+            : "";
+
+    const hora =
+        $("lessonTime")
+            ? $("lessonTime").value
+            : "";
+
+
+    if (
+        !numero ||
+        !data ||
+        !hora
+    ) {
+
+        mostrarNotificacao(
+            "Seleciona a aula, a data e a hora.",
+            "erro"
+        );
+
+        return;
+
+    }
+
+
+    if (
+        !Array.isArray(
+            window.alunosDaAula
+        ) ||
+        window.alunosDaAula.length === 0
+    ) {
+
+        mostrarNotificacao(
+            "Adiciona pelo menos um aluno à aula.",
+            "erro"
+        );
+
+        return;
+
+    }
+
+
+    const dados = {
+
+        numero:
+            numero,
+
+        materia:
+            materia ||
+            materias[numero] ||
+            "",
+
+        data:
+            data,
+
+        hora:
+            hora,
+
+        cor:
+            obterCorAula(numero),
+
+        alunos:
+            [...window.alunosDaAula]
+
+    };
+
+
+    try {
+
+        if (aulaEmEdicao) {
+
+            await updateDoc(
+                doc(
+                    db,
+                    "aulas",
+                    aulaEmEdicao.id
+                ),
+                dados
+            );
+
+
+            mostrarNotificacao(
+                "Aula atualizada com sucesso."
+            );
+
+        }
+        else {
+
+            await addDoc(
+                collection(
+                    db,
+                    "aulas"
+                ),
+                {
+
+                    ...dados,
+
+                    criadaEm:
+                        new Date().toISOString()
+
+                }
+            );
+
+
+            mostrarNotificacao(
+                "Aula guardada com sucesso."
+            );
+
+        }
+
+
+        fecharEditorAula();
+
+        mostrarAulas();
+
+        renderizarCalendario();
 
         atualizarDashboard();
 
-        mostrarAlunos();
-
-        mostrarAulas();
-
-        renderizarCalendario();
-
-        atualizarRelatorios();
-
-    },
-
-    function (erro) {
+    }
+    catch (erro) {
 
         console.error(
-            "Erro ao carregar alunos:",
             erro
         );
 
         mostrarNotificacao(
-            "Erro ao carregar alunos.",
+            "Erro ao guardar a aula.",
             "erro"
         );
 
     }
 
-);
+}
 
 
 // ============================================================
-// LER AULAS
+// MOSTRAR AULAS
 // ============================================================
 
-onSnapshot(
+function mostrarAulas() {
 
-    collection(
-        db,
-        "aulas"
-    ),
+    const lista =
+        $("lessonsList");
 
-    function (snapshot) {
-
-        aulas = [];
+    if (!lista) {
+        return;
+    }
 
 
-        snapshot.forEach(
-            function (documento) {
+    if (
+        aulas.length === 0
+    ) {
 
-                aulas.push({
+        lista.innerHTML =
+            "Ainda não existem aulas.";
 
-                    id:
-                        documento.id,
+        return;
 
-                    ...documento.data()
+    }
 
-                });
+
+    const ordenadas =
+        [...aulas].sort(
+            function (a, b) {
+
+                const dataA =
+                    String(
+                        a.data || ""
+                    ) +
+                    String(
+                        a.hora || ""
+                    );
+
+                const dataB =
+                    String(
+                        b.data || ""
+                    ) +
+                    String(
+                        b.hora || ""
+                    );
+
+
+                return dataB.localeCompare(
+                    dataA
+                );
 
             }
         );
 
 
-        mostrarAulas();
+    lista.innerHTML =
+        "";
 
-        renderizarCalendario();
 
-        atualizarRelatorios();
+    ordenadas.forEach(
+        function (aula) {
 
-    },
+            const card =
+                document.createElement(
+                    "div"
+                );
 
-    function (erro) {
+
+            card.className =
+                "lesson-card";
+
+
+            const cor =
+                aula.cor ||
+                obterCorAula(
+                    aula.numero
+                );
+
+
+            card.style.borderLeft =
+                cor === "green"
+                    ? "8px solid #2e7d32"
+                    : cor === "yellow"
+                        ? "8px solid #f9a825"
+                        : "8px solid #c62828";
+
+
+            const alunosTexto =
+                Array.isArray(
+                    aula.alunos
+                )
+                    ? aula.alunos.length
+                    : 0;
+
+
+            card.innerHTML = `
+
+                <h3>
+                    📚 Lesson ${escapeHTML(
+                        aula.numero || ""
+                    )}
+                </h3>
+
+                <p>
+                    <strong>
+                        ${escapeHTML(
+                            aula.materia || ""
+                        )}
+                    </strong>
+                </p>
+
+                <p>
+                    📅 ${formatarData(
+                        aula.data
+                    )}
+                    &nbsp;
+                    ⏰ ${escapeHTML(
+                        aula.hora || ""
+                    )}
+                </p>
+
+                <p>
+                    👨‍🎓
+                    ${alunosTexto}
+                    aluno(s)
+                </p>
+
+                <div>
+
+                    <button
+                        type="button"
+                        class="openLessonButton"
+                        data-id="${aula.id}"
+                    >
+                        👁️ Abrir aula
+                    </button>
+
+                    <button
+                        type="button"
+                        class="editLessonButton"
+                        data-id="${aula.id}"
+                    >
+                        ✏️ Editar
+                    </button>
+
+                    <button
+                        type="button"
+                        class="deleteLessonButton"
+                        data-id="${aula.id}"
+                    >
+                        🗑️ Apagar
+                    </button>
+
+                </div>
+
+            `;
+
+
+            lista.appendChild(
+                card
+            );
+
+        }
+    );
+
+
+    configurarEventosAulas();
+
+}
+
+
+// ============================================================
+// EVENTOS DAS AULAS
+// ============================================================
+
+function configurarEventosAulas() {
+
+    document
+        .querySelectorAll(
+            ".openLessonButton, .editLessonButton"
+        )
+        .forEach(
+            function (button) {
+
+                button.onclick =
+                    function () {
+
+                        const aula =
+                            aulas.find(
+                                function (a) {
+
+                                    return (
+                                        a.id ===
+                                        button.dataset.id
+                                    );
+
+                                }
+                            );
+
+
+                        if (aula) {
+
+                            abrirEditorAula(
+                                aula
+                            );
+
+                        }
+
+                    };
+
+            }
+        );
+
+
+    document
+        .querySelectorAll(
+            ".deleteLessonButton"
+        )
+        .forEach(
+            function (button) {
+
+                button.onclick =
+                    async function () {
+
+                        const aula =
+                            aulas.find(
+                                function (a) {
+
+                                    return (
+                                        a.id ===
+                                        button.dataset.id
+                                    );
+
+                                }
+                            );
+
+
+                        if (!aula) {
+                            return;
+                        }
+
+
+                        const confirmar =
+                            confirm(
+                                "Queres apagar esta aula?"
+                            );
+
+
+                        if (!confirmar) {
+                            return;
+                        }
+
+
+                        try {
+
+                            await deleteDoc(
+                                doc(
+                                    db,
+                                    "aulas",
+                                    aula.id
+                                )
+                            );
+
+
+                            mostrarNotificacao(
+                                "Aula apagada."
+                            );
+
+                        }
+                        catch (erro) {
+
+                            console.error(
+                                erro
+                            );
+
+                            mostrarNotificacao(
+                                "Erro ao apagar a aula.",
+                                "erro"
+                            );
+
+                        }
+
+                    };
+
+            }
+        );
+
+}
+
+
+// ============================================================
+// LEITOR QR CODE
+// ============================================================
+
+let scannerQR = null;
+
+
+async function iniciarScannerQR() {
+
+    const reader =
+        $("reader");
+
+    if (!reader) {
+        return;
+    }
+
+
+    if (
+        typeof Html5Qrcode ===
+        "undefined"
+    ) {
+
+        mostrarNotificacao(
+            "Biblioteca de QR Code não carregada.",
+            "erro"
+        );
+
+        return;
+
+    }
+
+
+    reader.style.display =
+        "block";
+
+
+    reader.innerHTML =
+        "";
+
+
+    try {
+
+        scannerQR =
+            new Html5Qrcode(
+                "reader"
+            );
+
+
+        await scannerQR.start(
+
+            {
+                facingMode:
+                    "environment"
+            },
+
+            {
+                fps:
+                    10,
+
+                qrbox:
+                    250
+
+            },
+
+            function (codigo) {
+
+                codigo =
+                    String(
+                        codigo || ""
+                    ).trim();
+
+
+                const aluno =
+                    alunos.find(
+                        function (a) {
+
+                            return (
+                                String(
+                                    a.qrCode || ""
+                                ) === codigo ||
+                                String(
+                                    a.numero || ""
+                                ) === codigo
+                            );
+
+                        }
+                    );
+
+
+                if (!aluno) {
+
+                    mostrarNotificacao(
+                        "Aluno não encontrado.",
+                        "erro"
+                    );
+
+                    return;
+
+                }
+
+
+                adicionarAlunoAula(
+                    aluno.numero
+                );
+
+
+                pararScannerQR();
+
+            },
+
+            function () {
+
+                // Erros de leitura contínua
+                // não precisam de mensagem.
+
+            }
+
+        );
+
+    }
+    catch (erro) {
 
         console.error(
-            "Erro ao carregar aulas:",
             erro
         );
 
         mostrarNotificacao(
-            "Erro ao carregar aulas.",
+            "Não foi possível abrir a câmara.",
             "erro"
         );
 
+        pararScannerQR();
+
     }
 
-);
+}
+
+
+// ============================================================
+// PARAR QR
+// ============================================================
+
+async function pararScannerQR() {
+
+    if (scannerQR) {
+
+        try {
+
+            await scannerQR.stop();
+
+        }
+        catch (erro) {
+
+            console.warn(
+                erro
+            );
+
+        }
+
+
+        try {
+
+            scannerQR.clear();
+
+        }
+        catch (erro) {
+
+            console.warn(
+                erro
+            );
+
+        }
+
+
+        scannerQR =
+            null;
+
+    }
+
+
+    if ($("reader")) {
+
+        $("reader").style.display =
+            "none";
+
+    }
+
+}
+
+
+// ============================================================
+// CONFIGURAR EDITOR DE AULA
+// ============================================================
+
+function configurarEditorAula() {
+
+    if ($("closeLessonEditor")) {
+
+        $("closeLessonEditor").onclick =
+            function () {
+
+                pararScannerQR();
+
+                fecharEditorAula();
+
+            };
+
+    }
+
+
+    if ($("addStudentToLesson")) {
+
+        $("addStudentToLesson").onclick =
+            function () {
+
+                adicionarAlunoAula(
+                    $("lessonStudentNumber")
+                        ? $("lessonStudentNumber").value
+                        : ""
+                );
+
+            };
+
+    }
+
+
+    if ($("lessonStudentNumber")) {
+
+        $("lessonStudentNumber")
+            .addEventListener(
+                "keydown",
+                function (event) {
+
+                    if (
+                        event.key ===
+                        "Enter"
+                    ) {
+
+                        event.preventDefault();
+
+                        $("addStudentToLesson")
+                            .click();
+
+                    }
+
+                }
+            );
+
+    }
+
+
+    if ($("selectMultipleStudents")) {
+
+        $("selectMultipleStudents").onclick =
+            abrirSelecaoMultipla;
+
+    }
+
+
+    if ($("addSelectedStudents")) {
+
+        $("addSelectedStudents").onclick =
+            adicionarSelecionados;
+
+    }
+
+
+    if ($("scanQRCodeButton")) {
+
+        $("scanQRCodeButton").onclick =
+            function () {
+
+                if (scannerQR) {
+
+                    pararScannerQR();
+
+                }
+                else {
+
+                    iniciarScannerQR();
+
+                }
+
+            };
+
+    }
+
+
+    if ($("saveLesson")) {
+
+        $("saveLesson").onclick =
+            guardarAula;
+
+    }
+
+
+    configurarMaterias();
+
+}
+
+
+// ============================================================
+// CALENDÁRIO
+// ============================================================
+
+function renderizarCalendario() {
+
+    const container =
+        $("monthsContainer");
+
+    if (!container) {
+        return;
+    }
+
+
+    if (
+        aulas.length === 0
+    ) {
+
+        container.innerHTML = `
+
+            <div class="calendar-empty">
+
+                📅
+
+                <p>
+                    Ainda não existem aulas.
+                </p>
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    const grupos = {};
+
+
+    aulas.forEach(
+        function (aula) {
+
+            if (!aula.data) {
+                return;
+            }
+
+
+            const chave =
+                aula.data.substring(
+                    0,
+                    7
+                );
+
+
+            if (!grupos[chave]) {
+
+                grupos[chave] =
+                    [];
+
+            }
+
+
+            grupos[chave].push(
+                aula
+            );
+
+        }
+    );
+
+
+    const meses =
+        Object.keys(
+            grupos
+        ).sort()
+        .reverse();
+
+
+    container.innerHTML =
+        "";
+
+
+    meses.forEach(
+        function (chave) {
+
+            const [ano, mes] =
+                chave.split("-");
+
+
+            const nomeMes =
+                new Date(
+                    Number(ano),
+                    Number(mes) - 1,
+                    1
+                ).toLocaleDateString(
+                    "en-GB",
+                    {
+                        month:
+                            "long",
+                        year:
+                            "numeric"
+                    }
+                );
+
+
+            const bloco =
+                document.createElement(
+                    "div"
+                );
+
+
+            bloco.className =
+                "calendar-month";
+
+
+            bloco.innerHTML = `
+
+                <h3>
+                    📅
+                    ${nomeMes}
+                </h3>
+
+            `;
+
+
+            grupos[chave]
+                .sort(
+                    function (a, b) {
+
+                        return (
+                            String(
+                                a.data
+                            ).localeCompare(
+                                String(
+                                    b.data
+                                )
+                            ) ||
+                            String(
+                                a.hora || ""
+                            ).localeCompare(
+                                String(
+                                    b.hora || ""
+                                )
+                            )
+                        );
+
+                    }
+                )
+                .forEach(
+                    function (aula) {
+
+                        const linha =
+                            document.createElement(
+                                "div"
+                            );
+
+
+                        linha.style.padding =
+                            "8px";
+
+                        linha.style.margin =
+                            "5px 0";
+
+                        linha.style.border =
+                            "1px solid #ddd";
+
+                        linha.style.borderRadius =
+                            "6px";
+
+
+                        const cor =
+                            aula.cor ||
+                            obterCorAula(
+                                aula.numero
+                            );
+
+
+                        linha.style.borderLeft =
+                            cor === "green"
+                                ? "6px solid #2e7d32"
+                                : cor === "yellow"
+                                    ? "6px solid #f9a825"
+                                    : "6px solid #c62828";
+
+
+                        linha.innerHTML = `
+
+                            <strong>
+                                ${formatarData(
+                                    aula.data
+                                )}
+                                -
+                                ${escapeHTML(
+                                    aula.hora || ""
+                                )}
+                            </strong>
+
+                            <br>
+
+                            Lesson
+                            ${escapeHTML(
+                                aula.numero || ""
+                            )}
+
+                            -
+                            ${escapeHTML(
+                                aula.materia || ""
+                            )}
+
+                            <br>
+
+                            👨‍🎓
+                            ${
+                                Array.isArray(
+                                    aula.alunos
+                                )
+                                    ? aula.alunos.length
+                                    : 0
+                            }
+                            aluno(s)
+
+                        `;
+
+
+                        bloco.appendChild(
+                            linha
+                        );
+
+                    }
+                );
+
+
+            container.appendChild(
+                bloco
+            );
+
+        }
+    );
+
+}
+
+
+// ============================================================
+// ADICIONAR MÊS
+// ============================================================
+
+function configurarAdicionarMes() {
+
+    if (!$("addMonthButton")) {
+        return;
+    }
+
+
+    $("addMonthButton").onclick =
+        function () {
+
+            const hoje =
+                new Date();
+
+
+            const ano =
+                hoje.getFullYear();
+
+
+            const mes =
+                String(
+                    hoje.getMonth() + 1
+                ).padStart(
+                    2,
+                    "0"
+                );
+
+
+            mostrarNotificacao(
+                `Mês atual: ${mes}/${ano}. As aulas aparecerão automaticamente no calendário.`
+            );
+
+
+            renderizarCalendario();
+
+        };
+
+}
 
 
 // ============================================================
@@ -733,19 +3646,13 @@ onSnapshot(
 
 function atualizarDashboard() {
 
-    if (
-        !Array.isArray(alunos)
-    ) {
-        return;
-    }
-
-
     const ativos =
         alunos.filter(
             function (aluno) {
 
                 return (
-                    aluno.estado === "Ativo"
+                    aluno.estado ===
+                    "Ativo"
                 );
 
             }
@@ -781,21 +3688,13 @@ function atualizarDashboard() {
     }
 
 
-    if ($("totalLessons")) {
-
-        $("totalLessons").innerText =
-            aulas.length;
-
-    }
-
-
     mostrarAlertas();
 
 }
 
 
 // ============================================================
-// ALERTAS DE VALIDADE
+// ALERTAS
 // ============================================================
 
 function mostrarAlertas() {
@@ -803,11 +3702,7 @@ function mostrarAlertas() {
     const lista =
         $("alertsList");
 
-
-    if (
-        !lista ||
-        !Array.isArray(alunos)
-    ) {
+    if (!lista) {
         return;
     }
 
@@ -817,12 +3712,17 @@ function mostrarAlertas() {
 
 
     hoje.setHours(
-        0, 0, 0, 0
+        0,
+        0,
+        0,
+        0
     );
 
 
     const limite =
-        new Date(hoje);
+        new Date(
+            hoje
+        );
 
 
     limite.setMonth(
@@ -830,30 +3730,31 @@ function mostrarAlertas() {
     );
 
 
-    const alertas = [];
+    const alertas =
+        [];
 
 
     alunos.forEach(
         function (aluno) {
 
-            verificar(
+            verificarValidade(
                 aluno,
                 aluno.validadeLicenca,
-                "Licença de aprendizagem"
+                "License validity"
             );
 
 
-            verificar(
+            verificarValidade(
                 aluno,
                 aluno.validadeCodigo,
-                "Validade do código"
+                "Code validity"
             );
 
         }
     );
 
 
-    function verificar(
+    function verificarValidade(
         aluno,
         data,
         tipo
@@ -866,8 +3767,7 @@ function mostrarAlertas() {
 
         const validade =
             new Date(
-                normalizarData(data) +
-                "T00:00:00"
+                data + "T00:00:00"
             );
 
 
@@ -876,7 +3776,9 @@ function mostrarAlertas() {
                 validade.getTime()
             )
         ) {
+
             return;
+
         }
 
 
@@ -889,13 +3791,17 @@ function mostrarAlertas() {
                 <div class="alert expired">
 
                     🔴
+
                     <strong>
-                        ${escaparHTML(aluno.nome || "Aluno")}
+                        ${escapeHTML(
+                            aluno.nome || "Aluno"
+                        )}
                     </strong>
 
                     <br>
 
-                    ${tipo} já expirou.
+                    ${tipo}
+                    expired.
 
                 </div>
 
@@ -911,14 +3817,18 @@ function mostrarAlertas() {
                 <div class="alert">
 
                     ⚠️
+
                     <strong>
-                        ${escaparHTML(aluno.nome || "Aluno")}
+                        ${escapeHTML(
+                            aluno.nome || "Aluno"
+                        )}
                     </strong>
 
                     <br>
 
-                    ${tipo} termina em:
-                    ${formatarData(data)}
+                    ${tipo}
+                    expires on
+                    ${formatarData(data)}.
 
                 </div>
 
@@ -937,8 +3847,9 @@ function mostrarAlertas() {
 
             <div class="alert good">
 
-                ✅ Não existem validades
-                a terminar nos próximos 3 meses.
+                ✅
+                No license or code
+                validity alerts.
 
             </div>
 
@@ -964,3077 +3875,443 @@ function mostrarAlertas() {
 
 
 // ============================================================
-// CONTAGEM DAS AULAS DO ALUNO
+// RELATÓRIOS
 // ============================================================
 
-function obterAulasRealizadas(
-    aluno
-) {
+function configurarRelatorios() {
 
-    if (!aluno) {
-        return 0;
+    if ($("exportReportButton")) {
+
+        $("exportReportButton").onclick =
+            exportarRelatorio;
+
     }
 
 
-    const numero =
-        String(
-            aluno.numero || ""
-        ).trim();
+    if ($("printActiveStudentsButton")) {
 
+        $("printActiveStudentsButton").onclick =
+            imprimirAlunosAtivos;
 
-    if (!numero) {
-        return 0;
     }
-
-
-    let total = 0;
-
-
-    aulas.forEach(
-        function (aula) {
-
-            if (
-                !Array.isArray(
-                    aula.alunos
-                )
-            ) {
-                return;
-            }
-
-
-            const esteve =
-                aula.alunos.some(
-                    function (valor) {
-
-                        return (
-                            String(valor).trim() ===
-                            numero
-                        );
-
-                    }
-                );
-
-
-            if (!esteve) {
-                return;
-            }
-
-
-            /*
-             * SEM REPROVAÇÃO:
-             * contam todas as aulas.
-             */
-
-            if (
-                !aluno.dataReprovacao
-            ) {
-
-                total++;
-
-                return;
-            }
-
-
-            /*
-             * COM REPROVAÇÃO:
-             * as aulas anteriores ou iguais
-             * à data de reprovação NÃO contam
-             * para as 5 obrigatórias.
-             */
-
-            if (
-                dataDepois(
-                    aula.data,
-                    aluno.dataReprovacao
-                )
-            ) {
-
-                total++;
-
-            }
-
-        }
-    );
-
-
-    return total;
 
 }
 
 
 // ============================================================
-// CONTAGEM TOTAL DE AULAS ANTES DA REPROVAÇÃO
+// EXPORTAR EXCEL
 // ============================================================
 
-function obterTotalAulasAntesDaReprovacao(
-    aluno
-) {
+function exportarRelatorio() {
 
-    if (!aluno) {
-        return 0;
+    if (
+        typeof XLSX ===
+        "undefined"
+    ) {
+
+        mostrarNotificacao(
+            "Biblioteca Excel não carregada.",
+            "erro"
+        );
+
+        return;
+
     }
 
 
-    const numero =
-        String(
-            aluno.numero || ""
-        ).trim();
+    const dados =
+        alunos.map(
+            function (aluno) {
+
+                const contagem =
+                    obterContagemAulas(
+                        aluno
+                    );
 
 
-    let total = 0;
+                return {
 
+                    "Student Number":
+                        aluno.numero || "",
 
-    aulas.forEach(
-        function (aula) {
+                    "Name":
+                        aluno.nome || "",
 
-            if (
-                !Array.isArray(
-                    aula.alunos
-                )
-            ) {
-                return;
-            }
+                    "Status":
+                        aluno.estado || "",
 
+                    "License Validity":
+                        aluno.validadeLicenca || "",
 
-            const esteve =
-                aula.alunos.some(
-                    function (valor) {
+                    "Code Validity":
+                        aluno.validadeCodigo || "",
 
-                        return (
-                            String(valor).trim() ===
-                            numero
-                        );
+                    "Exam Result":
+                        aluno.estadoExame || "",
 
-                    }
-                );
+                    "Exam Date":
+                        aluno.dataExame || "",
 
+                    "Failure Date":
+                        aluno.dataReprovacao || "",
 
-            if (!esteve) {
-                return;
-            }
+                    "Lessons Completed":
+                        contagem.total,
 
+                    "Theory Complete":
+                        contagem.teoricaCompleta
+                            ? "YES"
+                            : "NO",
 
-            if (
-                aluno.dataReprovacao
-            ) {
+                    "Lessons After Failure":
+                        contagem.posReprovacao,
 
-                if (
-                    normalizarData(aula.data) <=
-                    normalizarData(
+                    "Mandatory After Failure":
                         aluno.dataReprovacao
-                    )
-                ) {
-
-                    total++;
-
-                }
-
-            }
-
-        }
-    );
-
-
-    return total;
-
-}
-
-
-// ============================================================
-// ATUALIZAR CONTAGEM DO ALUNO
-// ============================================================
-
-function atualizarContagemAulasAluno(
-    aluno
-) {
-
-    const total =
-        obterAulasRealizadas(
-            aluno
-        );
-
-
-    /*
-     * Guardamos sempre o valor atual.
-     */
-
-    aluno.aulasRealizadas =
-        total;
-
-
-    /*
-     * TEÓRICA:
-     *
-     * 28 aulas = completa.
-     *
-     * Quando existe reprovação, o contador
-     * de pós-reprovação é separado.
-     */
-
-    if (
-        !aluno.dataReprovacao
-    ) {
-
-        aluno.teoricaCompleta =
-            total >= 28;
-
-        aluno.aulasPosReprovacao =
-            0;
-
-        aluno.aulasObrigatoriasPosReprovacao =
-            0;
-
-        aluno.posReprovacaoCompleta =
-            false;
-
-    }
-    else {
-
-        /*
-         * O aluno mantém a indicação de que
-         * já fez as 28 aulas teóricas originais.
-         */
-
-        const totalAntes =
-            obterTotalAulasAntesDaReprovacao(
-                aluno
-            );
-
-
-        aluno.teoricaCompleta =
-            totalAntes >= 28;
-
-
-        /*
-         * Depois da reprovação:
-         * são obrigatórias 5 aulas.
-         */
-
-        aluno.aulasPosReprovacao =
-            total;
-
-
-        aluno.aulasObrigatoriasPosReprovacao =
-            Math.max(
-                0,
-                5 - total
-            );
-
-
-        aluno.posReprovacaoCompleta =
-            total >= 5;
-
-    }
-
-}
-
-
-// ============================================================
-// ESCAPAR HTML
-// ============================================================
-
-function escaparHTML(
-    valor
-) {
-
-    return String(
-        valor ?? ""
-    )
-        .replace(
-            /&/g,
-            "&amp;"
-        )
-        .replace(
-            /</g,
-            "&lt;"
-        )
-        .replace(
-            />/g,
-            "&gt;"
-        )
-        .replace(
-            /"/g,
-            "&quot;"
-        )
-        .replace(
-            /'/g,
-            "&#039;"
-        );
-
-}
-
-
-// ============================================================
-// MOSTRAR ALUNOS
-// ============================================================
-
-function mostrarAlunos() {
-
-    const lista =
-        $("studentsList");
-
-
-    if (
-        !lista ||
-        !Array.isArray(alunos)
-    ) {
-        return;
-    }
-
-
-    alunos.forEach(
-        function (aluno) {
-
-            atualizarContagemAulasAluno(
-                aluno
-            );
-
-        }
-    );
-
-
-    const pesquisa =
-        $("searchStudent")
-            ? $("searchStudent")
-                .value
-                .trim()
-                .toLowerCase()
-            : "";
-
-
-    const resultado =
-        [...alunos]
-            .filter(
-                function (aluno) {
-
-                    const numero =
-                        String(
-                            aluno.numero || ""
-                        ).toLowerCase();
-
-
-                    const nome =
-                        String(
-                            aluno.nome || ""
-                        ).toLowerCase();
-
-
-                    return (
-                        pesquisa === "" ||
-                        numero.includes(
-                            pesquisa
-                        ) ||
-                        nome.includes(
-                            pesquisa
-                        )
-                    );
-
-                }
-            )
-            .sort(
-                function (a, b) {
-
-                    return (
-                        Number(
-                            a.numero || 0
-                        ) -
-                        Number(
-                            b.numero || 0
-                        )
-                    );
-
-                }
-            );
-
-
-    if (
-        resultado.length === 0
-    ) {
-
-        lista.innerHTML =
-            "<p>Nenhum aluno encontrado.</p>";
-
-        return;
-    }
-
-
-    lista.innerHTML = "";
-
-
-    resultado.forEach(
-        function (aluno) {
-
-            const card =
-                document.createElement(
-                    "div"
-                );
-
-
-            card.className =
-                "student-card";
-
-
-            let teorica;
-
-
-            if (
-                aluno.dataReprovacao
-            ) {
-
-                const totalAntes =
-                    obterTotalAulasAntesDaReprovacao(
-                        aluno
-                    );
-
-
-                if (
-                    totalAntes >= 28
-                ) {
-
-                    teorica =
-                        "✅ Teórica completa";
-
-                }
-                else {
-
-                    teorica =
-                        "⏳ " +
-                        totalAntes +
-                        "/28 aulas";
-
-                }
-
-            }
-            else {
-
-                teorica =
-                    aluno.teoricaCompleta
-                        ? "✅ Teórica completa"
-                        : (
-                            "⏳ " +
-                            (
-                                aluno.aulasRealizadas ||
-                                0
-                            ) +
-                            "/28 aulas"
-                        );
-
-            }
-
-
-            let posReprovacao = "";
-
-
-            if (
-                aluno.dataReprovacao
-            ) {
-
-                posReprovacao = `
-
-                    <p>
-
-                        <strong>
-                            Aulas após reprovação:
-                        </strong>
-
-                        ${
-                            aluno.aulasPosReprovacao ||
-                            0
-                        }/5
-
-                        ${
-                            aluno.posReprovacaoCompleta
-                                ? " ✅ Obrigatórias completas"
-                                : " ⏳ Faltam " +
-                                  (
-                                    aluno.aulasObrigatoriasPosReprovacao ||
-                                    0
-                                  )
-                        }
-
-                    </p>
-
-                    <p>
-
-                        <strong>
-                            Data da reprovação:
-                        </strong>
-
-                        ${formatarData(
-                            aluno.dataReprovacao
-                        )}
-
-                    </p>
-
-                `;
-
-            }
-
-
-            card.innerHTML = `
-
-                <h3>
-
-                    👨‍🎓
-                    ${escaparHTML(aluno.numero || "-")}
-                    -
-                    ${escaparHTML(aluno.nome || "-")}
-
-                </h3>
-
-
-                <p>
-
-                    <strong>
-                        Estado:
-                    </strong>
-
-                    ${escaparHTML(
-                        aluno.estado || "-"
-                    )}
-
-                </p>
-
-
-                <p>
-
-                    <strong>
-                        Aulas:
-                    </strong>
-
-                    ${teorica}
-
-                </p>
-
-
-                ${posReprovacao}
-
-
-                <p>
-
-                    <strong>
-                        Exame:
-                    </strong>
-
-                    ${escaparHTML(
-                        aluno.estadoExame ||
-                        "Sem exame"
-                    )}
-
-                </p>
-
-
-                <p>
-
-                    <strong>
-                        Validade Licença:
-                    </strong>
-
-                    ${formatarData(
-                        aluno.validadeLicenca
-                    )}
-
-                </p>
-
-
-                <p>
-
-                    <strong>
-                        Validade Código:
-                    </strong>
-
-                    ${formatarData(
-                        aluno.validadeCodigo
-                    )}
-
-                </p>
-
-
-                <div class="student-actions">
-
-                    <button
-                        type="button"
-                        class="editStudentButton"
-                        data-id="${aluno.id}"
-                    >
-                        ✏️ Editar ficha
-                    </button>
-
-
-                    <button
-                        type="button"
-                        class="qrStudentButton"
-                        data-id="${aluno.id}"
-                    >
-                        📱 QR Code
-                    </button>
-
-                </div>
-
-
-                <div
-                    class="student-qr"
-                    id="qr-${aluno.id}"
-                    style="display:none;"
-                ></div>
-
-            `;
-
-
-            lista.appendChild(
-                card
-            );
-
-        }
-    );
-
-
-    configurarEventosAlunos();
-
-}
-
-
-// ============================================================
-// EVENTOS DOS ALUNOS
-// ============================================================
-
-function configurarEventosAlunos() {
-
-    document
-        .querySelectorAll(
-            ".editStudentButton"
-        )
-        .forEach(
-            function (button) {
-
-                button.onclick =
-                    function () {
-
-                        const id =
-                            this.dataset.id;
-
-
-                        const aluno =
-                            alunos.find(
-                                function (a) {
-
-                                    return (
-                                        a.id === id
-                                    );
-
-                                }
-                            );
-
-
-                        if (aluno) {
-
-                            editarAluno(
-                                aluno
-                            );
-
-                        }
-
-                    };
-
-            }
-        );
-
-
-    document
-        .querySelectorAll(
-            ".qrStudentButton"
-        )
-        .forEach(
-            function (button) {
-
-                button.onclick =
-                    function () {
-
-                        const id =
-                            this.dataset.id;
-
-
-                        const aluno =
-                            alunos.find(
-                                function (a) {
-
-                                    return (
-                                        a.id === id
-                                    );
-
-                                }
-                            );
-
-
-                        if (aluno) {
-
-                            mostrarQRCodeAluno(
-                                aluno
-                            );
-
-                        }
-
-                    };
-
-            }
-        );
-
-}
-
-
-// ============================================================
-// CARREGAR BIBLIOTECA QR CODE AUTOMATICAMENTE
-// ============================================================
-
-function carregarQRCode() {
-
-    return new Promise(
-        function (resolve, reject) {
-
-            if (
-                typeof QRCode !==
-                "undefined"
-            ) {
-
-                resolve();
-
-                return;
-
-            }
-
-
-            const script =
-                document.createElement(
-                    "script"
-                );
-
-
-            script.src =
-                "https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js";
-
-
-            script.onload =
-                function () {
-
-                    resolve();
+                            ? 5
+                            : 0,
+
+                    "Remaining After Failure":
+                        contagem.faltamPosReprovacao
 
                 };
 
-
-            script.onerror =
-                function () {
-
-                    reject(
-                        new Error(
-                            "Não foi possível carregar a biblioteca QR Code."
-                        )
-                    );
-
-                };
+            }
+        );
 
 
-            document.head.appendChild(
-                script
-            );
+    const worksheet =
+        XLSX.utils.json_to_sheet(
+            dados
+        );
 
-        }
+
+    const workbook =
+        XLSX.utils.book_new();
+
+
+    XLSX.utils.book_append_sheet(
+        workbook,
+        worksheet,
+        "Students"
+    );
+
+
+    XLSX.writeFile(
+        workbook,
+        "english-check-report.xlsx"
+    );
+
+
+    mostrarNotificacao(
+        "Relatório exportado."
     );
 
 }
 
 
 // ============================================================
-// MOSTRAR QR CODE
+// IMPRIMIR ALUNOS ATIVOS
 // ============================================================
 
-async function mostrarQRCodeAluno(
-    aluno
-) {
-
-    const caixa =
-        $("qr-" + aluno.id);
-
-
-    if (!caixa) {
-        return;
-    }
-
-
-    if (
-        caixa.style.display ===
-        "block"
-    ) {
-
-        caixa.style.display =
-            "none";
-
-        caixa.innerHTML =
-            "";
-
-        return;
-
-    }
-
-
-    try {
-
-        await carregarQRCode();
-
-    }
-    catch (erro) {
-
-        console.error(
-            erro
-        );
-
-        caixa.style.display =
-            "block";
-
-        caixa.innerHTML =
-            "<p>Não foi possível carregar o QR Code.</p>";
-
-        return;
-
-    }
-
-
-    caixa.innerHTML =
-        "";
-
-
-    new QRCode(
-        caixa,
-        {
-
-            text:
-                String(
-                    aluno.numero || ""
-                ),
-
-            width:
-                180,
-
-            height:
-                180
-
-        }
-    );
-
-
-    const legenda =
-        document.createElement(
-            "p"
-        );
-
-
-    legenda.innerHTML = `
-
-        <strong>
-            Aluno ${escaparHTML(
-                aluno.numero || ""
-            )}
-        </strong>
-
-    `;
-
-
-    caixa.appendChild(
-        legenda
-    );
-
-
-    caixa.style.display =
-        "block";
-
-}
-
-
-// ============================================================
-// PESQUISA
-// ============================================================
-
-function configurarPesquisa() {
-
-    const campo =
-        $("searchStudent");
-
-
-    if (!campo) {
-        return;
-    }
-
-
-    campo.oninput =
-        function () {
-
-            mostrarAlunos();
-
-        };
-
-}
-
-
-// ============================================================
-// EDITAR ALUNO
-// ============================================================
-
-function editarAluno(
-    aluno
-) {
-
-    const overlay =
-        document.createElement(
-            "div"
-        );
-
-
-    overlay.className =
-        "lesson-editor-overlay";
-
-
-    const modal =
-        document.createElement(
-            "div"
-        );
-
-
-    modal.className =
-        "lesson-editor-modal";
-
-
-    modal.innerHTML = `
-
-        <button
-            type="button"
-            class="close-lesson-editor"
-            id="closeStudentEditor"
-        >
-            ×
-        </button>
-
-
-        <h2>
-            ✏️ Editar ficha do aluno
-        </h2>
-
-
-        <label>
-            Número do aluno
-        </label>
-
-        <input
-            id="editStudentNumber"
-            type="text"
-            value="${escaparHTML(
-                aluno.numero || ""
-            )}"
-        >
-
-
-        <label>
-            Nome
-        </label>
-
-        <input
-            id="editStudentName"
-            type="text"
-            value="${escaparHTML(
-                aluno.nome || ""
-            )}"
-        >
-
-
-        <label>
-            Estado
-        </label>
-
-        <select id="editStudentState">
-
-            <option value="Ativo">
-                Ativo
-            </option>
-
-            <option value="Inativo">
-                Inativo
-            </option>
-
-        </select>
-
-
-        <label>
-            Validade da licença
-        </label>
-
-        <input
-            id="editLicenseValidity"
-            type="date"
-            value="${normalizarData(
-                aluno.validadeLicenca
-            )}"
-        >
-
-
-        <label>
-            Validade do código
-        </label>
-
-        <input
-            id="editCodeValidity"
-            type="date"
-            value="${normalizarData(
-                aluno.validadeCodigo
-            )}"
-        >
-
-
-        <label>
-            Resultado do exame
-        </label>
-
-        <select id="editExamResult">
-
-            <option value="">
-                Sem exame
-            </option>
-
-            <option value="Aprovado">
-                Aprovado
-            </option>
-
-            <option value="Reprovado">
-                Reprovado
-            </option>
-
-        </select>
-
-
-        <label>
-            Data da reprovação
-        </label>
-
-        <input
-            id="editFailureDate"
-            type="date"
-            value="${normalizarData(
-                aluno.dataReprovacao
-            )}"
-        >
-
-
-        <button
-            type="button"
-            id="saveStudentChanges"
-        >
-            💾 Guardar alterações
-        </button>
-
-    `;
-
-
-    overlay.appendChild(
-        modal
-    );
-
-
-    document.body.appendChild(
-        overlay
-    );
-
-
-    const estado =
-        modal.querySelector(
-            "#editStudentState"
-        );
-
-
-    const exame =
-        modal.querySelector(
-            "#editExamResult"
-        );
-
-
-    estado.value =
-        aluno.estado ||
-        "Ativo";
-
-
-    exame.value =
-        aluno.estadoExame ||
-        "";
-
-
-    modal.querySelector(
-        "#closeStudentEditor"
-    ).onclick =
-        function () {
-
-            overlay.remove();
-
-        };
-
-
-    modal.querySelector(
-        "#saveStudentChanges"
-    ).onclick =
-        async function () {
-
-            const numero =
-                modal.querySelector(
-                    "#editStudentNumber"
-                ).value.trim();
-
-
-            const nome =
-                modal.querySelector(
-                    "#editStudentName"
-                ).value.trim();
-
-
-            if (!numero) {
-
-                mostrarNotificacao(
-                    "Introduz o número do aluno.",
-                    "erro"
-                );
-
-                return;
-
-            }
-
-
-            if (!nome) {
-
-                mostrarNotificacao(
-                    "Introduz o nome do aluno.",
-                    "erro"
-                );
-
-                return;
-
-            }
-
-
-            const dados = {
-
-                numero:
-
-                    numero,
-
-                nome:
-
-                    nome,
-
-                estado:
-
-                    modal.querySelector(
-                        "#editStudentState"
-                    ).value,
-
-                validadeLicenca:
-
-                    modal.querySelector(
-                        "#editLicenseValidity"
-                    ).value,
-
-                validadeCodigo:
-
-                    modal.querySelector(
-                        "#editCodeValidity"
-                    ).value,
-
-                estadoExame:
-
-                    modal.querySelector(
-                        "#editExamResult"
-                    ).value,
-
-                dataReprovacao:
-
-                    modal.querySelector(
-                        "#editFailureDate"
-                    ).value
-
-            };
-
-
-            /*
-             * Se o resultado voltar a ser
-             * diferente de reprovado,
-             * limpamos a data de reprovação.
-             */
-
-            if (
-                dados.estadoExame !==
-                "Reprovado"
-            ) {
-
-                dados.dataReprovacao =
-                    "";
-
-            }
-
-
-            try {
-
-                await updateDoc(
-                    doc(
-                        db,
-                        "alunos",
-                        aluno.id
-                    ),
-                    dados
-                );
-
-
-                Object.assign(
-                    aluno,
-                    dados
-                );
-
-
-                atualizarContagemAulasAluno(
-                    aluno
-                );
-
-
-                overlay.remove();
-
-
-                mostrarAlunos();
-
-                atualizarDashboard();
-
-                atualizarRelatorios();
-
-
-                mostrarNotificacao(
-                    "Ficha do aluno atualizada."
-                );
-
-            }
-            catch (erro) {
-
-                console.error(
-                    erro
-                );
-
-                mostrarNotificacao(
-                    "Erro ao guardar a ficha.",
-                    "erro"
-                );
-
-            }
-
-        };
-
-}
-
-
-// ============================================================
-// ADICIONAR ALUNO
-// ============================================================
-
-function configurarAdicionarAluno() {
-
-    const button =
-        $("addStudentButton");
-
-
-    if (!button) {
-        return;
-    }
-
-
-    button.onclick =
-        async function () {
-
-            const numeroInput =
-                $("studentNumber");
-
-
-            const nomeInput =
-                $("studentName");
-
-
-            const numero =
-                numeroInput
-                    ? numeroInput.value.trim()
-                    : "";
-
-
-            const nome =
-                nomeInput
-                    ? nomeInput.value.trim()
-                    : "";
-
-
-            if (!numero || !nome) {
-
-                mostrarNotificacao(
-                    "Preenche o número e o nome do aluno.",
-                    "erro"
-                );
-
-                return;
-
-            }
-
-
-            const existente =
-                alunos.some(
-                    function (aluno) {
-
-                        return (
-                            String(
-                                aluno.numero
-                            ).trim() === numero
-                        );
-
-                    }
-                );
-
-
-            if (existente) {
-
-                mostrarNotificacao(
-                    "Já existe um aluno com esse número.",
-                    "erro"
-                );
-
-                return;
-
-            }
-
-
-            try {
-
-                await addDoc(
-                    collection(
-                        db,
-                        "alunos"
-                    ),
-                    {
-
-                        numero:
-                            numero,
-
-                        nome:
-                            nome,
-
-                        estado:
-                            "Ativo",
-
-                        validadeLicenca:
-                            "",
-
-                        validadeCodigo:
-                            "",
-
-                        estadoExame:
-                            "",
-
-                        dataReprovacao:
-                            "",
-
-                        criadoEm:
-                            serverTimestamp()
-
-                    }
-                );
-
-
-                if (numeroInput) {
-                    numeroInput.value = "";
-                }
-
-
-                if (nomeInput) {
-                    nomeInput.value = "";
-                }
-
-
-                mostrarNotificacao(
-                    "Aluno adicionado com sucesso."
-                );
-
-            }
-            catch (erro) {
-
-                console.error(
-                    erro
-                );
-
-                mostrarNotificacao(
-                    "Erro ao adicionar aluno.",
-                    "erro"
-                );
-
-            }
-
-        };
-
-}
-
-
-// ============================================================
-// MATÉRIAS / LESSONS
-// ============================================================
-
-const materias = {
-
-    1:
-        "Driver Profile",
-
-    2:
-        "Driver and Physical/Psychological Fitness",
-
-    3:
-        "Road Safety",
-
-    4:
-        "Traffic Signs",
-
-    "5/6":
-        "Road Rules and Traffic",
-
-    7:
-        "Manoeuvres",
-
-    8:
-        "Road Users",
-
-    9:
-        "Vehicle",
-
-    10:
-        "Driver Behaviour",
-
-    11:
-        "Speed",
-
-    12:
-        "Safety Distance",
-
-    13:
-        "Overtaking",
-
-    14:
-        "Changing Direction",
-
-    15:
-        "Stopping and Parking",
-
-    16:
-        "Intersections",
-
-    17:
-        "Motorways",
-
-    18:
-        "Night Driving",
-
-    19:
-        "Adverse Weather",
-
-    20:
-        "Emergency Situations",
-
-    21:
-        "Eco Driving",
-
-    22:
-        "Legal Responsibilities",
-
-    23:
-        "Revision",
-
-    24:
-        "Final Revision"
-
-};
-
-
-// ============================================================
-// NOME DA LESSON
-// ============================================================
-
-function obterNomeLesson(
-    lesson
-) {
-
-    const chave =
-        String(lesson || "")
-            .trim();
-
-
-    return (
-        materias[chave] ||
-        "Lesson " + chave
-    );
-
-}
-
-
-// ============================================================
-// COR DA LESSON
-// ============================================================
-
-function obterCorLesson(
-    lesson
-) {
-
-    const numero =
-        String(lesson || "")
-            .trim();
-
-
-    if (
-        numero === "5/6"
-    ) {
-
-        return "verde";
-
-    }
-
-
-    const n =
-        Number(numero);
-
-
-    if (
-        n >= 1 &&
-        n <= 7
-    ) {
-
-        return "verde";
-
-    }
-
-
-    if (
-        n >= 8 &&
-        n <= 23
-    ) {
-
-        return "amarelo";
-
-    }
-
-
-    if (
-        n === 24
-    ) {
-
-        return "vermelho";
-
-    }
-
-
-    return "";
-
-}
-
-
-// ============================================================
-// LISTA DE LESSONS
-// ============================================================
-
-function obterLessons() {
-
-    return [
-
-        "1",
-        "2",
-        "3",
-        "4",
-        "5/6",
-        "7",
-        "8",
-        "9",
-        "10",
-        "11",
-        "12",
-        "13",
-        "14",
-        "15",
-        "16",
-        "17",
-        "18",
-        "19",
-        "20",
-        "21",
-        "22",
-        "23",
-        "24"
-
-    ];
-
-}
-
-
-// ============================================================
-// MOSTRAR AULAS
-// ============================================================
-
-function mostrarAulas() {
-
-    const lista =
-        $("lessonsList");
-
-
-    if (!lista) {
-        return;
-    }
-
-
-    const ordenadas =
-        [...aulas]
-            .sort(
-                function (a, b) {
-
-                    return (
-                        normalizarData(b.data)
-                            .localeCompare(
-                                normalizarData(a.data)
-                            )
-                    );
-
-                }
-            );
-
-
-    if (
-        ordenadas.length === 0
-    ) {
-
-        lista.innerHTML =
-            "<p>Ainda não existem aulas registadas.</p>";
-
-        return;
-
-    }
-
-
-    lista.innerHTML =
-        "";
-
-
-    ordenadas.forEach(
-        function (aula) {
-
-            const div =
-                document.createElement(
-                    "div"
-                );
-
-
-            div.className =
-                "lesson-card";
-
-
-            const lesson =
-                aula.lesson ||
-                aula.materia ||
-                "";
-
-
-            const cor =
-                obterCorLesson(
-                    lesson
-                );
-
-
-            if (cor) {
-
-                div.classList.add(
-                    "lesson-" + cor
-                );
-
-            }
-
-
-            const total =
-                Array.isArray(aula.alunos)
-                    ? aula.alunos.length
-                    : 0;
-
-
-            div.innerHTML = `
-
-                <h3>
-
-                    Lesson ${escaparHTML(
-                        lesson || "-"
-                    )}
-
-                    ${
-                        lesson
-                            ? " - " +
-                              escaparHTML(
-                                  obterNomeLesson(
-                                      lesson
-                                  )
-                              )
-                            : ""
-                    }
-
-                </h3>
-
-
-                <p>
-
-                    📅
-                    ${formatarData(
-                        aula.data
-                    )}
-
-                </p>
-
-
-                <p>
-
-                    🕐
-                    ${escaparHTML(
-                        aula.hora || ""
-                    )}
-
-                </p>
-
-
-                <p>
-
-                    👨‍🎓
-                    ${total}
-                    aluno(s)
-
-                </p>
-
-
-                <div>
-
-                    <button
-                        type="button"
-                        class="openLessonButton"
-                        data-id="${aula.id}"
-                    >
-                        📖 Abrir aula
-                    </button>
-
-
-                    <button
-                        type="button"
-                        class="deleteLessonButton"
-                        data-id="${aula.id}"
-                    >
-                        🗑️ Eliminar
-                    </button>
-
-                </div>
-
-            `;
-
-
-            lista.appendChild(
-                div
-            );
-
-        }
-    );
-
-
-    configurarEventosAulas();
-
-}
-
-
-// ============================================================
-// EVENTOS DAS AULAS
-// ============================================================
-
-function configurarEventosAulas() {
-
-    document
-        .querySelectorAll(
-            ".openLessonButton"
-        )
-        .forEach(
-            function (button) {
-
-                button.onclick =
-                    function () {
-
-                        const aula =
-                            aulas.find(
-                                function (a) {
-
-                                    return (
-                                        a.id ===
-                                        button.dataset.id
-                                    );
-
-                                }
-                            );
-
-
-                        if (aula) {
-
-                            abrirAula(
-                                aula
-                            );
-
-                        }
-
-                    };
-
-            }
-        );
-
-
-    document
-        .querySelectorAll(
-            ".deleteLessonButton"
-        )
-        .forEach(
-            function (button) {
-
-                button.onclick =
-                    async function () {
-
-                        const confirmar =
-                            confirm(
-                                "Queres mesmo eliminar esta aula?"
-                            );
-
-
-                        if (!confirmar) {
-                            return;
-                        }
-
-
-                        try {
-
-                            await deleteDoc(
-                                doc(
-                                    db,
-                                    "aulas",
-                                    button.dataset.id
-                                )
-                            );
-
-
-                            mostrarNotificacao(
-                                "Aula eliminada."
-                            );
-
-                        }
-                        catch (erro) {
-
-                            console.error(
-                                erro
-                            );
-
-                            mostrarNotificacao(
-                                "Erro ao eliminar a aula.",
-                                "erro"
-                            );
-
-                        }
-
-                    };
-
-            }
-        );
-
-}
-
-
-// ============================================================
-// CONFIGURAR CRIAÇÃO DE AULA
-// ============================================================
-
-function configurarCriarAula() {
-
-    const button =
-        $("addLessonButton");
-
-
-    if (!button) {
-        return;
-    }
-
-
-    button.onclick =
-        async function () {
-
-            const lesson =
-                $("lessonNumber")
-                    ? $("lessonNumber").value
-                    : "";
-
-
-            const data =
-                $("lessonDate")
-                    ? $("lessonDate").value
-                    : "";
-
-
-            const hora =
-                $("lessonTime")
-                    ? $("lessonTime").value
-                    : "";
-
-
-            if (
-                !lesson ||
-                !data
-            ) {
-
-                mostrarNotificacao(
-                    "Seleciona a Lesson e a data.",
-                    "erro"
-                );
-
-                return;
-
-            }
-
-
-            try {
-
-                await addDoc(
-                    collection(
-                        db,
-                        "aulas"
-                    ),
-                    {
-
-                        lesson:
-                            lesson,
-
-                        materia:
-                            obterNomeLesson(
-                                lesson
-                            ),
-
-                        data:
-                            data,
-
-                        hora:
-                            hora,
-
-                        alunos:
-                            [],
-
-                        criadoEm:
-                            serverTimestamp()
-
-                    }
-                );
-
-
-                mostrarNotificacao(
-                    "Aula criada com sucesso."
-                );
-
-
-                if ($("lessonNumber")) {
-                    $("lessonNumber").value = "";
-                }
-
-
-                if ($("lessonDate")) {
-                    $("lessonDate").value = "";
-                }
-
-
-                if ($("lessonTime")) {
-                    $("lessonTime").value = "";
-                }
-
-            }
-            catch (erro) {
-
-                console.error(
-                    erro
-                );
-
-                mostrarNotificacao(
-                    "Erro ao criar a aula.",
-                    "erro"
-                );
-
-            }
-
-        };
-
-}
-
-
-// ============================================================
-// ABRIR AULA
-// ============================================================
-
-function abrirAula(
-    aula
-) {
-
-    aulaEmEdicao =
-        aula;
-
-
-    alunosDaAula =
-        Array.isArray(
-            aula.alunos
-        )
-            ? [...aula.alunos]
-            : [];
-
-
-    const overlay =
-        document.createElement(
-            "div"
-        );
-
-
-    overlay.className =
-        "lesson-editor-overlay";
-
-
-    const modal =
-        document.createElement(
-            "div"
-        );
-
-
-    modal.className =
-        "lesson-editor-modal";
-
-
-    modal.style.maxWidth =
-        "700px";
-
-
-    modal.innerHTML = `
-
-        <button
-            type="button"
-            class="close-lesson-editor"
-            id="closeLessonModal"
-        >
-            ×
-        </button>
-
-
-        <h2>
-
-            Lesson ${escaparHTML(
-                aula.lesson ||
-                aula.materia ||
-                "-"
-            )}
-
-        </h2>
-
-
-        <p>
-
-            <strong>
-                ${escaparHTML(
-                    obterNomeLesson(
-                        aula.lesson
-                    )
-                )}
-            </strong>
-
-        </p>
-
-
-        <p>
-
-            📅
-            ${formatarData(
-                aula.data
-            )}
-
-            ${
-                aula.hora
-                    ? " — 🕐 " +
-                      escaparHTML(
-                          aula.hora
-                      )
-                    : ""
-            }
-
-        </p>
-
-
-        <hr>
-
-
-        <h3>
-            👨‍🎓 Alunos da aula
-        </h3>
-
-
-        <div id="lessonStudents">
-
-        </div>
-
-
-        <hr>
-
-
-        <h3>
-            Adicionar aluno
-        </h3>
-
-
-        <input
-            id="lessonStudentSearch"
-            type="text"
-            placeholder="Número ou nome do aluno"
-        >
-
-
-        <div id="lessonStudentResults">
-        </div>
-
-    `;
-
-
-    overlay.appendChild(
-        modal
-    );
-
-
-    document.body.appendChild(
-        overlay
-    );
-
-
-    modal.querySelector(
-        "#closeLessonModal"
-    ).onclick =
-        function () {
-
-            overlay.remove();
-
-            aulaEmEdicao =
-                null;
-
-        };
-
-
-    mostrarAlunosDaAula(
-        modal
-    );
-
-
-    configurarPesquisaAlunosDaAula(
-        modal
-    );
-
-}
-
-
-// ============================================================
-// MOSTRAR ALUNOS DA AULA
-// ============================================================
-
-function mostrarAlunosDaAula(
-    modal
-) {
-
-    const lista =
-        modal.querySelector(
-            "#lessonStudents"
-        );
-
-
-    if (!lista) {
-        return;
-    }
-
-
-    if (
-        alunosDaAula.length === 0
-    ) {
-
-        lista.innerHTML = `
-
-            <p>
-                Ainda não existem alunos nesta aula.
-            </p>
-
-        `;
-
-        return;
-
-    }
-
-
-    lista.innerHTML =
-        "";
-
-
-    alunosDaAula.forEach(
-        function (numero) {
-
-            const aluno =
-                alunos.find(
-                    function (a) {
-
-                        return (
-                            String(
-                                a.numero
-                            ) ===
-                            String(numero)
-                        );
-
-                    }
-                );
-
-
-            const div =
-                document.createElement(
-                    "div"
-                );
-
-
-            div.className =
-                "lesson-student-row";
-
-
-            div.style.display =
-                "flex";
-
-            div.style.alignItems =
-                "center";
-
-            div.style.justifyContent =
-                "space-between";
-
-            div.style.gap =
-                "10px";
-
-            div.style.padding =
-                "8px";
-
-            div.innerHTML = `
-
-                <span>
-
-                    👨‍🎓
-
-                    <strong>
-                        ${escaparHTML(
-                            numero
-                        )}
-                    </strong>
-
-                    ${
-                        aluno
-                            ? " - " +
-                              escaparHTML(
-                                  aluno.nome
-                              )
-                            : ""
-                    }
-
-                </span>
-
-
-                <button
-                    type="button"
-                    class="removeStudentFromLesson"
-                    data-numero="${escaparHTML(
-                        numero
-                    )}"
-                    title="Remover aluno da aula"
-                >
-                    ❌
-                </button>
-
-            `;
-
-
-            lista.appendChild(
-                div
-            );
-
-        }
-    );
-
-
-    lista
-        .querySelectorAll(
-            ".removeStudentFromLesson"
-        )
-        .forEach(
-            function (button) {
-
-                button.onclick =
-                    async function () {
-
-                        await removerAlunoDaAula(
-                            button.dataset.numero,
-                            modal
-                        );
-
-                    };
-
-            }
-        );
-
-}
-
-
-// ============================================================
-// REMOVER ALUNO DA AULA
-// ============================================================
-
-async function removerAlunoDaAula(
-    numero,
-    modal
-) {
-
-    if (!aulaEmEdicao) {
-        return;
-    }
-
-
-    const confirmar =
-        confirm(
-            "Remover este aluno desta aula?"
-        );
-
-
-    if (!confirmar) {
-        return;
-    }
-
-
-    alunosDaAula =
-        alunosDaAula.filter(
-            function (n) {
+function imprimirAlunosAtivos() {
+
+    const ativos =
+        alunos.filter(
+            function (aluno) {
 
                 return (
-                    String(n) !==
-                    String(numero)
+                    aluno.estado ===
+                    "Ativo"
                 );
 
             }
         );
-
-
-    try {
-
-        await updateDoc(
-            doc(
-                db,
-                "aulas",
-                aulaEmEdicao.id
-            ),
-            {
-
-                alunos:
-                    alunosDaAula
-
-            }
-        );
-
-
-        aulaEmEdicao.alunos =
-            [...alunosDaAula];
-
-
-        mostrarAlunosDaAula(
-            modal
-        );
-
-
-        mostrarNotificacao(
-            "Aluno removido da aula."
-        );
-
-    }
-    catch (erro) {
-
-        console.error(
-            erro
-        );
-
-        mostrarNotificacao(
-            "Erro ao remover o aluno.",
-            "erro"
-        );
-
-    }
-
-}
-
-
-// ============================================================
-// PESQUISA DE ALUNOS PARA ADICIONAR À AULA
-// ============================================================
-
-function configurarPesquisaAlunosDaAula(
-    modal
-) {
-
-    const campo =
-        modal.querySelector(
-            "#lessonStudentSearch"
-        );
-
-
-    if (!campo) {
-        return;
-    }
-
-
-    campo.oninput =
-        function () {
-
-            const texto =
-                campo.value
-                    .trim()
-                    .toLowerCase();
-
-
-            const resultados =
-                alunos
-                    .filter(
-                        function (aluno) {
-
-                            if (!texto) {
-                                return false;
-                            }
-
-
-                            const numero =
-                                String(
-                                    aluno.numero || ""
-                                ).toLowerCase();
-
-
-                            const nome =
-                                String(
-                                    aluno.nome || ""
-                                ).toLowerCase();
-
-
-                            return (
-                                numero.includes(texto) ||
-                                nome.includes(texto)
-                            );
-
-                        }
-                    )
-                    .slice(
-                        0,
-                        10
-                    );
-
-
-            const container =
-                modal.querySelector(
-                    "#lessonStudentResults"
-                );
-
-
-            if (!container) {
-                return;
-            }
-
-
-            container.innerHTML =
-                "";
-
-
-            resultados.forEach(
-                function (aluno) {
-
-                    const jaExiste =
-                        alunosDaAula.some(
-                            function (n) {
-
-                                return (
-                                    String(n) ===
-                                    String(
-                                        aluno.numero
-                                    )
-                                );
-
-                            }
-                        );
-
-
-                    const div =
-                        document.createElement(
-                            "div"
-                        );
-
-
-                    div.style.display =
-                        "flex";
-
-                    div.style.justifyContent =
-                        "space-between";
-
-                    div.style.alignItems =
-                        "center";
-
-                    div.style.padding =
-                        "8px";
-
-
-                    div.innerHTML = `
-
-                        <span>
-
-                            ${escaparHTML(
-                                aluno.numero
-                            )}
-                            -
-                            ${escaparHTML(
-                                aluno.nome
-                            )}
-
-                        </span>
-
-
-                        <button
-                            type="button"
-                            class="addStudentToLesson"
-                            data-numero="${escaparHTML(
-                                aluno.numero
-                            )}"
-                            ${jaExiste ? "disabled" : ""}
-                        >
-
-                            ${
-                                jaExiste
-                                    ? "✓ Já está na aula"
-                                    : "➕ Adicionar"
-                            }
-
-                        </button>
-
-                    `;
-
-
-                    container.appendChild(
-                        div
-                    );
-
-                }
-            );
-
-
-            container
-                .querySelectorAll(
-                    ".addStudentToLesson"
-                )
-                .forEach(
-                    function (button) {
-
-                        button.onclick =
-                            async function () {
-
-                                await adicionarAlunoNaAula(
-                                    button.dataset.numero,
-                                    modal
-                                );
-
-                                campo.value =
-                                    "";
-
-                                container.innerHTML =
-                                    "";
-
-                            };
-
-                    }
-                );
-
-        };
-
-}
-
-
-// ============================================================
-// ADICIONAR ALUNO À AULA
-// ============================================================
-
-async function adicionarAlunoNaAula(
-    numero,
-    modal
-) {
-
-    if (!aulaEmEdicao) {
-        return;
-    }
-
-
-    const jaExiste =
-        alunosDaAula.some(
-            function (n) {
-
-                return (
-                    String(n) ===
-                    String(numero)
-                );
-
-            }
-        );
-
-
-    if (jaExiste) {
-
-        mostrarNotificacao(
-            "O aluno já está nesta aula.",
-            "erro"
-        );
-
-        return;
-
-    }
-
-
-    alunosDaAula.push(
-        String(numero)
-    );
-
-
-    try {
-
-        await updateDoc(
-            doc(
-                db,
-                "aulas",
-                aulaEmEdicao.id
-            ),
-            {
-
-                alunos:
-                    alunosDaAula
-
-            }
-        );
-
-
-        aulaEmEdicao.alunos =
-            [...alunosDaAula];
-
-
-        mostrarAlunosDaAula(
-            modal
-        );
-
-
-        mostrarNotificacao(
-            "Aluno adicionado à aula."
-        );
-
-    }
-    catch (erro) {
-
-        console.error(
-            erro
-        );
-
-
-        alunosDaAula =
-            alunosDaAula.filter(
-                function (n) {
-
-                    return (
-                        String(n) !==
-                        String(numero)
-                    );
-
-                }
-            );
-
-
-        mostrarNotificacao(
-            "Erro ao adicionar o aluno.",
-            "erro"
-        );
-
-    }
-
-}
-
-
-// ============================================================
-// CALENDÁRIO
-// ============================================================
-
-function renderizarCalendario() {
-
-    const calendario =
-        $("calendar");
-
-
-    if (!calendario) {
-        return;
-    }
-
-
-    const ano =
-        mesCalendarioAtual.getFullYear();
-
-
-    const mes =
-        mesCalendarioAtual.getMonth();
-
-
-    const primeiro =
-        new Date(
-            ano,
-            mes,
-            1
-        );
-
-
-    const ultimo =
-        new Date(
-            ano,
-            mes + 1,
-            0
-        );
-
-
-    const inicioSemana =
-        primeiro.getDay() === 0
-            ? 6
-            : primeiro.getDay() - 1;
 
 
     let html = `
 
-        <div class="calendar-header">
+        <html>
 
-            <button
-                type="button"
-                id="previousMonth"
-            >
-                ◀
-            </button>
+        <head>
 
+            <title>
+                English Check - Active Students
+            </title>
 
-            <strong>
+            <style>
 
-                ${primeiro.toLocaleDateString(
-                    "pt-PT",
-                    {
-                        month: "long",
-                        year: "numeric"
-                    }
-                )}
+                body {
+                    font-family: Arial;
+                    padding: 30px;
+                }
 
-            </strong>
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                }
 
+                th, td {
+                    border: 1px solid #333;
+                    padding: 8px;
+                }
 
-            <button
-                type="button"
-                id="nextMonth"
-            >
-                ▶
-            </button>
+                th {
+                    background: #eee;
+                }
 
-        </div>
+            </style>
 
+        </head>
 
-        <div class="calendar-weekdays">
+        <body>
 
-            <div>Seg</div>
-            <div>Ter</div>
-            <div>Qua</div>
-            <div>Qui</div>
-            <div>Sex</div>
-            <div>Sáb</div>
-            <div>Dom</div>
+            <h1>
+                English Check
+            </h1>
 
-        </div>
+            <h2>
+                Active Students
+            </h2>
 
+            <table>
 
-        <div class="calendar-grid">
+                <tr>
+
+                    <th>
+                        Number
+                    </th>
+
+                    <th>
+                        Name
+                    </th>
+
+                    <th>
+                        Lessons
+                    </th>
+
+                    <th>
+                        Theory
+                    </th>
+
+                </tr>
 
     `;
 
 
-    for (
-        let i = 0;
-        i < inicioSemana;
-        i++
-    ) {
+    ativos.forEach(
+        function (aluno) {
 
-        html +=
-            `<div class="calendar-day empty"></div>`;
+            const contagem =
+                obterContagemAulas(
+                    aluno
+                );
+
+
+            html += `
+
+                <tr>
+
+                    <td>
+                        ${escapeHTML(
+                            aluno.numero || ""
+                        )}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(
+                            aluno.nome || ""
+                        )}
+                    </td>
+
+                    <td>
+                        ${contagem.total}/28
+                    </td>
+
+                    <td>
+                        ${
+                            contagem.teoricaCompleta
+                                ? "Complete"
+                                : "Incomplete"
+                        }
+                    </td>
+
+                </tr>
+
+            `;
+
+        }
+    );
+
+
+    html += `
+
+            </table>
+
+        </body>
+
+        </html>
+
+    `;
+
+
+    const janela =
+        window.open(
+            "",
+            "_blank"
+        );
+
+
+    if (!janela) {
+
+        mostrarNotificacao(
+            "O navegador bloqueou a janela de impressão.",
+            "erro"
+        );
+
+        return;
 
     }
 
 
-    for (
-        let dia = 1;
-        dia <= ultimo.getDate();
-        dia++
-    ) {
+    janela.document.write(
+        html
+    );
 
-        const data =
-            ano +
-            "-" +
-            String(
-                mes + 1
-            ).padStart(2, "0") +
-            "-" +
-            String(
-                dia
-            ).padStart(2, "0");
+    janela.document.close();
 
+    janela.focus();
 
-        const aulasDoDia =
-            aulas.filter(
-                function (aula) {
+    setTimeout(
+        function () {
 
-                    return (
-                        normalizarData(
-                            aula.data
-                        ) === data
-                    );
+            janela.print();
 
-                }
-            );
+        },
+        500
+    );
+
+}
 
 
-        html += `
+// ============================================================
+// FIREBASE - ALUNOS
+// ============================================================
 
-            <div
-                class="calendar-day"
-                data-date="${data}"
-            >
+onSnapshot(
 
-                <div class="calendar-number">
-                    ${dia}
-                </div>
+    collection(
+        db,
+        "alunos"
+    ),
 
-        `;
+    function (snapshot) {
 
-
-        aulasDoDia.forEach(
-            function (aula) {
-
-                const lesson =
-                    aula.lesson ||
-                    aula.materia ||
-                    "";
+        alunos =
+            [];
 
 
-                const cor =
-                    obterCorLesson(
-                        lesson
-                    );
+        snapshot.forEach(
+            function (documento) {
 
+                alunos.push({
 
-                html += `
+                    id:
+                        documento.id,
 
-                    <div
-                        class="calendar-lesson ${cor}"
-                        title="${escaparHTML(
-                            obterNomeLesson(
-                                lesson
-                            )
-                        )}"
-                    >
+                    ...documento.data()
 
-                        Lesson
-                        ${escaparHTML(
-                            lesson
-                        )}
-
-                    </div>
-
-                `;
+                });
 
             }
         );
 
 
-        html +=
-            "</div>";
+        atualizarDashboard();
+
+        mostrarAlunos();
+
+        mostrarAulas();
+
+        renderizarCalendario();
+
+    },
+
+    function (erro) {
+
+        console.error(
+            "Erro ao carregar alunos:",
+            erro
+        );
+
+
+        mostrarNotificacao(
+            "Erro ao carregar os alunos do Firebase.",
+            "erro"
+        );
 
     }
 
-
-    html +=
-        "</div>";
-
-
-    calendario.innerHTML =
-        html;
-
-
-    const anterior =
-        $("previousMonth");
-
-
-    const seguinte =
-        $("nextMonth");
-
-
-    if (anterior) {
-
-        anterior.onclick =
-            function () {
-
-                mesCalendarioAtual =
-                    new Date(
-                        ano,
-                        mes - 1,
-                        1
-                    );
-
-                renderizarCalendario();
-
-            };
-
-    }
-
-
-    if (seguinte) {
-
-        seguinte.onclick =
-            function () {
-
-                mesCalendarioAtual =
-                    new Date(
-                        ano,
-                        mes + 1,
-                        1
-                    );
-
-                renderizarCalendario();
-
-            };
-
-    }
-
-}
+);
 
 
 // ============================================================
-// RELATÓRIOS
+// FIREBASE - AULAS
 // ============================================================
 
-function atualizarRelatorios() {
+onSnapshot(
 
-    const lista =
-        $("reportsList");
+    collection(
+        db,
+        "aulas"
+    ),
+
+    function (snapshot) {
+
+        aulas =
+            [];
 
 
-    if (!lista) {
-        return;
+        snapshot.forEach(
+            function (documento) {
+
+                aulas.push({
+
+                    id:
+                        documento.id,
+
+                    ...documento.data()
+
+                });
+
+            }
+        );
+
+
+        mostrarAulas();
+
+        renderizarCalendario();
+
+        atualizarDashboard();
+
+    },
+
+    function (erro) {
+
+        console.error(
+            "Erro ao carregar aulas:",
+            erro
+        );
+
+
+        mostrarNotificacao(
+            "Erro ao carregar as aulas do Firebase.",
+            "erro"
+        );
+
     }
 
-
-    const totalAlunos =
-        alunos.length;
-
-
-    const ativos =
-        alunos.filter(
-            function (a) {
-
-                return a.estado === "Ativo";
-
-            }
-        ).length;
-
-
-    const teoricasCompletas =
-        alunos.filter(
-            function (aluno) {
-
-                atualizarContagemAulasAluno(
-                    aluno
-                );
-
-                return (
-                    aluno.teoricaCompleta
-                );
-
-            }
-        ).length;
-
-
-    const posReprovacao =
-        alunos.filter(
-            function (aluno) {
-
-                return (
-                    aluno.posReprovacaoCompleta
-                );
-
-            }
-        ).length;
-
-
-    lista.innerHTML = `
-
-        <div class="report-card">
-
-            <h3>
-                📊 Resumo
-            </h3>
-
-
-            <p>
-                Total de alunos:
-                <strong>
-                    ${totalAlunos}
-                </strong>
-            </p>
-
-
-            <p>
-                Alunos ativos:
-                <strong>
-                    ${ativos}
-                </strong>
-            </p>
-
-
-            <p>
-                Teóricas completas:
-                <strong>
-                    ${teoricasCompletas}
-                </strong>
-            </p>
-
-
-            <p>
-                5 aulas pós-reprovação completas:
-                <strong>
-                    ${posReprovacao}
-                </strong>
-            </p>
-
-
-            <p>
-                Total de aulas realizadas:
-                <strong>
-                    ${aulas.length}
-                </strong>
-            </p>
-
-        </div>
-
-    `;
-
-}
+);
 
 
 // ============================================================
@@ -4045,68 +4322,54 @@ document.addEventListener(
     "DOMContentLoaded",
     function () {
 
+        /*
+         * Muito importante:
+         * começa sempre no login.
+         */
+
+        if ($("loginPage")) {
+
+            $("loginPage").style.display =
+                "flex";
+
+        }
+
+
+        if ($("app")) {
+
+            $("app").style.display =
+                "none";
+
+        }
+
+
         iniciarLogin();
 
         iniciarLogout();
 
         configurarMenu();
 
-        configurarPesquisa();
-
         configurarAdicionarAluno();
 
-        configurarCriarAula();
+        configurarPesquisa();
+
+        configurarEditorAula();
+
+        configurarExame();
+
+        configurarRelatorios();
+
+        configurarAdicionarMes();
+
 
         mostrarPagina(
             "homePage"
         );
 
-        atualizarDashboard();
 
-        mostrarAlunos();
-
-        mostrarAulas();
-
-        renderizarCalendario();
-
-        atualizarRelatorios();
+        console.log(
+            "English Check iniciado corretamente."
+        );
 
     }
 );
-
-
-// ============================================================
-// EXPOR FUNÇÕES
-// ============================================================
-
-window.mostrarPagina =
-    mostrarPagina;
-
-window.mostrarAlunos =
-    mostrarAlunos;
-
-window.mostrarAulas =
-    mostrarAulas;
-
-window.renderizarCalendario =
-    renderizarCalendario;
-
-window.editarAluno =
-    editarAluno;
-
-window.abrirAula =
-    abrirAula;
-
-window.mostrarQRCodeAluno =
-    mostrarQRCodeAluno;
-
-window.atualizarDashboard =
-    atualizarDashboard;
-
-window.atualizarRelatorios =
-    atualizarRelatorios;
-
-
-// ============================================================
-// FIM DO SCRIPT
-// ============================================================
