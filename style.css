@@ -1210,3 +1210,226 @@ label {
     }
 
 }
+
+/* ============================================================
+   CALENDÁRIO MENSAL - ESCALA
+   ============================================================ */
+
+.calendar-month-title {
+    margin-top: 25px;
+    margin-bottom: 12px;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+
+/* Área que permite deslizar para a esquerda/direita */
+
+.calendar-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background: white;
+    margin-bottom: 30px;
+}
+
+
+/* TABELA */
+
+.monthly-schedule {
+    border-collapse: collapse;
+    table-layout: fixed;
+    min-width: 1250px;
+    width: max-content;
+}
+
+
+/* Todas as células */
+
+.monthly-schedule th,
+.monthly-schedule td {
+    border: 1px solid #d0d0d0;
+    box-sizing: border-box;
+}
+
+
+/* ============================================================
+   COLUNA DAS HORAS
+   ============================================================ */
+
+.schedule-time-header {
+    width: 70px;
+    min-width: 70px;
+    max-width: 70px;
+    height: 45px;
+    background: #111;
+    color: white;
+    text-align: center;
+    position: sticky;
+    left: 0;
+    z-index: 5;
+}
+
+
+.schedule-time {
+    width: 70px;
+    min-width: 70px;
+    max-width: 70px;
+    height: 65px;
+    background: #f5f5f5;
+    color: #111;
+    font-weight: bold;
+    text-align: center;
+    vertical-align: middle;
+    position: sticky;
+    left: 0;
+    z-index: 4;
+}
+
+
+/* ============================================================
+   DIAS
+   ============================================================ */
+
+.schedule-day-header {
+    width: 75px;
+    min-width: 75px;
+    max-width: 75px;
+    height: 45px;
+    background: #111;
+    color: white;
+    text-align: center;
+    vertical-align: middle;
+    font-weight: bold;
+}
+
+
+.schedule-day-header small {
+    display: block;
+    font-size: 10px;
+    font-weight: normal;
+    opacity: 0.8;
+    margin-top: 2px;
+}
+
+
+/* ============================================================
+   CÉLULAS DOS HORÁRIOS
+   ============================================================ */
+
+.schedule-cell {
+    width: 75px;
+    min-width: 75px;
+    max-width: 75px;
+    height: 65px;
+    padding: 3px;
+    vertical-align: top;
+    background: #fff;
+}
+
+
+/* ============================================================
+   AULA
+   ============================================================ */
+
+.schedule-lesson {
+    width: 100%;
+    min-height: 57px;
+    box-sizing: border-box;
+    border-radius: 5px;
+    padding: 5px;
+    margin-bottom: 3px;
+    cursor: pointer;
+    overflow: hidden;
+    font-size: 11px;
+    line-height: 1.2;
+}
+
+
+.schedule-lesson strong {
+    display: block;
+    font-size: 12px;
+    margin-bottom: 2px;
+}
+
+
+.schedule-lesson span {
+    display: block;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+
+.schedule-lesson small {
+    display: block;
+    font-size: 9px;
+    margin-top: 2px;
+}
+
+
+/* ============================================================
+   CORES DAS AULAS
+   ============================================================ */
+
+.lesson-green {
+    background: #c8e6c9;
+    border-left: 5px solid #2e7d32;
+    color: #1b5e20;
+}
+
+
+.lesson-yellow {
+    background: #fff3b0;
+    border-left: 5px solid #f9a825;
+    color: #6d4c00;
+}
+
+
+.lesson-red {
+    background: #ffcdd2;
+    border-left: 5px solid #c62828;
+    color: #b71c1c;
+}
+
+
+/* ============================================================
+   EFEITO AO PASSAR O DEDO / RATO
+   ============================================================ */
+
+.schedule-lesson:hover {
+    transform: scale(1.02);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+
+/* ============================================================
+   MOBILE / TABLET
+   ============================================================ */
+
+@media (max-width: 768px) {
+
+    .calendar-month-title {
+        font-size: 19px;
+    }
+
+    .monthly-schedule {
+        min-width: 2400px;
+    }
+
+    .schedule-day-header,
+    .schedule-cell {
+        width: 75px;
+        min-width: 75px;
+        max-width: 75px;
+    }
+
+    .schedule-time,
+    .schedule-time-header {
+        width: 65px;
+        min-width: 65px;
+        max-width: 65px;
+    }
+
+}
