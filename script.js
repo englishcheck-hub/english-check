@@ -3354,9 +3354,10 @@ function configurarEditorAula() {
 
 }
 
-
 // ============================================================
-// CALENDÁRIO
+// CALENDÁRIO MENSAL EM TABELA
+// DIAS NA HORIZONTAL
+// HORAS NA VERTICAL
 // ============================================================
 
 function renderizarCalendario() {
@@ -3369,9 +3370,7 @@ function renderizarCalendario() {
     }
 
 
-    if (
-        aulas.length === 0
-    ) {
+    if (aulas.length === 0) {
 
         container.innerHTML = `
 
@@ -3391,6 +3390,10 @@ function renderizarCalendario() {
 
     }
 
+
+    // ========================================================
+    // AGRUPAR AULAS POR MÊS
+    // ========================================================
 
     const grupos = {};
 
@@ -3412,8 +3415,7 @@ function renderizarCalendario() {
 
             if (!grupos[chave]) {
 
-                grupos[chave] =
-                    [];
+                grupos[chave] = [];
 
             }
 
@@ -3429,7 +3431,8 @@ function renderizarCalendario() {
     const meses =
         Object.keys(
             grupos
-        ).sort()
+        )
+        .sort()
         .reverse();
 
 
@@ -3437,19 +3440,44 @@ function renderizarCalendario() {
         "";
 
 
+    // ========================================================
+    // CRIAR CADA MÊS
+    // ========================================================
+
     meses.forEach(
         function (chave) {
 
-            const [ano, mes] =
+            const partes =
                 chave.split("-");
+
+
+            const ano =
+                Number(
+                    partes[0]
+                );
+
+
+            const mes =
+                Number(
+                    partes[1]
+                );
+
+
+            const diasNoMes =
+                new Date(
+                    ano,
+                    mes,
+                    0
+                ).getDate();
 
 
             const nomeMes =
                 new Date(
-                    Number(ano),
-                    Number(mes) - 1,
+                    ano,
+                    mes - 1,
                     1
-                ).toLocaleDateString(
+                )
+                .toLocaleDateString(
                     "en-GB",
                     {
                         month:
@@ -3459,6 +3487,10 @@ function renderizarCalendario() {
                     }
                 );
 
+
+            // =================================================
+            // BLOCO DO MÊS
+            // =================================================
 
             const bloco =
                 document.createElement(
@@ -3472,119 +3504,400 @@ function renderizarCalendario() {
 
             bloco.innerHTML = `
 
-                <h3>
+                <h3 class="calendar-month-title">
+
                     📅
                     ${nomeMes}
+
                 </h3>
 
             `;
 
 
-            grupos[chave]
-                .sort(
-                    function (a, b) {
+            // =================================================
+            // OBTER HORÁRIOS EXISTENTES NESSE MÊS
+            // =================================================
 
-                        return (
-                            String(
-                                a.data
-                            ).localeCompare(
-                                String(
-                                    b.data
-                                )
-                            ) ||
-                            String(
-                                a.hora || ""
-                            ).localeCompare(
-                                String(
-                                    b.hora || ""
-                                )
+            const aulasDoMes =
+                grupos[chave];
+
+
+            const horarios =
+                [
+                    ...new Set(
+                        aulasDoMes
+                            .map(
+                                function (aula) {
+
+                                    return aula.hora || "";
+
+                                }
                             )
-                        );
+                            .filter(
+                                function (hora) {
 
-                    }
-                )
-                .forEach(
-                    function (aula) {
+                                    return hora !== "";
 
-                        const linha =
-                            document.createElement(
-                                "div"
-                            );
-
-
-                        linha.style.padding =
-                            "8px";
-
-                        linha.style.margin =
-                            "5px 0";
-
-                        linha.style.border =
-                            "1px solid #ddd";
-
-                        linha.style.borderRadius =
-                            "6px";
+                                }
+                            )
+                    )
+                ]
+                .sort();
 
 
-                        const cor =
-                            aula.cor ||
-                            obterCorAula(
-                                aula.numero
-                            );
+            // =================================================
+            // TABELA
+            // =================================================
 
-
-                        linha.style.borderLeft =
-                            cor === "green"
-                                ? "6px solid #2e7d32"
-                                : cor === "yellow"
-                                    ? "6px solid #f9a825"
-                                    : "6px solid #c62828";
-
-
-                        linha.innerHTML = `
-
-                            <strong>
-                                ${formatarData(
-                                    aula.data
-                                )}
-                                -
-                                ${escapeHTML(
-                                    aula.hora || ""
-                                )}
-                            </strong>
-
-                            <br>
-
-                            Lesson
-                            ${escapeHTML(
-                                aula.numero || ""
-                            )}
-
-                            -
-                            ${escapeHTML(
-                                aula.materia || ""
-                            )}
-
-                            <br>
-
-                            👨‍🎓
-                            ${
-                                Array.isArray(
-                                    aula.alunos
-                                )
-                                    ? aula.alunos.length
-                                    : 0
-                            }
-                            aluno(s)
-
-                        `;
-
-
-                        bloco.appendChild(
-                            linha
-                        );
-
-                    }
+            const tabela =
+                document.createElement(
+                    "table"
                 );
+
+
+            tabela.className =
+                "monthly-calendar-table";
+
+
+            // =================================================
+            // CABEÇALHO
+            // =================================================
+
+            const thead =
+                document.createElement(
+                    "thead"
+                );
+
+
+            const linhaCabecalho =
+                document.createElement(
+                    "tr"
+                );
+
+
+            const celulaHora =
+                document.createElement(
+                    "th"
+                );
+
+
+            celulaHora.className =
+                "calendar-time-header";
+
+
+            celulaHora.innerText =
+                "Time";
+
+
+            linhaCabecalho.appendChild(
+                celulaHora
+            );
+
+
+            // DIAS DO MÊS NA HORIZONTAL
+
+            for (
+                let dia = 1;
+                dia <= diasNoMes;
+                dia++
+            ) {
+
+                const th =
+                    document.createElement(
+                        "th"
+                    );
+
+
+                th.className =
+                    "calendar-day-header";
+
+
+                const dataDia =
+                    `${ano}-${String(mes).padStart(2, "0")}-${String(dia).padStart(2, "0")}`;
+
+
+                const dataObj =
+                    new Date(
+                        ano,
+                        mes - 1,
+                        dia
+                    );
+
+
+                const nomeDia =
+                    dataObj.toLocaleDateString(
+                        "en-GB",
+                        {
+                            weekday:
+                                "short"
+                        }
+                    );
+
+
+                th.innerHTML = `
+
+                    <strong>
+                        ${dia}
+                    </strong>
+
+                    <br>
+
+                    <small>
+                        ${nomeDia}
+                    </small>
+
+                `;
+
+
+                th.dataset.date =
+                    dataDia;
+
+
+                linhaCabecalho.appendChild(
+                    th
+                );
+
+            }
+
+
+            thead.appendChild(
+                linhaCabecalho
+            );
+
+
+            tabela.appendChild(
+                thead
+            );
+
+
+            // =================================================
+            // CORPO DA TABELA
+            // =================================================
+
+            const tbody =
+                document.createElement(
+                    "tbody"
+                );
+
+
+            horarios.forEach(
+                function (hora) {
+
+                    const linha =
+                        document.createElement(
+                            "tr"
+                        );
+
+
+                    // COLUNA DA HORA
+
+                    const celulaHora =
+                        document.createElement(
+                            "td"
+                        );
+
+
+                    celulaHora.className =
+                        "calendar-time-cell";
+
+
+                    celulaHora.innerText =
+                        hora;
+
+
+                    linha.appendChild(
+                        celulaHora
+                    );
+
+
+                    // =================================================
+                    // CADA DIA
+                    // =================================================
+
+                    for (
+                        let dia = 1;
+                        dia <= diasNoMes;
+                        dia++
+                    ) {
+
+                        const celula =
+                            document.createElement(
+                                "td"
+                            );
+
+
+                        celula.className =
+                            "calendar-day-cell";
+
+
+                        const dataDia =
+                            `${ano}-${String(mes).padStart(2, "0")}-${String(dia).padStart(2, "0")}`;
+
+
+                        const aulasNesseDia =
+                            aulasDoMes.filter(
+                                function (aula) {
+
+                                    return (
+                                        aula.data ===
+                                            dataDia &&
+                                        aula.hora ===
+                                            hora
+                                    );
+
+                                }
+                            );
+
+
+                        // =================================================
+                        // COLOCAR AULAS NA CÉLULA
+                        // =================================================
+
+                        aulasNesseDia.forEach(
+                            function (aula) {
+
+                                const aulaDiv =
+                                    document.createElement(
+                                        "div"
+                                    );
+
+
+                                aulaDiv.className =
+                                    "calendar-lesson";
+
+
+                                const cor =
+                                    aula.cor ||
+                                    obterCorAula(
+                                        aula.numero
+                                    );
+
+
+                                // CORES DAS LESSONS
+
+                                if (
+                                    cor ===
+                                    "green"
+                                ) {
+
+                                    aulaDiv.style.background =
+                                        "#c8e6c9";
+
+                                    aulaDiv.style.border =
+                                        "2px solid #2e7d32";
+
+                                }
+                                else if (
+                                    cor ===
+                                    "yellow"
+                                ) {
+
+                                    aulaDiv.style.background =
+                                        "#fff9c4";
+
+                                    aulaDiv.style.border =
+                                        "2px solid #f9a825";
+
+                                }
+                                else {
+
+                                    aulaDiv.style.background =
+                                        "#ffcdd2";
+
+                                    aulaDiv.style.border =
+                                        "2px solid #c62828";
+
+                                }
+
+
+                                const numeroAlunos =
+                                    Array.isArray(
+                                        aula.alunos
+                                    )
+                                        ? aula.alunos.length
+                                        : 0;
+
+
+                                aulaDiv.innerHTML = `
+
+                                    <strong>
+                                        Lesson
+                                        ${escapeHTML(
+                                            aula.numero || ""
+                                        )}
+                                    </strong>
+
+                                    <br>
+
+                                    <span>
+                                        ${escapeHTML(
+                                            aula.materia || ""
+                                        )}
+                                    </span>
+
+                                    <br>
+
+                                    <small>
+                                        👨‍🎓
+                                        ${numeroAlunos}
+                                    </small>
+
+                                `;
+
+
+                                // =================================================
+                                // CLICAR NA AULA PARA EDITAR
+                                // =================================================
+
+                                aulaDiv.style.cursor =
+                                    "pointer";
+
+
+                                aulaDiv.title =
+                                    "Abrir aula";
+
+
+                                aulaDiv.onclick =
+                                    function () {
+
+                                        abrirEditorAula(
+                                            aula
+                                        );
+
+                                    };
+
+
+                                celula.appendChild(
+                                    aulaDiv
+                                );
+
+                            }
+                        );
+
+
+                        linha.appendChild(
+                            celula
+                        );
+
+                    }
+
+
+                    tbody.appendChild(
+                        linha
+                    );
+
+                }
+            );
+
+
+            tabela.appendChild(
+                tbody
+            );
+
+
+            bloco.appendChild(
+                tabela
+            );
 
 
             container.appendChild(
@@ -3593,49 +3906,6 @@ function renderizarCalendario() {
 
         }
     );
-
-}
-
-
-// ============================================================
-// ADICIONAR MÊS
-// ============================================================
-
-function configurarAdicionarMes() {
-
-    if (!$("addMonthButton")) {
-        return;
-    }
-
-
-    $("addMonthButton").onclick =
-        function () {
-
-            const hoje =
-                new Date();
-
-
-            const ano =
-                hoje.getFullYear();
-
-
-            const mes =
-                String(
-                    hoje.getMonth() + 1
-                ).padStart(
-                    2,
-                    "0"
-                );
-
-
-            mostrarNotificacao(
-                `Mês atual: ${mes}/${ano}. As aulas aparecerão automaticamente no calendário.`
-            );
-
-
-            renderizarCalendario();
-
-        };
 
 }
 
