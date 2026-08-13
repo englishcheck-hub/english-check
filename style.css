@@ -1242,9 +1242,8 @@ label {
     border-collapse: collapse;
     table-layout: fixed;
     width: 100%;
-    max-width: 100%;
+    min-width: 0;
 }
-
 
 /* Todas as células */
 
