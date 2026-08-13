@@ -4039,11 +4039,11 @@ function renderizarCalendario() {
         /*
          * Horário da escala.
          *
-         * Das 07:00 às 22:00.
+         * Das 09:00 às 20:00.
          */
 
-        const horaInicio = 7;
-        const horaFim = 22;
+        const horaInicio = 9;
+        const horaFim = 20;
 
 
         for (
