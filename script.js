@@ -267,560 +267,353 @@ onSnapshot(
 
 );
 
-
-// ============================================
-// LOGIN
-// ============================================
+// ======================================================
+// UTILIZADORES
+// ======================================================
 
 const utilizadores = [
-
     {
-        username:
-            "andria",
-
-        password:
-            "druxa2099"
-
+        username: "andria",
+        password: "druxa2099"
     },
-
     {
-        username:
-            "joaof",
-
-        password:
-            "lumiar2026"
-
+        username: "joaof",
+        password: "lumiar2026"
     }
-
 ];
 
 
-// ============================================
-// INICIAR LOGIN
-// ============================================
+// ======================================================
+// FUNÇÃO AUXILIAR
+// ======================================================
+
+function $(id) {
+    return document.getElementById(id);
+}
+
+
+// ======================================================
+// LOGIN
+// ======================================================
 
 function iniciarLogin() {
 
-    const loginButton =
-        document.getElementById(
-            "loginButton"
-        );
+    const button = $("loginButton");
+    const username = $("username");
+    const password = $("password");
+    const message = $("loginMessage");
 
-
-    const usernameInput =
-        document.getElementById(
-            "username"
-        );
-
-
-    const passwordInput =
-        document.getElementById(
-            "password"
-        );
-
-
-    const loginMessage =
-        document.getElementById(
-            "loginMessage"
-        );
-
-
-    const loginPage =
-        document.getElementById(
-            "loginPage"
-        );
-
-
-    const appPage =
-        document.getElementById(
-            "app"
-        );
-
-
-    // ========================================
-    // VERIFICAR ELEMENTOS
-    // ========================================
-
-    if (!loginButton) {
-
-        console.error(
-            "ERRO: botão #loginButton não encontrado."
-        );
-
+    if (!button || !username || !password) {
+        console.error("Elementos do login não encontrados.");
         return;
     }
 
+    button.onclick = function (event) {
 
-    if (!usernameInput) {
+        event.preventDefault();
 
-        console.error(
-            "ERRO: campo #username não encontrado."
-        );
+        const user = username.value.trim();
+        const pass = password.value.trim();
 
-        return;
-    }
+        if (message) {
+            message.innerHTML = "";
+        }
+
+        if (!user || !pass) {
+
+            if (message) {
+                message.innerHTML =
+                    "Introduz o utilizador e a palavra-passe.";
+                message.style.color = "red";
+            }
+
+            return;
+        }
+
+        const encontrado = utilizadores.find(function (u) {
+
+            return (
+                u.username === user &&
+                u.password === pass
+            );
+
+        });
+
+        if (!encontrado) {
+
+            if (message) {
+                message.innerHTML =
+                    "Utilizador ou palavra-passe incorretos.";
+                message.style.color = "red";
+            }
+
+            return;
+        }
+
+        $("loginPage").style.display = "none";
+
+        $("app").style.display = "block";
+
+        password.value = "";
+
+        if (message) {
+            message.innerHTML = "";
+        }
+
+        mostrarPagina("homePage");
+        atualizarDashboard();
+
+    };
 
 
-    if (!passwordInput) {
+    password.onkeydown = function (event) {
 
-        console.error(
-            "ERRO: campo #password não encontrado."
-        );
-
-        return;
-    }
-
-
-    // ========================================
-    // BOTÃO LOGIN
-    // ========================================
-
-    loginButton.addEventListener(
-
-        "click",
-
-        function (event) {
+        if (event.key === "Enter") {
 
             event.preventDefault();
 
-
-            const username =
-                usernameInput.value.trim();
-
-
-            const password =
-                passwordInput.value.trim();
-
-
-            // ====================================
-            // LIMPAR MENSAGEM
-            // ====================================
-
-            if (loginMessage) {
-
-                loginMessage.innerHTML = "";
-
-            }
-
-
-            // ====================================
-            // CAMPOS VAZIOS
-            // ====================================
-
-            if (
-                username === "" ||
-                password === ""
-            ) {
-
-                if (loginMessage) {
-
-                    loginMessage.innerHTML =
-                        "Introduz o utilizador e a palavra-passe.";
-
-                    loginMessage.style.color =
-                        "red";
-
-                }
-
-                return;
-            }
-
-
-            // ====================================
-            // PROCURAR UTILIZADOR
-            // ====================================
-
-            const utilizador =
-                utilizadores.find(
-                    function (u) {
-
-                        return (
-
-                            u.username ===
-                            username
-
-                            &&
-
-                            u.password ===
-                            password
-
-                        );
-
-                    }
-                );
-
-
-            // ====================================
-            // LOGIN CORRETO
-            // ====================================
-
-            if (utilizador) {
-
-                console.log(
-                    "Login efetuado:",
-                    utilizador.username
-                );
-
-
-                if (loginPage) {
-
-                    loginPage.style.display =
-                        "none";
-
-                }
-
-
-                if (appPage) {
-
-                    appPage.style.display =
-                        "block";
-
-                }
-
-
-                if (loginMessage) {
-
-                    loginMessage.innerHTML = "";
-
-                }
-
-
-                passwordInput.value = "";
-
-
-                return;
-
-            }
-
-
-            // ====================================
-            // LOGIN INCORRETO
-            // ====================================
-
-            if (loginMessage) {
-
-                loginMessage.innerHTML =
-                    "Utilizador ou palavra-passe incorretos.";
-
-                loginMessage.style.color =
-                    "red";
-
-            }
+            button.click();
 
         }
 
-    );
-
-
-    // ========================================
-    // ENTER PARA FAZER LOGIN
-    // ========================================
-
-    passwordInput.addEventListener(
-
-        "keydown",
-
-        function (event) {
-
-            if (
-                event.key ===
-                "Enter"
-            ) {
-
-                event.preventDefault();
-
-                loginButton.click();
-
-            }
-
-        }
-
-    );
+    };
 
 }
 
 
-// ============================================
-// GARANTIR QUE O HTML JÁ FOI CARREGADO
-// ============================================
-
-if (
-    document.readyState ===
-    "loading"
-) {
-
-    document.addEventListener(
-        "DOMContentLoaded",
-        iniciarLogin
-    );
-
-}
-else {
-
-    iniciarLogin();
-
-}
-
-
-// ============================================
+// ======================================================
 // LOGOUT
-// ============================================
+// ======================================================
 
-const logoutButton =
-    document.getElementById(
-        "logoutButton"
-    );
+function iniciarLogout() {
 
+    const button = $("logoutButton");
 
-if (logoutButton) {
+    if (!button) {
+        return;
+    }
 
-    logoutButton.addEventListener(
+    button.onclick = function () {
 
-        "click",
-
-        function () {
-
-            document
-                .getElementById(
-                    "app"
-                )
-                .style.display =
-                "none";
-
-
-            document
-                .getElementById(
-                    "loginPage"
-                )
-                .style.display =
-                "flex";
-
-
-            document
-                .getElementById(
-                    "username"
-                )
-                .value = "";
-
-
-            document
-                .getElementById(
-                    "password"
-                )
-                .value = "";
-
-
-            document
-                .getElementById(
-                    "loginMessage"
-                )
-                .innerHTML = "";
-
+        if ($("app")) {
+            $("app").style.display = "none";
         }
 
-    );
+        if ($("loginPage")) {
+            $("loginPage").style.display = "flex";
+        }
+
+        if ($("username")) {
+            $("username").value = "";
+        }
+
+        if ($("password")) {
+            $("password").value = "";
+        }
+
+        if ($("loginMessage")) {
+            $("loginMessage").innerHTML = "";
+        }
+
+    };
 
 }
 
 
-// ============================================
+// ======================================================
+// MENU
+// ======================================================
+
+function mostrarPagina(pagina) {
+
+    const paginas = [
+        "homePage",
+        "studentsPage",
+        "lessonsPage",
+        "calendarPage",
+        "reportsPage"
+    ];
+
+    paginas.forEach(function (id) {
+
+        const paginaElemento = $(id);
+
+        if (!paginaElemento) {
+            return;
+        }
+
+        paginaElemento.style.display =
+            id === pagina ? "block" : "none";
+
+    });
+
+}
+
+
+function configurarMenu() {
+
+    const menus = {
+
+        homeMenu: function () {
+
+            mostrarPagina("homePage");
+            atualizarDashboard();
+
+        },
+
+        studentsMenu: function () {
+
+            mostrarPagina("studentsPage");
+            mostrarAlunos();
+
+        },
+
+        lessonsMenu: function () {
+
+            mostrarPagina("lessonsPage");
+            mostrarAulas();
+
+        },
+
+        calendarMenu: function () {
+
+            mostrarPagina("calendarPage");
+            renderizarCalendario();
+
+        },
+
+        reportsMenu: function () {
+
+            mostrarPagina("reportsPage");
+
+        }
+
+    };
+
+
+    Object.keys(menus).forEach(function (id) {
+
+        const button = $(id);
+
+        if (!button) {
+            return;
+        }
+
+        button.onclick = menus[id];
+
+    });
+
+}
+
+
+// ======================================================
 // DASHBOARD
-// ============================================
+// ======================================================
 
 function atualizarDashboard() {
 
-    const totalStudents =
-        document.getElementById(
-            "totalStudents"
-        );
-
-
-    const totalApproved =
-        document.getElementById(
-            "totalApproved"
-        );
-
-
-    const totalAlerts =
-        document.getElementById(
-            "totalAlerts"
-        );
-
-
-    const alunosAtivos =
-        alunos.filter(
-            function (aluno) {
-
-                return (
-                    aluno.estado ===
-                    "Ativo"
-                );
-
-            }
-        );
-
-
-    const examesAprovados =
-        alunos.filter(
-            function (aluno) {
-
-                return (
-                    aluno.estadoExame ===
-                    "Aprovado"
-                );
-
-            }
-        );
-
-
-    if (totalStudents) {
-
-        totalStudents.innerText =
-            alunosAtivos.length;
-
+    if (!Array.isArray(alunos)) {
+        return;
     }
 
+    const ativos = alunos.filter(function (aluno) {
 
-    if (totalApproved) {
+        return aluno.estado === "Ativo";
 
-        totalApproved.innerText =
-            examesAprovados.length;
+    });
 
+    const aprovados = alunos.filter(function (aluno) {
+
+        return aluno.estadoExame === "Aprovado";
+
+    });
+
+    if ($("totalStudents")) {
+        $("totalStudents").innerText = ativos.length;
     }
 
+    if ($("totalApproved")) {
+        $("totalApproved").innerText = aprovados.length;
+    }
 
     mostrarAlertas();
 
 }
 
 
-// ============================================
+// ======================================================
 // ALERTAS
-// ============================================
+// ======================================================
 
 function mostrarAlertas() {
 
-    const listaAlertas =
-        document.getElementById(
-            "alertsList"
-        );
+    const lista = $("alertsList");
 
-
-    if (!listaAlertas) {
+    if (!lista || !Array.isArray(alunos)) {
         return;
     }
 
+    const hoje = new Date();
 
-    const hoje =
-        new Date();
+    const limite = new Date();
 
-
-    const tresMesesDepois =
-        new Date(
-            hoje
-        );
-
-
-    tresMesesDepois.setMonth(
-        tresMesesDepois.getMonth() + 3
+    limite.setMonth(
+        limite.getMonth() + 3
     );
-
 
     const alertas = [];
 
+    alunos.forEach(function (aluno) {
 
-    alunos.forEach(
-        function (aluno) {
+        verificar(
+            aluno,
+            aluno.validadeLicenca,
+            "Licença de aprendizagem"
+        );
 
-            verificarValidade(
-                aluno,
-                aluno.validadeLicenca,
-                "Licença de aprendizagem"
-            );
+        verificar(
+            aluno,
+            aluno.validadeCodigo,
+            "Validade do código"
+        );
 
-
-            verificarValidade(
-                aluno,
-                aluno.validadeCodigo,
-                "Validade do código"
-            );
-
-        }
-    );
+    });
 
 
-    function verificarValidade(
-        aluno,
-        data,
-        tipo
-    ) {
+    function verificar(aluno, data, tipo) {
 
         if (!data) {
             return;
         }
 
+        const validade =
+            new Date(data + "T00:00:00");
 
-        const dataValidade =
-            new Date(
-                data + "T00:00:00"
-            );
-
-
-        if (isNaN(dataValidade.getTime())) {
+        if (isNaN(validade.getTime())) {
             return;
         }
 
-
-        if (
-            dataValidade <
-            hoje
-        ) {
+        if (validade < hoje) {
 
             alertas.push(`
-
                 <div class="alert expired">
-
-                    🔴
-
-                    <strong>
-                        ${aluno.nome || "Aluno"}
-                    </strong>
-
+                    🔴 <strong>${aluno.nome || "Aluno"}</strong>
                     <br>
-
-                    ${tipo}
-                    já expirou.
-
+                    ${tipo} já expirou.
                 </div>
-
             `);
 
         }
 
-        else if (
-            dataValidade <=
-            tresMesesDepois
-        ) {
+        else if (validade <= limite) {
 
             alertas.push(`
-
                 <div class="alert">
-
-                    ⚠️
-
-                    <strong>
-                        ${aluno.nome || "Aluno"}
-                    </strong>
-
+                    ⚠️ <strong>${aluno.nome || "Aluno"}</strong>
                     <br>
-
-                    ${tipo}
-                    termina em breve:
-
+                    ${tipo} termina em breve:
                     ${formatarData(data)}
-
                 </div>
-
             `);
 
         }
@@ -828,154 +621,105 @@ function mostrarAlertas() {
     }
 
 
-    if (
-        alertas.length === 0
-    ) {
+    if (alertas.length === 0) {
 
-        listaAlertas.innerHTML = `
-
+        lista.innerHTML = `
             <div class="alert good">
-
-                ✅
-
-                Não existem validades
+                ✅ Não existem validades
                 a terminar nos próximos 3 meses.
-
             </div>
-
         `;
 
     }
 
     else {
 
-        listaAlertas.innerHTML =
+        lista.innerHTML =
             alertas.join("");
 
     }
 
 
-    const totalAlertas =
-        document.getElementById(
-            "totalAlerts"
-        );
-
-
-    if (totalAlertas) {
-
-        totalAlertas.innerText =
+    if ($("totalAlerts")) {
+        $("totalAlerts").innerText =
             alertas.length;
-
     }
 
 }
 
 
-// ============================================
-// TEORIA COMPLETA
-// ============================================
+// ======================================================
+// DATA
+// ======================================================
 
-function verificarTeoriaCompleta(
-    aluno
-) {
-
-    if (
-        (aluno.aulasRealizadas || 0) >=
-        28
-    ) {
-
-        return `
-
-            <div style="
-                margin:12px 0;
-                padding:12px;
-                background:#dcfce7;
-                border:2px solid #16a34a;
-                border-radius:8px;
-                color:#166534;
-                font-weight:bold;
-                text-align:center;
-            ">
-
-                🎉 TEORIA COMPLETA
-
-                <br>
-
-                ✅ O aluno já pode marcar
-                o exame de código.
-
-            </div>
-
-        `;
-
-    }
-
-
-    return "";
-
-}
-
-
-// ============================================
-// FORMATAR DATA
-// ============================================
-
-function formatarData(
-    data
-) {
+function formatarData(data) {
 
     if (!data) {
         return "Não definida";
     }
 
+    const d =
+        new Date(data + "T00:00:00");
 
-    const dataObj =
-        new Date(
-            data + "T00:00:00"
-        );
-
-
-    if (
-        isNaN(
-            dataObj.getTime()
-        )
-    ) {
-
+    if (isNaN(d.getTime())) {
         return "Data inválida";
-
     }
 
-
-    return dataObj.toLocaleDateString(
-        "pt-PT"
-    );
+    return d.toLocaleDateString("pt-PT");
 
 }
 
 
-// ============================================
-// LISTA DE ALUNOS DA AULA
-// ============================================
+// ======================================================
+// ALUNOS
+// ======================================================
 
-function atualizarListaDaAula() {
+function mostrarAlunos() {
 
-    const lista =
-        document.getElementById(
-            "lessonStudents"
-        );
+    const lista = $("studentsList");
 
-
-    if (!lista) {
+    if (!lista || !Array.isArray(alunos)) {
         return;
     }
 
+    const pesquisa =
+        $("searchStudent")
+            ? $("searchStudent").value
+                .trim()
+                .toLowerCase()
+            : "";
 
-    if (
-        alunosDaAula.length === 0
-    ) {
+
+    const resultado = [...alunos]
+        .filter(function (aluno) {
+
+            const numero =
+                String(aluno.numero || "")
+                    .toLowerCase();
+
+            const nome =
+                String(aluno.nome || "")
+                    .toLowerCase();
+
+            return (
+                pesquisa === "" ||
+                numero.includes(pesquisa) ||
+                nome.includes(pesquisa)
+            );
+
+        })
+        .sort(function (a, b) {
+
+            return Number(a.numero || 0) -
+                   Number(b.numero || 0);
+
+        });
+
+
+    if (resultado.length === 0) {
 
         lista.innerHTML =
-            "Ainda não existem alunos nesta aula.";
+            "<p>Nenhum aluno encontrado.</p>";
 
         return;
     }
@@ -984,1697 +728,89 @@ function atualizarListaDaAula() {
     lista.innerHTML = "";
 
 
-    alunosDaAula.forEach(
-        function (aluno) {
+    resultado.forEach(function (aluno) {
 
-            const div =
-                document.createElement(
-                    "div"
-                );
+        const card =
+            document.createElement("div");
 
+        card.className =
+            "student-card";
 
-            div.className =
-                "student-card";
+        card.innerHTML = `
 
-
-            div.innerHTML = `
-
-                <strong>
-                    ${aluno.numero}
-                </strong>
-
+            <h3>
+                👨‍🎓
+                ${aluno.numero || "-"}
                 -
+                ${aluno.nome || "-"}
+            </h3>
 
-                ${aluno.nome}
-
-            `;
-
-
-            lista.appendChild(
-                div
-            );
-
-        }
-    );
-
-}
-
-
-// ============================================
-// ABRIR AULA EXISTENTE
-// ============================================
-
-function abrirAula(aula) {
-
-    if (!aula) {
-
-        mostrarNotificacao(
-            "Aula não encontrada.",
-            "erro"
-        );
-
-        return;
-    }
-
-
-    aulaEmEdicao = aula;
-
-    alunosDaAula = [];
-
-
-    (
-        aula.alunos ||
-        []
-    ).forEach(
-        function (numero) {
-
-            const aluno =
-                alunos.find(
-                    function (a) {
-
-                        return (
-                            String(a.numero) ===
-                            String(numero)
-                        );
-
-                    }
-                );
-
-
-            if (aluno) {
-
-                alunosDaAula.push(
-                    aluno
-                );
-
-            }
-
-        }
-    );
-
-
-    const campoId =
-        document.getElementById(
-            "lessonId"
-        );
-
-
-    const campoMateria =
-        document.getElementById(
-            "lessonSubject"
-        );
-
-
-    const campoData =
-        document.getElementById(
-            "lessonDate"
-        );
-
-
-    const campoHora =
-        document.getElementById(
-            "lessonTime"
-        );
-
-
-    if (campoId) {
-
-        campoId.value =
-            aula.idAula || "";
-
-    }
-
-
-    if (campoMateria) {
-
-        campoMateria.value =
-            aula.materia || "";
-
-    }
-
-
-    if (campoData) {
-
-        campoData.value =
-            aula.data || "";
-
-    }
-
-
-    if (campoHora) {
-
-        campoHora.value =
-            aula.hora || "";
-
-    }
-
-
-    atualizarListaDaAula();
-
-
-    const secaoOriginal =
-        document.querySelector(
-            "#saveLesson"
-        );
-
-
-    if (!secaoOriginal) {
-
-        mostrarNotificacao(
-            "Formulário da aula não encontrado.",
-            "erro"
-        );
-
-        return;
-    }
-
-
-    const secao =
-        secaoOriginal.closest(
-            ".section"
-        );
-
-
-    if (!secao) {
-
-        mostrarNotificacao(
-            "Secção da aula não encontrada.",
-            "erro"
-        );
-
-        return;
-    }
-
-
-    const overlay =
-        document.createElement(
-            "div"
-        );
-
-
-    overlay.className =
-        "lesson-editor-overlay";
-
-
-    const modal =
-        document.createElement(
-            "div"
-        );
-
-
-    modal.className =
-        "lesson-editor-modal";
-
-
-    const fechar =
-        document.createElement(
-            "button"
-        );
-
-
-    fechar.className =
-        "close-lesson-editor";
-
-
-    fechar.type =
-        "button";
-
-
-    fechar.innerHTML =
-        "×";
-
-
-    fechar.title =
-        "Fechar";
-
-
-    const conteudo =
-        secao.cloneNode(
-            true
-        );
-
-
-    conteudo
-        .querySelectorAll("[id]")
-        .forEach(
-            function (elemento) {
-
-                elemento.removeAttribute(
-                    "id"
-                );
-
-            }
-        );
-
-
-    const titulo =
-        conteudo.querySelector(
-            "h2"
-        );
-
-
-    if (titulo) {
-
-        titulo.innerHTML =
-            "📚 Editar Aula";
-
-    }
-
-
-    modal.appendChild(
-        fechar
-    );
-
-
-    modal.appendChild(
-        conteudo
-    );
-
-
-    overlay.appendChild(
-        modal
-    );
-
-
-    document.body.appendChild(
-        overlay
-    );
-
-
-    fechar.onclick =
-        function () {
-
-            overlay.remove();
-
-            aulaEmEdicao =
-                null;
-
-            alunosDaAula =
-                [];
-
-        };
-
-
-    overlay.onclick =
-        function (event) {
-
-            if (
-                event.target ===
-                overlay
-            ) {
-
-                overlay.remove();
-
-                aulaEmEdicao =
-                    null;
-
-                alunosDaAula =
-                    [];
-
-            }
-
-        };
-
-
-    function fecharComEscape(event) {
-
-        if (
-            event.key ===
-            "Escape"
-        ) {
-
-            overlay.remove();
-
-            aulaEmEdicao =
-                null;
-
-            alunosDaAula =
-                [];
-
-            document.removeEventListener(
-                "keydown",
-                fecharComEscape
-            );
-
-        }
-
-    }
-
-
-    document.addEventListener(
-        "keydown",
-        fecharComEscape
-    );
-
-
-    prepararJanelaEdicaoAula(
-        overlay
-    );
-
-
-    mostrarNotificacao(
-        "Aula aberta. Podes editar os alunos. ✅"
-    );
-
-}
-
-
-// ============================================
-// LIGAR BOTÕES DA JANELA DE EDITAR AULA
-// ============================================
-
-function prepararJanelaEdicaoAula(overlay) {
-
-    if (!overlay) {
-        return;
-    }
-
-
-    // ========================================
-    // ALUNOS DA AULA
-    // ========================================
-
-    if (!Array.isArray(alunosDaAula)) {
-        alunosDaAula = [];
-    }
-
-
-    // ========================================
-    // BOTÃO ADICIONAR ALUNO PELO NÚMERO
-    // ========================================
-
-    const botaoAdicionarAluno =
-        overlay.querySelector(
-            "#addStudentToLesson"
-        );
-
-
-    if (botaoAdicionarAluno) {
-
-        botaoAdicionarAluno.onclick =
-            function (event) {
-
-                event.preventDefault();
-
-
-                const campo =
-                    overlay.querySelector(
-                        "#lessonStudentNumber"
-                    );
-
-
-                if (!campo) {
-
-                    mostrarNotificacao(
-                        "Campo do número do aluno não encontrado.",
-                        "erro"
-                    );
-
-                    return;
-                }
-
-
-                const numero =
-                    String(
-                        campo.value || ""
-                    )
-                    .trim();
-
-
-                if (numero === "") {
-
-                    mostrarNotificacao(
-                        "Introduz o número do aluno.",
-                        "erro"
-                    );
-
-                    campo.focus();
-
-                    return;
-                }
-
-
-                const aluno =
-                    alunos.find(
-                        function (a) {
-
-                            return (
-                                String(
-                                    a.numero || ""
-                                )
-                                .trim()
-                                .toLowerCase() ===
-                                numero.toLowerCase()
-                            );
-
-                        }
-                    );
-
-
-                if (!aluno) {
-
-                    mostrarNotificacao(
-                        "Aluno não encontrado.",
-                        "erro"
-                    );
-
-                    campo.focus();
-
-                    return;
-                }
-
-
-                const jaExiste =
-                    alunosDaAula.some(
-                        function (a) {
-
-                            return (
-                                String(a.id) ===
-                                String(aluno.id)
-                            );
-
-                        }
-                    );
-
-
-                if (jaExiste) {
-
-                    mostrarNotificacao(
-                        "Este aluno já está nesta aula.",
-                        "erro"
-                    );
-
-                    campo.value = "";
-
-                    campo.focus();
-
-                    return;
-                }
-
-
-                alunosDaAula.push(
-                    aluno
-                );
-
-
-                campo.value = "";
-
-
-                atualizarListaDaAula();
-
-
-                mostrarNotificacao(
-                    "Aluno adicionado: " +
-                    (
-                        aluno.nome ||
-                        aluno.numero
-                    )
-                );
-
-
-                campo.focus();
-
-            };
-
-    }
-
-
-    // ========================================
-    // BOTÃO SELECIONAR VÁRIOS ALUNOS
-    // ========================================
-
-    const botaoSelecionarVarios =
-        overlay.querySelector(
-            "#selectMultipleStudents"
-        );
-
-
-    if (botaoSelecionarVarios) {
-
-        botaoSelecionarVarios.onclick =
-            function (event) {
-
-                event.preventDefault();
-
-
-                const caixa =
-                    overlay.querySelector(
-                        "#multipleStudentsBox"
-                    );
-
-
-                if (!caixa) {
-
-                    mostrarNotificacao(
-                        "Caixa de alunos não encontrada.",
-                        "erro"
-                    );
-
-                    return;
-                }
-
-
-                caixa.innerHTML = "";
-
-
-                // =================================
-                // PESQUISA
-                // =================================
-
-                const campoPesquisa =
-                    document.createElement(
-                        "input"
-                    );
-
-
-                campoPesquisa.type =
-                    "text";
-
-
-                campoPesquisa.placeholder =
-                    "Pesquisar por número ou nome...";
-
-
-                campoPesquisa.autocomplete =
-                    "off";
-
-
-                campoPesquisa.style.width =
-                    "100%";
-
-
-                campoPesquisa.style.boxSizing =
-                    "border-box";
-
-
-                campoPesquisa.style.padding =
-                    "10px";
-
-
-                campoPesquisa.style.marginBottom =
-                    "10px";
-
-
-                campoPesquisa.style.border =
-                    "1px solid #ccc";
-
-
-                campoPesquisa.style.borderRadius =
-                    "8px";
-
-
-                caixa.appendChild(
-                    campoPesquisa
-                );
-
-
-                // =================================
-                // LISTA
-                // =================================
-
-                const lista =
-                    document.createElement(
-                        "div"
-                    );
-
-
-                caixa.appendChild(
-                    lista
-                );
-
-
-                // =================================
-                // MOSTRAR LISTA
-                // =================================
-
-                function mostrarLista(
-                    texto
-                ) {
-
-                    lista.innerHTML = "";
-
-
-                    const pesquisa =
-                        String(
-                            texto || ""
-                        )
-                        .trim()
-                        .toLowerCase();
-
-
-                    const encontrados =
-                        [...alunos]
-                            .filter(
-                                function (aluno) {
-
-                                    if (
-                                        pesquisa === ""
-                                    ) {
-
-                                        return true;
-
-                                    }
-
-
-                                    const numero =
-                                        String(
-                                            aluno.numero || ""
-                                        )
-                                        .toLowerCase();
-
-
-                                    const nome =
-                                        String(
-                                            aluno.nome || ""
-                                        )
-                                        .toLowerCase();
-
-
-                                    return (
-                                        numero.includes(
-                                            pesquisa
-                                        ) ||
-                                        nome.includes(
-                                            pesquisa
-                                        )
-                                    );
-
-                                }
-                            )
-                            .sort(
-                                function (a, b) {
-
-                                    return (
-                                        Number(
-                                            a.numero || 0
-                                        ) -
-                                        Number(
-                                            b.numero || 0
-                                        )
-                                    );
-
-                                }
-                            );
-
-
-                    if (
-                        encontrados.length === 0
-                    ) {
-
-                        lista.innerHTML = `
-
-                            <p
-                                style="
-                                    padding:10px;
-                                    text-align:center;
-                                "
-                            >
-                                Nenhum aluno encontrado.
-                            </p>
-
-                        `;
-
-                        return;
-                    }
-
-
-                    encontrados.forEach(
-                        function (aluno) {
-
-                            const linha =
-                                document.createElement(
-                                    "label"
-                                );
-
-
-                            linha.style.display =
-                                "block";
-
-
-                            linha.style.padding =
-                                "10px";
-
-
-                            linha.style.marginBottom =
-                                "5px";
-
-
-                            linha.style.background =
-                                "#f5f5f5";
-
-
-                            linha.style.borderRadius =
-                                "8px";
-
-
-                            linha.style.cursor =
-                                "pointer";
-
-
-                            const checkbox =
-                                document.createElement(
-                                    "input"
-                                );
-
-
-                            checkbox.type =
-                                "checkbox";
-
-
-                            checkbox.value =
-                                aluno.numero;
-
-
-                            const jaEstaNaAula =
-                                alunosDaAula.some(
-                                    function (a) {
-
-                                        return (
-                                            String(a.id) ===
-                                            String(aluno.id)
-                                        );
-
-                                    }
-                                );
-
-
-                            checkbox.checked =
-                                jaEstaNaAula;
-
-
-                            linha.appendChild(
-                                checkbox
-                            );
-
-
-                            linha.appendChild(
-                                document.createTextNode(
-                                    " " +
-                                    (
-                                        aluno.numero ||
-                                        "-"
-                                    ) +
-                                    " - " +
-                                    (
-                                        aluno.nome ||
-                                        "-"
-                                    )
-                                )
-                            );
-
-
-                            lista.appendChild(
-                                linha
-                            );
-
-                        }
-                    );
-
-                }
-
-
-                mostrarLista("");
-
-
-                campoPesquisa.oninput =
-                    function () {
-
-                        mostrarLista(
-                            campoPesquisa.value
-                        );
-
-                    };
-
-
-                caixa.style.display =
-                    "block";
-
-
-                const botaoAdicionarSelecionados =
-                    overlay.querySelector(
-                        "#addSelectedStudents"
-                    );
-
-
-                if (
-                    botaoAdicionarSelecionados
-                ) {
-
-                    botaoAdicionarSelecionados.style.display =
-                        "inline-block";
-
-                }
-
-
-                campoPesquisa.focus();
-
-            };
-
-    }
-
-}
-
-// ============================================
-// BOTÃO ADICIONAR ALUNOS SELECIONADOS
-// ============================================
-
-const botaoAdicionarSelecionados =
-    overlay.querySelector(
-        "#addSelectedStudents"
-    );
-
-
-if (botaoAdicionarSelecionados) {
-
-    botaoAdicionarSelecionados.onclick =
-        function (event) {
-
-            event.preventDefault();
-
-
-            const caixa =
-                overlay.querySelector(
-                    "#multipleStudentsBox"
-                );
-
-
-            if (!caixa) {
-
-                mostrarNotificacao(
-                    "Caixa de seleção não encontrada.",
-                    "erro"
-                );
-
-                return;
-            }
-
-
-            const checkboxes =
-                caixa.querySelectorAll(
-                    'input[type="checkbox"]:checked'
-                );
-
-
-            let quantidade = 0;
-
-
-            checkboxes.forEach(
-                function (checkbox) {
-
-                    const numero =
-                        String(
-                            checkbox.value || ""
-                        )
-                        .trim();
-
-
-                    const aluno =
-                        alunos.find(
-                            function (a) {
-
-                                return (
-                                    String(
-                                        a.numero || ""
-                                    )
-                                    .trim() ===
-                                    numero
-                                );
-
-                            }
-                        );
-
-
-                    if (!aluno) {
-                        return;
-                    }
-
-
-                    const jaExiste =
-                        alunosDaAula.some(
-                            function (a) {
-
-                                return (
-                                    String(a.id) ===
-                                    String(aluno.id)
-                                );
-
-                            }
-                        );
-
-
-                    if (!jaExiste) {
-
-                        alunosDaAula.push(
-                            aluno
-                        );
-
-                        quantidade++;
-
-                    }
-
-                }
-            );
-
-
-            atualizarListaDaAula();
-
-
-            caixa.style.display =
-                "none";
-
-
-            botaoAdicionarSelecionados.style.display =
-                "none";
-
-
-            if (quantidade === 0) {
-
-                mostrarNotificacao(
-                    "Nenhum aluno novo foi selecionado.",
-                    "erro"
-                );
-
-            }
-            else {
-
-                mostrarNotificacao(
-                    quantidade +
-                    (
-                        quantidade === 1
-                            ? " aluno adicionado à aula."
-                            : " alunos adicionados à aula."
-                    )
-                );
-
-            }
-
-        };
-
-}
-
-
-// ============================================
-// BOTÃO GUARDAR AULA
-// ============================================
-
-const botaoGuardar =
-    overlay.querySelector(
-        "#saveLesson"
-    );
-
-
-if (botaoGuardar) {
-
-    botaoGuardar.onclick =
-        async function (event) {
-
-            event.preventDefault();
-
-
-            // ========================================
-            // VERIFICAR AULA
-            // ========================================
-
-            if (!aulaEmEdicao) {
-
-                mostrarNotificacao(
-                    "Não existe nenhuma aula em edição.",
-                    "erro"
-                );
-
-                return;
-            }
-
-
-            if (!aulaEmEdicao.id) {
-
-                mostrarNotificacao(
-                    "Esta aula não tem um ID válido.",
-                    "erro"
-                );
-
-                return;
-            }
-
-
-            // ========================================
-            // CAMPOS
-            // ========================================
-
-            const campoId =
-                overlay.querySelector(
-                    "#lessonId"
-                );
-
-
-            const campoMateria =
-                overlay.querySelector(
-                    "#lessonSubject"
-                );
-
-
-            const campoData =
-                overlay.querySelector(
-                    "#lessonDate"
-                );
-
-
-            const campoHora =
-                overlay.querySelector(
-                    "#lessonTime"
-                );
-
-
-            if (
-                !campoId ||
-                !campoMateria ||
-                !campoData ||
-                !campoHora
-            ) {
-
-                mostrarNotificacao(
-                    "Não foi possível encontrar os campos da aula.",
-                    "erro"
-                );
-
-                return;
-            }
-
-
-            // ========================================
-            // VALORES
-            // ========================================
-
-            const idAula =
-                campoId.value.trim();
-
-
-            const materia =
-                campoMateria.value.trim();
-
-
-            const data =
-                campoData.value;
-
-
-            const hora =
-                campoHora.value;
-
-
-            if (
-                idAula === "" ||
-                materia === "" ||
-                data === "" ||
-                hora === ""
-            ) {
-
-                mostrarNotificacao(
-                    "Preenche todos os dados da aula.",
-                    "erro"
-                );
-
-                return;
-            }
-
-
-            // ========================================
-            // ALUNOS
-            // ========================================
-
-            const numerosAlunos =
-                (alunosDaAula || [])
-                    .map(
-                        function (aluno) {
-
-                            return aluno.numero;
-
-                        }
-                    );
-
-
-            // ========================================
-            // ALUNOS ANTIGOS
-            // ========================================
-
-            const alunosAntigos =
-                Array.isArray(
-                    aulaEmEdicao.alunos
-                )
-                    ? aulaEmEdicao.alunos
-                    : [];
-
-
-            // ========================================
-            // NOVOS ALUNOS
-            // ========================================
-
-            const novosAlunos =
-                (alunosDaAula || [])
-                    .filter(
-                        function (aluno) {
-
-                            return !alunosAntigos.some(
-                                function (numero) {
-
-                                    return (
-                                        String(numero) ===
-                                        String(aluno.numero)
-                                    );
-
-                                }
-                            );
-
-                        }
-                    );
-
-
-            try {
-
-                // ====================================
-                // ATUALIZAR AULA
-                // ====================================
-
-                await updateDoc(
-                    doc(
-                        db,
-                        "aulas",
-                        aulaEmEdicao.id
-                    ),
-                    {
-
-                        idAula:
-                            idAula,
-
-                        materia:
-                            materia,
-
-                        data:
-                            data,
-
-                        hora:
-                            hora,
-
-                        alunos:
-                            numerosAlunos
-
-                    }
-                );
-
-
-                // ====================================
-                // ATUALIZAR ALUNOS NOVOS
-                // ====================================
-
-                for (
-                    const aluno of novosAlunos
-                ) {
-
-                    if (!aluno.id) {
-                        continue;
-                    }
-
-
-                    const novasAulas =
-                        Number(
-                            aluno.aulasRealizadas || 0
-                        ) + 1;
-
-
-                    const dadosAtualizar = {
-
-                        aulasRealizadas:
-                            novasAulas,
-
-                        historicoAulas:
-                            arrayUnion(
-                                idAula
-                            )
-
-                    };
-
-
-                    // =================================
-                    // REPROVAÇÃO
-                    // =================================
-
-                    if (
-                        aluno.ultimaReprovacao
-                    ) {
-
-                        const aulasReprovacao =
-                            Math.max(
-                                0,
-                                novasAulas -
-                                Number(
-                                    aluno.aulasNaUltimaReprovacao || 0
-                                )
-                            );
-
-
-                        dadosAtualizar
-                            .aulasReprovacaoFeitas =
-                            Math.min(
-                                aulasReprovacao,
-                                5
-                            );
-
-
-                        const historico =
-                            Array.isArray(
-                                aluno.historicoExames
-                            )
-                                ? [
-                                    ...aluno.historicoExames
-                                ]
-                                : [];
-
-
-                        if (
-                            historico.length > 0
-                        ) {
-
-                            const indice =
-                                historico.length - 1;
-
-
-                            const ultimo =
-                                historico[
-                                    indice
-                                ];
-
-
-                            if (
-                                ultimo &&
-                                ultimo.resultado ===
-                                    "Reprovado" &&
-                                !ultimo.aulasConcluidas
-                            ) {
-
-                                historico[
-                                    indice
-                                ] = {
-
-                                    ...ultimo,
-
-                                    aulasReprovacao:
-                                        Math.min(
-                                            aulasReprovacao,
-                                            5
-                                        ),
-
-                                    aulasConcluidas:
-                                        aulasReprovacao >= 5
-
-                                };
-
-                            }
-
-                        }
-
-
-                        dadosAtualizar
-                            .historicoExames =
-                            historico;
-
-                    }
-
-
-                    await updateDoc(
-                        doc(
-                            db,
-                            "alunos",
-                            aluno.id
-                        ),
-                        dadosAtualizar
-                    );
-
-                }
-
-
-                // ====================================
-                // ATUALIZAR OBJETO LOCAL
-                // ====================================
-
-                aulaEmEdicao = {
-
-                    ...aulaEmEdicao,
-
-                    idAula:
-                        idAula,
-
-                    materia:
-                        materia,
-
-                    data:
-                        data,
-
-                    hora:
-                        hora,
-
-                    alunos:
-                        numerosAlunos
-
-                };
-
-
-                // ====================================
-                // ATUALIZAR ARRAY LOCAL DE AULAS
-                // ====================================
-
-                const indiceAula =
-                    aulas.findIndex(
-                        function (aula) {
-
-                            return (
-                                aula.id ===
-                                aulaEmEdicao.id
-                            );
-
-                        }
-                    );
-
-
-                if (
-                    indiceAula !== -1
-                ) {
-
-                    aulas[
-                        indiceAula
-                    ] = {
-
-                        ...aulas[
-                            indiceAula
-                        ],
-
-                        idAula:
-                            idAula,
-
-                        materia:
-                            materia,
-
-                        data:
-                            data,
-
-                        hora:
-                            hora,
-
-                        alunos:
-                            numerosAlunos
-
-                    };
-
-                }
-
-
-                // ====================================
-                // ATUALIZAR INTERFACE
-                // ====================================
-
-                atualizarDashboard();
-
-                mostrarAulas();
-
-                renderizarCalendario();
-
-
-                // ====================================
-                // FECHAR EDITOR
-                // ====================================
-
-                overlay.remove();
-
-
-                aulaEmEdicao =
-                    null;
-
-
-                alunosDaAula =
-                    [];
-
-
-                // ====================================
-                // NOTIFICAÇÃO
-                // ====================================
-
-                mostrarNotificacao(
-                    "Aula guardada com sucesso ✅"
-                );
-
-
-                // ====================================
-                // CALENDÁRIO
-                // ====================================
-
-                mostrarPagina(
-                    "calendarPage"
-                );
-
-            }
-
-            catch (erro) {
-
-                console.error(
-                    "ERRO AO GUARDAR AULA:",
-                    erro
-                );
-
-
-                mostrarNotificacao(
-                    "Erro ao guardar aula: " +
-                    (
-                        erro.message ||
-                        erro
-                    ),
-                    "erro"
-                );
-
-            }
-
-        };
-
-}
-
-
-// ============================================
-// MOSTRAR ALUNOS + PESQUISA
-// ============================================
-
-function mostrarAlunos() {
-
-    const lista =
-        document.getElementById(
-            "studentsList"
-        );
-
-
-    if (!lista) {
-        return;
-    }
-
-
-    const campoPesquisa =
-        document.getElementById(
-            "searchStudent"
-        );
-
-
-    const textoPesquisa =
-        campoPesquisa
-            ? campoPesquisa.value
-                .trim()
-                .toLowerCase()
-            : "";
-
-
-    // ========================================
-    // FILTRAR ALUNOS
-    // ========================================
-
-    const alunosFiltrados =
-        [...alunos]
-            .filter(
-                function (aluno) {
-
-                    if (
-                        textoPesquisa === ""
-                    ) {
-
-                        return true;
-
-                    }
-
-
-                    const numero =
-                        String(
-                            aluno.numero || ""
-                        )
-                        .toLowerCase();
-
-
-                    const nome =
-                        String(
-                            aluno.nome || ""
-                        )
-                        .toLowerCase();
-
-
-                    return (
-                        numero.includes(
-                            textoPesquisa
-                        ) ||
-                        nome.includes(
-                            textoPesquisa
-                        )
-                    );
-
-                }
-            )
-            .sort(
-                function (a, b) {
-
-                    return (
-                        Number(
-                            a.numero || 0
-                        ) -
-                        Number(
-                            b.numero || 0
-                        )
-                    );
-
-                }
-            );
-
-
-    // ========================================
-    // NENHUM ALUNO
-    // ========================================
-
-    if (
-        alunosFiltrados.length === 0
-    ) {
-
-        lista.innerHTML = `
             <p>
-                Nenhum aluno encontrado.
+                <strong>Estado:</strong>
+                ${aluno.estado || "-"}
             </p>
+
+            <p>
+                <strong>Aulas:</strong>
+                ${aluno.aulasRealizadas || 0}
+            </p>
+
+            <p>
+                <strong>Exame:</strong>
+                ${aluno.estadoExame || "Sem exame"}
+            </p>
+
+            <p>
+                <strong>Validade Licença:</strong>
+                ${formatarData(aluno.validadeLicenca)}
+            </p>
+
+            <p>
+                <strong>Validade Código:</strong>
+                ${formatarData(aluno.validadeCodigo)}
+            </p>
+
         `;
 
+        lista.appendChild(card);
+
+    });
+
+}
+
+
+// ======================================================
+// PESQUISA
+// ======================================================
+
+function configurarPesquisa() {
+
+    const campo = $("searchStudent");
+
+    if (!campo) {
         return;
     }
 
+    campo.oninput = function () {
 
-    // ========================================
-    // LIMPAR LISTA
-    // ========================================
+        mostrarAlunos();
 
-    lista.innerHTML =
-        "";
-
-
-    // ========================================
-    // MOSTRAR ALUNOS
-    // ========================================
-
-    alunosFiltrados.forEach(
-        function (aluno) {
-
-            const cartao =
-                document.createElement(
-                    "div"
-                );
-
-
-            cartao.className =
-                "student-card";
-
-
-            cartao.innerHTML = `
-
-                <h3>
-                    👨‍🎓
-                    ${aluno.numero || "-"}
-                    -
-                    ${aluno.nome || "-"}
-                </h3>
-
-                <p>
-                    <strong>Estado:</strong>
-                    ${aluno.estado || "-"}
-                </p>
-
-                <p>
-                    <strong>Aulas:</strong>
-                    ${aluno.aulasRealizadas || 0}
-                </p>
-
-                <p>
-                    <strong>Exame:</strong>
-                    ${aluno.estadoExame || "Sem exame"}
-                </p>
-
-                <p>
-                    <strong>Validade Licença:</strong>
-                    ${aluno.validadeLicenca || "-"}
-                </p>
-
-                <p>
-                    <strong>Validade Código:</strong>
-                    ${aluno.validadeCodigo || "-"}
-                </p>
-
-            `;
-
-
-            lista.appendChild(
-                cartao
-            );
-
-        }
-    );
+    };
 
 }
 
 
-// ============================================
-// PESQUISA EM TEMPO REAL
-// ============================================
-
-const searchStudent =
-    document.getElementById(
-        "searchStudent"
-    );
-
-
-if (searchStudent) {
-
-    searchStudent.addEventListener(
-        "input",
-        function () {
-
-            mostrarAlunos();
-
-        }
-    );
-
-}
-
-
-// ============================================
-// MOSTRAR AULAS
-// ============================================
+// ======================================================
+// AULAS
+// ======================================================
 
 function mostrarAulas() {
 
-    const lista =
-        document.getElementById(
-            "lessonsList"
-        );
-
+    const lista = $("lessonsList");
 
     if (!lista) {
         return;
     }
-
 
     if (
         !Array.isArray(aulas) ||
@@ -2692,152 +828,110 @@ function mostrarAulas() {
 
 
     [...aulas]
+        .sort(function (a, b) {
 
-        .sort(
-            function (a, b) {
+            return new Date(b.data) -
+                   new Date(a.data);
 
-                return (
-                    new Date(
-                        b.data
-                    ) -
-                    new Date(
-                        a.data
-                    )
-                );
+        })
+        .forEach(function (aula) {
 
-            }
-        )
-
-        .forEach(
-            function (aula) {
-
-                let alunosTexto =
-                    "Nenhum aluno adicionado.";
+            let alunosTexto =
+                "Nenhum aluno adicionado.";
 
 
-                if (
-                    Array.isArray(aula.alunos) &&
-                    aula.alunos.length > 0
-                ) {
+            if (
+                Array.isArray(aula.alunos) &&
+                aula.alunos.length
+            ) {
 
-                    alunosTexto = "";
+                alunosTexto =
+                    aula.alunos.map(function (numero) {
 
+                        const aluno =
+                            alunos.find(function (a) {
 
-                    aula.alunos.forEach(
-                        function (numero) {
+                                return String(a.numero) ===
+                                       String(numero);
 
-                            const aluno =
-                                alunos.find(
-                                    function (a) {
+                            });
 
-                                        return (
-                                            String(
-                                                a.numero
-                                            ) ===
-                                            String(
-                                                numero
-                                            )
-                                        );
+                        return "• " +
+                            numero +
+                            (
+                                aluno
+                                    ? " - " + aluno.nome
+                                    : ""
+                            );
 
-                                    }
-                                );
-
-
-                            if (aluno) {
-
-                                alunosTexto +=
-                                    "• " +
-                                    aluno.numero +
-                                    " - " +
-                                    aluno.nome +
-                                    "<br>";
-
-                            }
-
-                            else {
-
-                                alunosTexto +=
-                                    "• " +
-                                    numero +
-                                    "<br>";
-
-                            }
-
-                        }
-                    );
-
-                }
-
-
-                const cartao =
-                    document.createElement(
-                        "div"
-                    );
-
-
-                cartao.className =
-                    "student-card";
-
-
-                cartao.innerHTML = `
-
-                    <h3>
-                        📚 ${aula.idAula || "-"}
-                    </h3>
-
-                    <p>
-                        <strong>Matéria:</strong>
-                        ${aula.materia || "-"}
-                    </p>
-
-                    <p>
-                        <strong>Data:</strong>
-                        ${formatarData(aula.data)}
-                    </p>
-
-                    <p>
-                        <strong>Hora:</strong>
-                        ${aula.hora || "-"}
-                    </p>
-
-                    <p>
-                        <strong>Alunos:</strong>
-                        ${
-                            Array.isArray(aula.alunos)
-                                ? aula.alunos.length
-                                : 0
-                        }
-                    </p>
-
-                    <p>
-                        ${alunosTexto}
-                    </p>
-
-                    <button
-                        type="button"
-                        class="editLessonButton"
-                        data-id="${aula.id}"
-                    >
-                        👨‍🎓 Abrir Aula / Alunos
-                    </button>
-
-                    <button
-                        type="button"
-                        class="deleteLessonButton danger-button"
-                        data-id="${aula.id}"
-                    >
-                        🗑️ Apagar Aula
-                    </button>
-
-                `;
-
-
-                lista.appendChild(
-                    cartao
-                );
+                    }).join("<br>");
 
             }
-        );
+
+
+            const card =
+                document.createElement("div");
+
+            card.className =
+                "student-card";
+
+
+            card.innerHTML = `
+
+                <h3>
+                    📚 ${aula.idAula || "-"}
+                </h3>
+
+                <p>
+                    <strong>Matéria:</strong>
+                    ${aula.materia || "-"}
+                </p>
+
+                <p>
+                    <strong>Data:</strong>
+                    ${formatarData(aula.data)}
+                </p>
+
+                <p>
+                    <strong>Hora:</strong>
+                    ${aula.hora || "-"}
+                </p>
+
+                <p>
+                    <strong>Alunos:</strong>
+                    ${
+                        Array.isArray(aula.alunos)
+                            ? aula.alunos.length
+                            : 0
+                    }
+                </p>
+
+                <p>
+                    ${alunosTexto}
+                </p>
+
+                <button
+                    type="button"
+                    class="editLessonButton"
+                    data-id="${aula.id}"
+                >
+                    👨‍🎓 Abrir Aula / Alunos
+                </button>
+
+                <button
+                    type="button"
+                    class="deleteLessonButton danger-button"
+                    data-id="${aula.id}"
+                >
+                    🗑️ Apagar Aula
+                </button>
+
+            `;
+
+
+            lista.appendChild(card);
+
+        });
 
 
     adicionarEventosDasAulas();
@@ -2845,2838 +939,863 @@ function mostrarAulas() {
 }
 
 
-// ============================================
+// ======================================================
 // EVENTOS DAS AULAS
-// ============================================
+// ======================================================
 
 function adicionarEventosDasAulas() {
 
-
-    // ========================================
-    // APAGAR AULA
-    // ========================================
-
     document
-        .querySelectorAll(
-            ".deleteLessonButton"
-        )
-        .forEach(
-            function (botao) {
+        .querySelectorAll(".editLessonButton")
+        .forEach(function (button) {
 
-                botao.onclick =
-                    async function (event) {
+            button.onclick = function () {
 
-                        event.preventDefault();
+                const id =
+                    this.dataset.id;
 
+                const aula =
+                    aulas.find(function (a) {
 
-                        const id =
-                            this.getAttribute(
-                                "data-id"
-                            );
+                        return a.id === id;
 
+                    });
 
-                        const aula =
-                            aulas.find(
-                                function (a) {
-
-                                    return (
-                                        a.id === id
-                                    );
-
-                                }
-                            );
-
-
-                        if (!aula) {
-
-                            mostrarNotificacao(
-                                "Aula não encontrada.",
-                                "erro"
-                            );
-
-                            return;
-                        }
-
-
-                        if (
-                            !confirm(
-                                "Pretendes apagar esta aula?"
-                            )
-                        ) {
-
-                            return;
-                        }
-
-
-                        try {
-
-                            // =========================
-                            // DEVOLVER AULA AOS ALUNOS
-                            // =========================
-
-                            for (
-                                const numero
-                                of (
-                                    aula.alunos ||
-                                    []
-                                )
-                            ) {
-
-                                const aluno =
-                                    alunos.find(
-                                        function (a) {
-
-                                            return (
-                                                String(
-                                                    a.numero
-                                                ) ===
-                                                String(
-                                                    numero
-                                                )
-                                            );
-
-                                        }
-                                    );
-
-
-                                if (!aluno) {
-                                    continue;
-                                }
-
-
-                                const novoHistorico =
-                                    (
-                                        aluno.historicoAulas ||
-                                        []
-                                    ).filter(
-                                        function (item) {
-
-                                            return (
-                                                String(item) !==
-                                                String(
-                                                    aula.idAula
-                                                )
-                                            );
-
-                                        }
-                                    );
-
-
-                                const novoTotal =
-                                    Math.max(
-                                        Number(
-                                            aluno.aulasRealizadas ||
-                                            0
-                                        ) - 1,
-                                        0
-                                    );
-
-
-                                await updateDoc(
-                                    doc(
-                                        db,
-                                        "alunos",
-                                        aluno.id
-                                    ),
-                                    {
-
-                                        aulasRealizadas:
-                                            novoTotal,
-
-                                        historicoAulas:
-                                            novoHistorico
-
-                                    }
-                                );
-
-                            }
-
-
-                            // =========================
-                            // APAGAR AULA
-                            // =========================
-
-                            await deleteDoc(
-                                doc(
-                                    db,
-                                    "aulas",
-                                    id
-                                )
-                            );
-
-
-                            if (
-                                aulaEmEdicao &&
-                                aulaEmEdicao.id === id
-                            ) {
-
-                                aulaEmEdicao =
-                                    null;
-
-                                alunosDaAula =
-                                    [];
-
-                            }
-
-
-                            mostrarNotificacao(
-                                "Aula apagada com sucesso ✅"
-                            );
-
-
-                            mostrarAulas();
-
-                            renderizarCalendario();
-
-                            atualizarDashboard();
-
-                        }
-
-                        catch (erro) {
-
-                            console.error(
-                                "Erro ao apagar aula:",
-                                erro
-                            );
-
-
-                            mostrarNotificacao(
-                                "Erro ao apagar aula: " +
-                                (
-                                    erro.message ||
-                                    erro
-                                ),
-                                "erro"
-                            );
-
-                        }
-
-                    };
-
-            }
-        );
-
-    // ========================================
-// ABRIR AULA
-// ========================================
-
-document
-    .querySelectorAll(
-        ".editLessonButton"
-    )
-    .forEach(
-        function (botao) {
-
-            botao.onclick =
-                function (event) {
-
-                    event.preventDefault();
-
-
-                    const id =
-                        this.getAttribute(
-                            "data-id"
-                        );
-
-
-                    const aula =
-                        aulas.find(
-                            function (a) {
-
-                                return (
-                                    a.id === id
-                                );
-
-                            }
-                        );
-
-
-                    if (!aula) {
-
-                        mostrarNotificacao(
-                            "Aula não encontrada.",
-                            "erro"
-                        );
-
-                        return;
-                    }
-
-
-                    abrirAula(
-                        aula
-                    );
-
-                };
-
-        }
-    );
-
-}
-
-
-// ============================================
-// QR CODE
-// ============================================
-
-const scanButton =
-    document.getElementById(
-        "scanQRCodeButton"
-    );
-
-
-if (scanButton) {
-
-    scanButton.addEventListener(
-        "click",
-        function () {
-
-            const reader =
-                document.getElementById(
-                    "reader"
-                );
-
-
-            if (!reader) {
-
-                mostrarNotificacao(
-                    "Leitor QR Code não encontrado.",
-                    "erro"
-                );
-
-                return;
-            }
-
-
-            if (
-                typeof Html5Qrcode ===
-                "undefined"
-            ) {
-
-                mostrarNotificacao(
-                    "O leitor QR Code não está disponível.",
-                    "erro"
-                );
-
-                return;
-            }
-
-
-            reader.style.display =
-                "block";
-
-
-            const html5QrCode =
-                new Html5Qrcode(
-                    "reader"
-                );
-
-
-            html5QrCode.start(
-
-                {
-                    facingMode:
-                        "environment"
-                },
-
-                {
-                    fps: 10,
-                    qrbox: 250
-                },
-
-                function (decodedText) {
-
-                    const codigo =
-                        String(
-                            decodedText || ""
-                        ).trim();
-
-
-                    html5QrCode
-                        .stop()
-                        .then(
-                            function () {
-
-                                reader.style.display =
-                                    "none";
-
-                            }
-                        )
-                        .catch(
-                            function () {
-
-                                reader.style.display =
-                                    "none";
-
-                            }
-                        );
-
-
-                    const aluno =
-                        alunos.find(
-                            function (a) {
-
-                                return (
-
-                                    String(
-                                        a.idAluno || ""
-                                    ) ===
-                                    codigo ||
-
-                                    String(
-                                        a.id || ""
-                                    ) ===
-                                    codigo ||
-
-                                    String(
-                                        a.numero || ""
-                                    ) ===
-                                    codigo ||
-
-                                    String(
-                                        a.qrCode || ""
-                                    ) ===
-                                    codigo
-
-                                );
-
-                            }
-                        );
-
-
-                    if (!aluno) {
-
-                        mostrarNotificacao(
-                            "Aluno não encontrado.",
-                            "erro"
-                        );
-
-                        return;
-                    }
-
-
-                    const existe =
-                        alunosDaAula.some(
-                            function (a) {
-
-                                return (
-                                    String(a.id) ===
-                                    String(aluno.id)
-                                );
-
-                            }
-                        );
-
-
-                    if (existe) {
-
-                        mostrarNotificacao(
-                            "Este aluno já foi adicionado.",
-                            "erro"
-                        );
-
-                        return;
-                    }
-
-
-                    alunosDaAula.push(
-                        aluno
-                    );
-
-
-                    atualizarListaDaAula();
-
-
-                    mostrarNotificacao(
-                        "Aluno adicionado: " +
-                        (
-                            aluno.nome ||
-                            aluno.numero
-                        )
-                    );
-
-                },
-
-                function () {
-
-                    // Erros de leitura
-                    // são ignorados.
-
+                if (aula) {
+                    abrirAula(aula);
                 }
 
-            )
-            .catch(
-                function (erro) {
-
-                    console.error(
-                        "Erro QR Code:",
-                        erro
-                    );
-
-
-                    reader.style.display =
-                        "none";
-
-
-                    mostrarNotificacao(
-                        "Não foi possível abrir a câmara.",
-                        "erro"
-                    );
-
-                }
-            );
-
-        }
-    );
-
-}
-
-
-// ============================================
-// MENU / PÁGINAS
-// ============================================
-
-function mostrarPagina(
-    pagina
-) {
-
-    const paginas = [
-
-        "homePage",
-        "studentsPage",
-        "lessonsPage",
-        "calendarPage",
-        "reportsPage"
-
-    ];
-
-
-    paginas.forEach(
-        function (id) {
-
-            const elemento =
-                document.getElementById(
-                    id
-                );
-
-
-            if (!elemento) {
-                return;
-            }
-
-
-            elemento.style.display =
-                id === pagina
-                    ? "block"
-                    : "none";
-
-        }
-    );
-
-}
-
-
-// ============================================
-// MENU / NAVEGAÇÃO
-// ============================================
-
-function configurarMenu() {
-
-    const homeMenu =
-        document.getElementById("homeMenu");
-
-    const studentsMenu =
-        document.getElementById("studentsMenu");
-
-    const lessonsMenu =
-        document.getElementById("lessonsMenu");
-
-    const calendarMenu =
-        document.getElementById("calendarMenu");
-
-    const reportsMenu =
-        document.getElementById("reportsMenu");
-
-
-    if (homeMenu) {
-
-        homeMenu.onclick = function () {
-
-            mostrarPagina("homePage");
-
-            atualizarDashboard();
-
-        };
-
-    }
-
-
-    if (studentsMenu) {
-
-        studentsMenu.onclick = function () {
-
-            mostrarPagina("studentsPage");
-
-            mostrarAlunos();
-
-        };
-
-    }
-
-
-    if (lessonsMenu) {
-
-        lessonsMenu.onclick = function () {
-
-            mostrarPagina("lessonsPage");
-
-            mostrarAulas();
-
-        };
-
-    }
-
-
-    if (calendarMenu) {
-
-        calendarMenu.onclick = function () {
-
-            mostrarPagina("calendarPage");
-
-            renderizarCalendario();
-
-        };
-
-    }
-
-
-    if (reportsMenu) {
-
-        reportsMenu.onclick = function () {
-
-            mostrarPagina("reportsPage");
-
-        };
-
-    }
-
-}
-
-
-// ============================================
-// ATIVAR MENU
-// ============================================
-
-if (document.readyState === "loading") {
-
-    document.addEventListener(
-        "DOMContentLoaded",
-        configurarMenu
-    );
-
-} else {
-
-    configurarMenu();
-
-}
-
-// ============================================
-// CALENDÁRIO
-// ============================================
-
-// ============================================
-// ADICIONAR NOVO MÊS
-// ============================================
-
-const addMonthButton =
-    document.getElementById(
-        "addMonthButton"
-    );
-
-
-if (addMonthButton) {
-
-    addMonthButton.addEventListener(
-        "click",
-        async function (event) {
-
-            event.preventDefault();
-
-
-            const nomeMes =
-                prompt(
-                    "Introduz o mês e o ano.\n\nExemplo: Agosto 2026"
-                );
-
-
-            if (!nomeMes) {
-                return;
-            }
-
-
-            const nomeMesLimpo =
-                nomeMes.trim();
-
-
-            if (
-                nomeMesLimpo === ""
-            ) {
-
-                return;
-
-            }
-
-
-            try {
-
-                await addDoc(
-                    collection(
-                        db,
-                        "calendarioMeses"
-                    ),
-                    {
-
-                        nome:
-                            nomeMesLimpo,
-
-                        criadoEm:
-                            new Date()
-                                .toISOString()
-
-                    }
-                );
-
-
-                mostrarNotificacao(
-                    "Mês adicionado com sucesso ✅"
-                );
-
-            }
-
-            catch (erro) {
-
-                console.error(
-                    "Erro ao guardar mês:",
-                    erro
-                );
-
-
-                mostrarNotificacao(
-                    "Erro ao guardar mês: " +
-                    (
-                        erro.message ||
-                        erro
-                    ),
-                    "erro"
-                );
-
-            }
-
-        }
-    );
-
-}
-
-
-// ============================================
-// LER MESES
-// ============================================
-
-onSnapshot(
-    collection(
-        db,
-        "calendarioMeses"
-    ),
-
-    function (snapshot) {
-
-        mesesCalendario = [];
-
-
-        snapshot.forEach(
-            function (documento) {
-
-                mesesCalendario.push({
-
-                    id:
-                        documento.id,
-
-                    ...documento.data()
-
-                });
-
-            }
-        );
-
-
-        renderizarCalendario();
-
-    },
-
-    function (erro) {
-
-        console.error(
-            "Erro ao carregar meses:",
-            erro
-        );
-
-
-        mostrarNotificacao(
-            "Erro ao carregar meses: " +
-            (
-                erro.message ||
-                erro
-            ),
-            "erro"
-        );
-
-    }
-);
-
-
-// ============================================
-// LER DIAS FECHADOS
-// ============================================
-
-onSnapshot(
-    collection(
-        db,
-        "diasFechados"
-    ),
-
-    function (snapshot) {
-
-        diasFechados = [];
-
-
-        snapshot.forEach(
-            function (documento) {
-
-                diasFechados.push({
-
-                    id:
-                        documento.id,
-
-                    ...documento.data()
-
-                });
-
-            }
-        );
-
-
-        renderizarCalendario();
-
-    },
-
-    function (erro) {
-
-        console.error(
-            "Erro ao carregar dias fechados:",
-            erro
-        );
-
-
-        mostrarNotificacao(
-            "Erro ao carregar dias fechados: " +
-            (
-                erro.message ||
-                erro
-            ),
-            "erro"
-        );
-
-    }
-);
-
-
-// ============================================
-// PÁSCOA
-// ============================================
-
-function calcularPascoa(
-    ano
-) {
-
-    const a =
-        ano % 19;
-
-
-    const b =
-        Math.floor(
-            ano / 100
-        );
-
-
-    const c =
-        ano % 100;
-
-
-    const d =
-        Math.floor(
-            b / 4
-        );
-
-
-    const e =
-        b % 4;
-
-
-    const f =
-        Math.floor(
-            (b + 8) / 25
-        );
-
-
-    const g =
-        Math.floor(
-            (b - f + 1) / 3
-        );
-
-
-    const h =
-        (
-            19 * a +
-            b -
-            d -
-            g +
-            15
-        ) % 30;
-
-
-    const i =
-        Math.floor(
-            c / 4
-        );
-
-
-    const k =
-        c % 4;
-
-
-    const l =
-        (
-            32 +
-            2 * e +
-            2 * i -
-            h -
-            k
-        ) % 7;
-
-
-    const m =
-        Math.floor(
-            (
-                a +
-                11 * h +
-                22 * l
-            ) / 451
-        );
-
-
-    const mes =
-        Math.floor(
-            (
-                h +
-                l -
-                7 * m +
-                114
-            ) / 31
-        );
-
-
-    const dia =
-        (
-            (
-                h +
-                l -
-                7 * m +
-                114
-            ) % 31
-        ) + 1;
-
-
-    return new Date(
-        ano,
-        mes - 1,
-        dia
-    );
-
-}
-
-
-// ============================================
-// FERIADOS
-// ============================================
-
-function obterFeriados(
-    ano
-) {
-
-    const feriados = [];
-
-
-    function adicionar(
-        data,
-        nome
-    ) {
-
-        feriados.push({
-
-            data:
-                data,
-
-            nome:
-                nome
+            };
 
         });
 
-    }
 
+    document
+        .querySelectorAll(".deleteLessonButton")
+        .forEach(function (button) {
 
-    adicionar(
-        new Date(
-            ano,
-            0,
-            1
-        ),
-        "Ano Novo"
-    );
+            button.onclick = async function () {
 
+                const id =
+                    this.dataset.id;
 
-    adicionar(
-        new Date(
-            ano,
-            3,
-            25
-        ),
-        "Dia da Liberdade"
-    );
+                const aula =
+                    aulas.find(function (a) {
 
+                        return a.id === id;
 
-    adicionar(
-        new Date(
-            ano,
-            4,
-            1
-        ),
-        "Dia do Trabalhador"
-    );
+                    });
 
-
-    adicionar(
-        new Date(
-            ano,
-            5,
-            10
-        ),
-        "Dia de Portugal"
-    );
-
-
-    adicionar(
-        new Date(
-            ano,
-            5,
-            13
-        ),
-        "Santo António — Lisboa"
-    );
-
-
-    adicionar(
-        new Date(
-            ano,
-            9,
-            5
-        ),
-        "Implantação da República"
-    );
-
-
-    adicionar(
-        new Date(
-            ano,
-            10,
-            1
-        ),
-        "Dia de Todos os Santos"
-    );
-
-
-    adicionar(
-        new Date(
-            ano,
-            11,
-            1
-        ),
-        "Restauração da Independência"
-    );
-
-
-    adicionar(
-        new Date(
-            ano,
-            11,
-            8
-        ),
-        "Imaculada Conceição"
-    );
-
-
-    adicionar(
-        new Date(
-            ano,
-            11,
-            25
-        ),
-        "Natal"
-    );
-
-
-    const pascoa =
-        calcularPascoa(
-            ano
-        );
-
-
-    const sexta =
-        new Date(
-            pascoa
-        );
-
-
-    sexta.setDate(
-        sexta.getDate() - 2
-    );
-
-
-    adicionar(
-        sexta,
-        "Sexta-feira Santa"
-    );
-
-
-    adicionar(
-        new Date(
-            pascoa
-        ),
-        "Páscoa"
-    );
-
-
-    const corpo =
-        new Date(
-            pascoa
-        );
-
-
-    corpo.setDate(
-        corpo.getDate() + 60
-    );
-
-
-    adicionar(
-        corpo,
-        "Corpo de Deus"
-    );
-
-
-    return feriados;
-
-}
-
-
-// ============================================
-// OBTER FERIADO
-// ============================================
-
-function obterFeriado(
-    data,
-    feriados
-) {
-
-    return feriados.find(
-        function (feriado) {
-
-            return (
-
-                feriado.data.getFullYear() ===
-                data.getFullYear() &&
-
-                feriado.data.getMonth() ===
-                data.getMonth() &&
-
-                feriado.data.getDate() ===
-                data.getDate()
-
-            );
-
-        }
-    );
-
-}
-
-
-// ============================================
-// DATA YYYY-MM-DD
-// ============================================
-
-function obterDataString(
-    ano,
-    mes,
-    dia
-) {
-
-    return (
-
-        ano +
-        "-" +
-        String(
-            mes + 1
-        ).padStart(
-            2,
-            "0"
-        ) +
-        "-" +
-        String(
-            dia
-        ).padStart(
-            2,
-            "0"
-        )
-
-    );
-
-}
-
-
-// ============================================
-// DIA FECHADO
-// ============================================
-
-function obterDiaFechado(
-    dataString
-) {
-
-    return diasFechados.find(
-        function (dia) {
-
-            return (
-                dia.id ===
-                dataString
-            );
-
-        }
-    );
-
-}
-
-
-// ============================================
-// MENU DO DIA
-// ============================================
-
-function mostrarMenuDoDia(
-    cabecalho
-) {
-
-    const menuAnterior =
-        document.querySelector(
-            ".calendar-day-menu"
-        );
-
-
-    if (menuAnterior) {
-
-        menuAnterior.remove();
-
-    }
-
-
-    const dataString =
-        cabecalho.getAttribute(
-            "data-date"
-        );
-
-
-    const feriado =
-        cabecalho.getAttribute(
-            "data-holiday"
-        );
-
-
-    if (
-        feriado ===
-        "true"
-    ) {
-
-        mostrarNotificacao(
-            "Este dia está bloqueado por ser feriado.",
-            "erro"
-        );
-
-        return;
-    }
-
-
-    const diaFechado =
-        obterDiaFechado(
-            dataString
-        );
-
-
-    const menu =
-        document.createElement(
-            "div"
-        );
-
-
-    menu.className =
-        "calendar-day-menu";
-
-
-    menu.style.position =
-        "fixed";
-
-    menu.style.zIndex =
-        "10000";
-
-    menu.style.background =
-        "#ffffff";
-
-    menu.style.border =
-        "2px solid #111111";
-
-    menu.style.borderRadius =
-        "10px";
-
-    menu.style.padding =
-        "10px";
-
-    menu.style.boxShadow =
-        "0 5px 20px rgba(0,0,0,0.25)";
-
-
-    const botao =
-        document.createElement(
-            "button"
-        );
-
-
-    botao.type =
-        "button";
-
-
-    botao.innerHTML =
-        diaFechado
-            ? "🔓 Reabrir dia"
-            : "🔒 Fechar dia inteiro";
-
-
-    botao.style.display =
-        "block";
-
-    botao.style.width =
-        "100%";
-
-    botao.style.padding =
-        "10px 14px";
-
-    botao.style.border =
-        "none";
-
-    botao.style.borderRadius =
-        "8px";
-
-    botao.style.background =
-        "#FFD500";
-
-    botao.style.color =
-        "#111111";
-
-    botao.style.fontWeight =
-        "bold";
-
-    botao.style.cursor =
-        "pointer";
-
-
-    botao.onclick =
-        async function () {
-
-            menu.remove();
-
-
-            if (diaFechado) {
+                if (!aula) {
+                    return;
+                }
 
                 if (
                     !confirm(
-                        "Queres reabrir este dia?"
+                        "Pretendes apagar esta aula?"
                     )
                 ) {
-
                     return;
-
                 }
-
 
                 try {
 
                     await deleteDoc(
-                        doc(
-                            db,
-                            "diasFechados",
-                            dataString
-                        )
+                        doc(db, "aulas", id)
                     );
 
+                    const indice =
+                        aulas.findIndex(function (a) {
+
+                            return a.id === id;
+
+                        });
+
+                    if (indice !== -1) {
+                        aulas.splice(indice, 1);
+                    }
+
+                    mostrarAulas();
+                    renderizarCalendario();
+                    atualizarDashboard();
 
                     mostrarNotificacao(
-                        "Dia reaberto com sucesso ✅"
+                        "Aula apagada com sucesso ✅"
                     );
 
                 }
 
                 catch (erro) {
 
-                    console.error(
-                        "Erro ao reabrir o dia:",
-                        erro
-                    );
-
+                    console.error(erro);
 
                     mostrarNotificacao(
-                        "Erro ao reabrir o dia: " +
-                        (
-                            erro.message ||
-                            erro
-                        ),
+                        "Erro ao apagar aula.",
                         "erro"
                     );
 
                 }
 
+            };
 
-                return;
-            }
-
-
-            if (
-                !confirm(
-                    "Queres fechar este dia inteiro?\n\nNão será possível criar aulas neste dia."
-                )
-            ) {
-
-                return;
-            }
-
-
-            try {
-
-                await setDoc(
-                    doc(
-                        db,
-                        "diasFechados",
-                        dataString
-                    ),
-                    {
-
-                        data:
-                            dataString,
-
-                        tipo:
-                            "FECHADO",
-
-                        criadoEm:
-                            new Date()
-                                .toISOString()
-
-                    }
-                );
-
-
-                mostrarNotificacao(
-                    "Dia fechado com sucesso 🔒"
-                );
-
-            }
-
-            catch (erro) {
-
-                console.error(
-                    "Erro ao fechar o dia:",
-                    erro
-                );
-
-
-                mostrarNotificacao(
-                    "Erro ao fechar o dia: " +
-                    (
-                        erro.message ||
-                        erro
-                    ),
-                    "erro"
-                );
-
-            }
-
-        };
-
-
-    menu.appendChild(
-        botao
-    );
-
-
-    document.body.appendChild(
-        menu
-    );
-
-
-    const rect =
-        cabecalho.getBoundingClientRect();
-
-
-    let left =
-        rect.left;
-
-
-    let top =
-        rect.bottom + 5;
-
-
-    if (
-        left + 220 >
-        window.innerWidth
-    ) {
-
-        left =
-            window.innerWidth - 230;
-
-    }
-
-
-    menu.style.left =
-        Math.max(
-            left,
-            5
-        ) + "px";
-
-
-    menu.style.top =
-        top + "px";
-
-
-    setTimeout(
-        function () {
-
-            function fecharMenu(
-                event
-            ) {
-
-                if (
-                    !menu.contains(
-                        event.target
-                    ) &&
-                    event.target !==
-                        cabecalho
-                ) {
-
-                    menu.remove();
-
-                    document.removeEventListener(
-                        "click",
-                        fecharMenu
-                    );
-
-                }
-
-            }
-
-
-            document.addEventListener(
-                "click",
-                fecharMenu
-            );
-
-        },
-        0
-    );
+        });
 
 }
 
 
-// ============================================
-// CRIAR AULA DIRETAMENTE PELO CALENDÁRIO
-// ============================================
+// ======================================================
+// ABRIR AULA
+// ======================================================
 
-async function criarAulaPeloCalendario(
-    data,
-    hora
-) {
+function abrirAula(aula) {
 
-    // ========================================
-    // VERIFICAR SE JÁ EXISTE
-    // ========================================
-
-    const existe =
-        aulas.find(
-            function (aula) {
-
-                return (
-                    aula.data === data &&
-                    aula.hora === hora
-                );
-
-            }
-        );
-
-
-    if (existe) {
-
-        abrirAula(
-            existe
-        );
-
+    if (!aula) {
         return;
     }
 
 
-    // ========================================
-    // PEDIR NÚMERO DA AULA
-    // ========================================
+    aulaEmEdicao = aula;
 
-    const idAula =
-        prompt(
-            "N.º da aula:\n\nExemplo: Aula 1"
-        );
+    alunosDaAula = [];
 
 
-    if (!idAula) {
-        return;
-    }
+    (aula.alunos || []).forEach(function (numero) {
+
+        const aluno =
+            alunos.find(function (a) {
+
+                return String(a.numero) ===
+                       String(numero);
+
+            });
+
+        if (aluno) {
+            alunosDaAula.push(aluno);
+        }
+
+    });
 
 
-    const idAulaLimpo =
-        idAula.trim();
+    const original =
+        $("saveLesson");
 
-
-    if (
-        idAulaLimpo === ""
-    ) {
-
-        return;
-    }
-
-
-    // ========================================
-    // PEDIR MATÉRIA
-    // ========================================
-
-    const materia =
-        prompt(
-            "Matéria da aula:"
-        );
-
-
-    if (!materia) {
-        return;
-    }
-
-
-    const materiaLimpa =
-        materia.trim();
-
-
-    if (
-        materiaLimpa === ""
-    ) {
-
-        return;
-    }
-
-
-    // ========================================
-    // CRIAR AULA
-    // ========================================
-
-    try {
-
-        const dadosNovaAula = {
-
-            idAula:
-                idAulaLimpo,
-
-            materia:
-                materiaLimpa,
-
-            data:
-                data,
-
-            hora:
-                hora,
-
-            alunos:
-                [],
-
-            criadaEm:
-                new Date()
-                    .toISOString()
-
-        };
-
-
-        const novaAula =
-            await addDoc(
-                collection(
-                    db,
-                    "aulas"
-                ),
-                dadosNovaAula
-            );
-
-
-        const aulaCriada = {
-
-            id:
-                novaAula.id,
-
-            ...dadosNovaAula
-
-        };
-        
-        // =====================================
-        // ATUALIZAR LISTA LOCAL
-        // =====================================
-
-        aulas.push(
-            aulaCriada
-        );
-
+    if (!original) {
 
         mostrarNotificacao(
-            "Aula criada no calendário ✅"
-        );
-
-
-        // =====================================
-        // ABRIR AULA
-        // =====================================
-
-        abrirAula(
-            aulaCriada
-        );
-
-    }
-
-    catch (erro) {
-
-        console.error(
-            "Erro ao criar aula:",
-            erro
-        );
-
-
-        mostrarNotificacao(
-            "Erro ao criar aula: " +
-            erro.message,
+            "Formulário da aula não encontrado.",
             "erro"
         );
 
-    }
-
-}
-
-
-// ============================================
-// RENDERIZAR CALENDÁRIO
-// ============================================
-
-function renderizarCalendario() {
-
-    const monthsContainer =
-        document.getElementById(
-            "monthsContainer"
-        );
-
-
-    if (!monthsContainer) {
         return;
     }
 
 
-    if (
-        mesesCalendario.length === 0
-    ) {
+    const section =
+        original.closest(".section");
 
-        monthsContainer.innerHTML = `
-
-            <div class="calendar-empty">
-
-                📅
-
-                <p>
-                    Ainda não existe nenhum mês.
-                </p>
-
-                <p>
-                    Clica em
-                    <strong>
-                        ➕ Adicionar novo mês
-                    </strong>
-                    para começar.
-                </p>
-
-            </div>
-
-        `;
-
+    if (!section) {
         return;
     }
 
 
-    const horarios = [
+    const overlay =
+        document.createElement("div");
 
-        "09:00",
-        "10:00",
-        "11:00",
-        "12:00",
-        "13:00",
-        "17:00",
-        "18:00",
-        "19:00",
-        "20:00"
+    overlay.className =
+        "lesson-editor-overlay";
 
-    ];
 
+    const modal =
+        document.createElement("div");
 
-    const nomesMeses = [
+    modal.className =
+        "lesson-editor-modal";
 
-        "janeiro",
-        "fevereiro",
-        "março",
-        "abril",
-        "maio",
-        "junho",
-        "julho",
-        "agosto",
-        "setembro",
-        "outubro",
-        "novembro",
-        "dezembro"
 
-    ];
+    const close =
+        document.createElement("button");
 
+    close.type = "button";
+    close.innerHTML = "×";
+    close.className = "close-lesson-editor";
 
-    let html =
-        "";
 
+    const content =
+        section.cloneNode(true);
 
-    mesesCalendario.forEach(
-        function (mes) {
 
-            const partes =
-                String(
-                    mes.nome || ""
-                )
-                .trim()
-                .split(/\s+/);
+    /*
+     * IMPORTANTE:
+     * NÃO removemos os IDs.
+     * Os botões precisam deles.
+     */
 
 
-            const nomeMesTexto =
-                partes[0];
+    const title =
+        content.querySelector("h2");
 
+    if (title) {
+        title.innerHTML =
+            "📚 Editar Aula";
+    }
 
-            const ano =
-                parseInt(
-                    partes[1],
-                    10
-                );
 
+    modal.appendChild(close);
+    modal.appendChild(content);
 
-            const mesNumero =
-                nomesMeses.indexOf(
-                    String(
-                        nomeMesTexto || ""
-                    ).toLowerCase()
-                );
+    overlay.appendChild(modal);
 
+    document.body.appendChild(overlay);
 
-            if (
-                mesNumero === -1 ||
-                isNaN(ano)
-            ) {
 
-                html += `
-
-                    <div class="calendar-month">
-
-                        <h3>
-                            📅 ${mes.nome || ""}
-                        </h3>
-
-                        <p>
-                            Não foi possível interpretar
-                            o mês e o ano.
-                        </p>
-
-                    </div>
-
-                `;
-
-                return;
-            }
-
-
-            const ultimoDia =
-                new Date(
-                    ano,
-                    mesNumero + 1,
-                    0
-                ).getDate();
-
-
-            const feriados =
-                obterFeriados(
-                    ano
-                );
-
-
-            const diasUteis =
-                [];
-
-
-            for (
-                let dia = 1;
-                dia <= ultimoDia;
-                dia++
-            ) {
-
-                const data =
-                    new Date(
-                        ano,
-                        mesNumero,
-                        dia
-                    );
-
-
-                const diaSemana =
-                    data.getDay();
-
-
-                // Domingo não aparece
-
-                if (
-                    diaSemana === 0
-                ) {
-
-                    continue;
-
-                }
-
-
-                diasUteis.push({
-
-                    numero:
-                        dia,
-
-                    data:
-                        data,
-
-                    diaSemana:
-                        diaSemana,
-
-                    dataString:
-                        obterDataString(
-                            ano,
-                            mesNumero,
-                            dia
-                        ),
-
-                    feriado:
-                        obterFeriado(
-                            data,
-                            feriados
-                        )
-
-                });
-
-            }
-
-
-            html += `
-
-                <div
-                    class="calendar-month"
-                    data-month-id="${mes.id}"
-                >
-
-                    <h3>
-                        📅 ${mes.nome}
-                    </h3>
-
-                    <div class="calendar-scroll">
-
-                        <div class="calendar-table">
-
-                            <div class="calendar-header">
-
-                                <div class="calendar-time-header">
-                                    HORÁRIO
-                                </div>
-
-            `;
-
-
-            diasUteis.forEach(
-                function (dia) {
-
-                    let classe =
-                        "calendar-day-header";
-
-
-                    const fechado =
-                        obterDiaFechado(
-                            dia.dataString
-                        );
-
-
-                    if (
-                        dia.feriado
-                    ) {
-
-                        classe +=
-                            " holiday";
-
-                    }
-
-                    else if (
-                        fechado
-                    ) {
-
-                        classe +=
-                            " closed-day";
-
-                    }
-
-
-                    html += `
-
-                        <div
-                            class="${classe}"
-                            data-date="${dia.dataString}"
-                            data-holiday="${
-                                dia.feriado
-                                    ? "true"
-                                    : "false"
-                            }"
-                        >
-
-                            <strong>
-                                ${dia.numero}
-                            </strong>
-
-                            <span>
-
-                                ${
-                                    [
-                                        "",
-                                        "Seg",
-                                        "Ter",
-                                        "Qua",
-                                        "Qui",
-                                        "Sex",
-                                        "Sáb"
-                                    ][
-                                        dia.diaSemana
-                                    ]
-                                }
-
-                            </span>
-
-                            ${
-                                dia.feriado
-                                    ? `
-                                        <small>
-                                            ${dia.feriado.nome}
-                                        </small>
-                                      `
-                                    :
-                                fechado
-                                    ? `
-                                        <small>
-                                            FECHADO
-                                        </small>
-                                      `
-                                    :
-                                      ""
-                            }
-
-                        </div>
-
-                    `;
-
-                }
-            );
-
-
-            html += `
-
-                            </div>
-
-            `;
-
-
-            horarios.forEach(
-                function (horario) {
-
-                    if (
-                        horario ===
-                        "17:00"
-                    ) {
-
-                        html += `
-
-                            <div class="calendar-break">
-
-                                <span>
-                                    INTERVALO
-                                </span>
-
-                            </div>
-
-                        `;
-
-                    }
-
-
-                    html += `
-
-                        <div class="calendar-row">
-
-                            <div class="calendar-time">
-                                ${horario}
-                            </div>
-
-                    `;
-
-
-                    diasUteis.forEach(
-                        function (dia) {
-
-                            const diaFechado =
-                                obterDiaFechado(
-                                    dia.dataString
-                                );
-
-
-                            // =================================
-                            // FERIADO
-                            // =================================
-
-                            if (
-                                dia.feriado
-                            ) {
-
-                                html += `
-
-                                    <div
-                                        class="calendar-cell holiday"
-                                        data-date="${dia.dataString}"
-                                        data-time="${horario}"
-                                        data-blocked="holiday"
-                                        title="${dia.feriado.nome}"
-                                    >
-
-                                        ⬛
-
-                                    </div>
-
-                                `;
-
-                                return;
-                            }
-
-
-                            // =================================
-                            // FECHADO
-                            // =================================
-
-                            if (
-                                diaFechado
-                            ) {
-
-                                html += `
-
-                                    <div
-                                        class="calendar-cell closed-day"
-                                        data-date="${dia.dataString}"
-                                        data-time="${horario}"
-                                        data-blocked="closed"
-                                        title="Dia fechado"
-                                    >
-
-                                        🔒
-
-                                    </div>
-
-                                `;
-
-                                return;
-                            }
-
-
-                            // =================================
-                            // PROCURAR AULA
-                            // =================================
-
-                            const aulaEncontrada =
-                                aulas.find(
-                                    function (aula) {
-
-                                        return (
-
-                                            aula.data ===
-                                            dia.dataString &&
-
-                                            aula.hora ===
-                                            horario
-
-                                        );
-
-                                    }
-                                );
-
-
-                            // =================================
-                            // EXISTE AULA
-                            // =================================
-
-                            if (
-                                aulaEncontrada
-                            ) {
-
-                                const numeroAlunos =
-                                    (
-                                        aulaEncontrada.alunos ||
-                                        []
-                                    ).length;
-
-
-                                html += `
-
-                                    <div
-                                        class="
-                                            calendar-cell
-                                            lesson-cell
-                                            lesson-verde
-                                        "
-                                        data-date="${dia.dataString}"
-                                        data-time="${horario}"
-                                        data-lesson-id="${aulaEncontrada.id}"
-                                    >
-
-                                        <div class="lesson-number">
-
-                                            ${
-                                                aulaEncontrada.idAula ||
-                                                "Aula"
-                                            }
-
-                                        </div>
-
-                                        <div class="lesson-subject">
-
-                                            ${
-                                                aulaEncontrada.materia ||
-                                                ""
-                                            }
-
-                                        </div>
-
-                                        <div
-                                            style="
-                                                font-size:11px;
-                                                margin-top:4px;
-                                            "
-                                        >
-
-                                            👨‍🎓
-                                            ${numeroAlunos}
-                                            ${
-                                                numeroAlunos === 1
-                                                    ? "aluno"
-                                                    : "alunos"
-                                            }
-
-                                        </div>
-
-                                    </div>
-
-                                `;
-
-                            }
-
-                            else {
-
-                                // =================================
-                                // CÉLULA VAZIA
-                                // =================================
-
-                                html += `
-
-                                    <div
-                                        class="calendar-cell empty-lesson-cell"
-                                        data-date="${dia.dataString}"
-                                        data-time="${horario}"
-                                    >
-
-                                        <span>
-                                            +
-                                        </span>
-
-                                    </div>
-
-                                `;
-
-                            }
-
-                        }
-                    );
-
-
-                    html += `
-
-                        </div>
-
-                    `;
-
-                }
-            );
-
-
-            html += `
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            `;
-
-        }
+    preencherEditorAula(
+        overlay,
+        aula
     );
 
 
-    monthsContainer.innerHTML =
-        html;
-
-
-    // ========================================
-    // CABEÇALHOS DOS DIAS
-    // ========================================
-
-    document
-        .querySelectorAll(
-            ".calendar-day-header"
-        )
-        .forEach(
-            function (cabecalho) {
-
-                cabecalho.onclick =
-                    function (event) {
-
-                        event.stopPropagation();
-
-
-                        mostrarMenuDoDia(
-                            this
-                        );
-
-                    };
-
-            }
-        );
-
-
-    // ========================================
-    // CÉLULAS DO CALENDÁRIO
-    // ========================================
-
-    document
-        .querySelectorAll(
-            ".calendar-cell"
-        )
-        .forEach(
-            function (celula) {
-
-                celula.onclick =
-                    async function () {
-
-                        const bloqueado =
-                            this.getAttribute(
-                                "data-blocked"
-                            );
-
-
-                        if (
-                            bloqueado ===
-                            "holiday"
-                        ) {
-
-                            mostrarNotificacao(
-                                "Este dia está bloqueado por feriado.",
-                                "erro"
-                            );
-
-                            return;
-                        }
-
-
-                        if (
-                            bloqueado ===
-                            "closed"
-                        ) {
-
-                            mostrarNotificacao(
-                                "Este dia está fechado. Reabre o dia para criares aulas.",
-                                "erro"
-                            );
-
-                            return;
-                        }
-
-
-                        const data =
-                            this.getAttribute(
-                                "data-date"
-                            );
-
-
-                        const horario =
-                            this.getAttribute(
-                                "data-time"
-                            );
-
-
-                        const lessonId =
-                            this.getAttribute(
-                                "data-lesson-id"
-                            );
-
-
-                        if (
-                            lessonId
-                        ) {
-
-                            const aula =
-                                aulas.find(
-                                    function (a) {
-
-                                        return (
-                                            a.id ===
-                                            lessonId
-                                        );
-
-                                    }
-                                );
-
-
-                            if (aula) {
-
-                                abrirAula(
-                                    aula
-                                );
-
-                            }
-
-                            else {
-
-                                mostrarNotificacao(
-                                    "Aula não encontrada.",
-                                    "erro"
-                                );
-
-                            }
-
-
-                            return;
-                        }
-
-
-                        await criarAulaPeloCalendario(
-                            data,
-                            horario
-                        );
-
-                    };
-
-            }
-        );
-
-}
-
-// ============================================
-// ESTADO DE REPROVAÇÃO
-// ============================================
-
-function mostrarEstadoReprovacao(
-    aluno
-) {
-
-    if (
-        !aluno ||
-        !aluno.ultimaReprovacao
-    ) {
-
-        return "";
-
-    }
-
-
-    let html = `
-
-        <p>
-
-            <strong>
-                Última reprovação:
-            </strong>
-
-            ${formatarData(
-                aluno.ultimaReprovacao
-            )}
-
-        </p>
-
-    `;
-
-
-    const aulasFeitas =
-        aluno.aulasReprovacaoFeitas || 0;
-
-
-    if (
-        aulasFeitas >= 5
-    ) {
-
-        html += `
-
-            <p
-                style="
-                    color:green;
-                    font-weight:bold;
-                "
-            >
-
-                ✅ Aulas de reprovação
-                concluídas (5/5)
-
-            </p>
-
-        `;
-
-    }
-
-    else {
-
-        html += `
-
-            <p
-                style="
-                    color:#d97706;
-                    font-weight:bold;
-                "
-            >
-
-                📚 Aulas de reprovação:
-
-                ${aulasFeitas}/5
-
-            </p>
-
-        `;
-
-    }
-
-
-    return html;
-
-}
-
-
-// ============================================
-// MODAL EXAME
-// ============================================
-
-const cancelExamResult =
-    document.getElementById(
-        "cancelExamResult"
-    );
-
-
-if (cancelExamResult) {
-
-    cancelExamResult.onclick =
+    close.onclick =
         function () {
 
-            const modal =
-                document.getElementById(
-                    "examModal"
-                );
+            overlay.remove();
+
+            aulaEmEdicao = null;
+            alunosDaAula = [];
+
+        };
 
 
-            if (modal) {
+    overlay.onclick =
+        function (event) {
 
-                modal.style.display =
-                    "none";
+            if (event.target === overlay) {
+
+                overlay.remove();
+
+                aulaEmEdicao = null;
+                alunosDaAula = [];
 
             }
-
-
-            alunoResultadoExame =
-                null;
 
         };
 
 }
 
 
-// ============================================
-// GUARDAR RESULTADO EXAME
-// ============================================
+// ======================================================
+// PREENCHER EDITOR DA AULA
+// ======================================================
 
-const saveExamResult =
-    document.getElementById(
-        "saveExamResult"
+function preencherEditorAula(
+    overlay,
+    aula
+) {
+
+    const id =
+        overlay.querySelector("#lessonId");
+
+    const materia =
+        overlay.querySelector("#lessonSubject");
+
+    const data =
+        overlay.querySelector("#lessonDate");
+
+    const hora =
+        overlay.querySelector("#lessonTime");
+
+
+    if (id) {
+        id.value = aula.idAula || "";
+    }
+
+    if (materia) {
+        materia.value = aula.materia || "";
+    }
+
+    if (data) {
+        data.value = aula.data || "";
+    }
+
+    if (hora) {
+        hora.value = aula.hora || "";
+    }
+
+
+    atualizarListaDaAulaNoEditor(
+        overlay
     );
 
 
-if (saveExamResult) {
-
-    saveExamResult.onclick =
-        async function () {
-
-            if (
-                !alunoResultadoExame
-            ) {
-
-                mostrarNotificacao(
-                    "Nenhum aluno selecionado.",
-                    "erro"
-                );
-
-                return;
-            }
+    configurarBotaoAdicionarAluno(
+        overlay
+    );
 
 
-            const campoData =
-                document.getElementById(
-                    "examDate"
-                );
+    configurarBotaoSelecionarAlunos(
+        overlay
+    );
 
 
-            const campoResultado =
-                document.getElementById(
-                    "examResult"
-                );
+    configurarBotaoAdicionarSelecionados(
+        overlay
+    );
 
 
-            if (
-                !campoData ||
-                !campoResultado
-            ) {
+    configurarBotaoGuardar(
+        overlay
+    );
 
-                mostrarNotificacao(
-                    "Campos do exame não encontrados.",
-                    "erro"
-                );
-
-                return;
-            }
+}
 
 
-            const data =
-                campoData.value;
+// ======================================================
+// LISTA DE ALUNOS DA AULA
+// ======================================================
+
+function atualizarListaDaAulaNoEditor(overlay) {
+
+    const lista =
+        overlay.querySelector("#lessonStudents");
+
+    if (!lista) {
+        return;
+    }
 
 
-            const resultado =
-                campoResultado.value;
+    if (
+        !Array.isArray(alunosDaAula) ||
+        alunosDaAula.length === 0
+    ) {
+
+        lista.innerHTML =
+            "Ainda não existem alunos nesta aula.";
+
+        return;
+    }
 
 
-            if (
-                data === ""
-            ) {
-
-                mostrarNotificacao(
-                    "Seleciona a data do exame.",
-                    "erro"
-                );
-
-                return;
-            }
+    lista.innerHTML = "";
 
 
-            if (
-                resultado === ""
-            ) {
+    alunosDaAula.forEach(function (aluno) {
 
-                mostrarNotificacao(
-                    "Seleciona o resultado do exame.",
-                    "erro"
-                );
+        const div =
+            document.createElement("div");
 
-                return;
-            }
+        div.className =
+            "student-card";
 
+        div.innerHTML =
+            `<strong>${aluno.numero}</strong> - ${aluno.nome}`;
 
-            try {
+        lista.appendChild(div);
 
-                const historico =
-                    [
-                        ...(
-                            alunoResultadoExame
-                                .historicoExames ||
-                            []
-                        )
-                    ];
+    });
+
+}
 
 
-                historico.push({
+// ======================================================
+// ADICIONAR UM ALUNO
+// ======================================================
 
-                    data:
-                        data,
+function configurarBotaoAdicionarAluno(overlay) {
 
-                    resultado:
-                        resultado
+    const button =
+        overlay.querySelector(
+            "#addStudentToLesson"
+        );
+
+    if (!button) {
+        return;
+    }
+
+
+    button.onclick = function (event) {
+
+        event.preventDefault();
+
+
+        const input =
+            overlay.querySelector(
+                "#lessonStudentNumber"
+            );
+
+        if (!input) {
+            return;
+        }
+
+
+        const numero =
+            input.value.trim();
+
+
+        if (!numero) {
+
+            mostrarNotificacao(
+                "Introduz o número do aluno.",
+                "erro"
+            );
+
+            return;
+        }
+
+
+        const aluno =
+            alunos.find(function (a) {
+
+                return String(a.numero) ===
+                       String(numero);
+
+            });
+
+
+        if (!aluno) {
+
+            mostrarNotificacao(
+                "Aluno não encontrado.",
+                "erro"
+            );
+
+            return;
+        }
+
+
+        const existe =
+            alunosDaAula.some(function (a) {
+
+                return String(a.id) ===
+                       String(aluno.id);
+
+            });
+
+
+        if (existe) {
+
+            mostrarNotificacao(
+                "Este aluno já está nesta aula.",
+                "erro"
+            );
+
+            return;
+        }
+
+
+        alunosDaAula.push(aluno);
+
+        input.value = "";
+
+
+        atualizarListaDaAulaNoEditor(
+            overlay
+        );
+
+
+        mostrarNotificacao(
+            "Aluno adicionado: " +
+            aluno.nome
+        );
+
+    };
+
+}
+
+
+// ======================================================
+// SELECIONAR VÁRIOS ALUNOS
+// ======================================================
+
+function configurarBotaoSelecionarAlunos(overlay) {
+
+    const button =
+        overlay.querySelector(
+            "#selectMultipleStudents"
+        );
+
+    if (!button) {
+        return;
+    }
+
+
+    button.onclick = function (event) {
+
+        event.preventDefault();
+
+
+        const caixa =
+            overlay.querySelector(
+                "#multipleStudentsBox"
+            );
+
+        if (!caixa) {
+            return;
+        }
+
+
+        caixa.innerHTML = "";
+
+
+        alunos.forEach(function (aluno) {
+
+            const label =
+                document.createElement("label");
+
+            label.style.display = "block";
+            label.style.padding = "8px";
+
+
+            const checkbox =
+                document.createElement("input");
+
+            checkbox.type = "checkbox";
+            checkbox.value = aluno.numero;
+
+
+            checkbox.checked =
+                alunosDaAula.some(function (a) {
+
+                    return String(a.id) ===
+                           String(aluno.id);
 
                 });
 
 
-                const dadosAtualizar = {
+            label.appendChild(checkbox);
 
-                    estadoExame:
-                        resultado,
-
-                    historicoExames:
-                        historico
-
-                };
-
-
-                // =================================
-                // REPROVADO
-                // =================================
-
-                if (
-                    resultado ===
-                    "Reprovado"
-                ) {
-
-                    dadosAtualizar
-                        .ultimaReprovacao =
-                            data;
+            label.appendChild(
+                document.createTextNode(
+                    " " +
+                    aluno.numero +
+                    " - " +
+                    aluno.nome
+                )
+            );
 
 
-                    dadosAtualizar
-                        .aulasNaUltimaReprovacao =
-                            alunoResultadoExame
-                                .aulasRealizadas ||
-                            0;
+            caixa.appendChild(label);
+
+        });
 
 
-                    dadosAtualizar
-                        .aulasReprovacaoFeitas =
-                            0;
-
-                }
+        caixa.style.display = "block";
 
 
-                // =================================
-                // APROVADO
-                // =================================
+        const add =
+            overlay.querySelector(
+                "#addSelectedStudents"
+            );
 
-                if (
-                    resultado ===
-                    "Aprovado"
-                ) {
+        if (add) {
+            add.style.display =
+                "inline-block";
+        }
 
-                    dadosAtualizar
-                        .ultimaReprovacao =
-                            null;
-
-
-                    dadosAtualizar
-                        .aulasNaUltimaReprovacao =
-                            0;
-
-
-                    dadosAtualizar
-                        .aulasReprovacaoFeitas =
-                            0;
-
-                }
-
-
-                await updateDoc(
-                    doc(
-                        db,
-                        "alunos",
-                        alunoResultadoExame.id
-                    ),
-                    dadosAtualizar
-                );
-
-
-                const modal =
-                    document.getElementById(
-                        "examModal"
-                    );
-
-
-                if (modal) {
-
-                    modal.style.display =
-                        "none";
-
-                }
-
-
-                mostrarNotificacao(
-                    "Resultado do exame guardado com sucesso ✅"
-                );
-
-
-                alunoResultadoExame =
-                    null;
-
-
-                atualizarDashboard();
-
-                mostrarAlunos();
-
-            }
-
-            catch (erro) {
-
-                console.error(
-                    "Erro ao guardar exame:",
-                    erro
-                );
-
-
-                mostrarNotificacao(
-                    "Erro ao guardar: " +
-                    erro.message,
-                    "erro"
-                );
-
-            }
-
-        };
+    };
 
 }
 
+
+// ======================================================
+// ADICIONAR SELECIONADOS
+// ======================================================
+
+function configurarBotaoAdicionarSelecionados(
+    overlay
+) {
+
+    const button =
+        overlay.querySelector(
+            "#addSelectedStudents"
+        );
+
+    if (!button) {
+        return;
+    }
+
+
+    button.onclick = function (event) {
+
+        event.preventDefault();
+
+
+        const caixa =
+            overlay.querySelector(
+                "#multipleStudentsBox"
+            );
+
+        if (!caixa) {
+            return;
+        }
+
+
+        caixa
+            .querySelectorAll(
+                'input[type="checkbox"]:checked'
+            )
+            .forEach(function (checkbox) {
+
+                const aluno =
+                    alunos.find(function (a) {
+
+                        return String(a.numero) ===
+                               String(checkbox.value);
+
+                    });
+
+
+                if (!aluno) {
+                    return;
+                }
+
+
+                const existe =
+                    alunosDaAula.some(function (a) {
+
+                        return String(a.id) ===
+                               String(aluno.id);
+
+                    });
+
+
+                if (!existe) {
+                    alunosDaAula.push(aluno);
+                }
+
+            });
+
+
+        atualizarListaDaAulaNoEditor(
+            overlay
+        );
+
+
+        caixa.style.display =
+            "none";
+
+        button.style.display =
+            "none";
+
+    };
+
+}
+
+
+// ======================================================
+// GUARDAR AULA
+// ======================================================
+
+function configurarBotaoGuardar(overlay) {
+
+    const button =
+        overlay.querySelector(
+            "#saveLesson"
+        );
+
+    if (!button) {
+        return;
+    }
+
+
+    button.onclick = async function (event) {
+
+        event.preventDefault();
+
+
+        if (!aulaEmEdicao) {
+
+            mostrarNotificacao(
+                "Nenhuma aula em edição.",
+                "erro"
+            );
+
+            return;
+        }
+
+
+        const id =
+            overlay.querySelector("#lessonId");
+
+        const materia =
+            overlay.querySelector("#lessonSubject");
+
+        const data =
+            overlay.querySelector("#lessonDate");
+
+        const hora =
+            overlay.querySelector("#lessonTime");
+
+
+        if (!id || !materia || !data || !hora) {
+
+            mostrarNotificacao(
+                "Campos da aula não encontrados.",
+                "erro"
+            );
+
+            return;
+        }
+
+
+        if (
+            !id.value.trim() ||
+            !materia.value.trim() ||
+            !data.value ||
+            !hora.value
+        ) {
+
+            mostrarNotificacao(
+                "Preenche todos os dados da aula.",
+                "erro"
+            );
+
+            return;
+        }
+
+
+        const numeros =
+            alunosDaAula.map(function (aluno) {
+
+                return aluno.numero;
+
+            });
+
+
+        try {
+
+            await updateDoc(
+                doc(
+                    db,
+                    "aulas",
+                    aulaEmEdicao.id
+                ),
+                {
+
+                    idAula:
+                        id.value.trim(),
+
+                    materia:
+                        materia.value.trim(),
+
+                    data:
+                        data.value,
+
+                    hora:
+                        hora.value,
+
+                    alunos:
+                        numeros
+
+                }
+            );
+
+
+            aulaEmEdicao.idAula =
+                id.value.trim();
+
+            aulaEmEdicao.materia =
+                materia.value.trim();
+
+            aulaEmEdicao.data =
+                data.value;
+
+            aulaEmEdicao.hora =
+                hora.value;
+
+            aulaEmEdicao.alunos =
+                numeros;
+
+
+            const indice =
+                aulas.findIndex(function (a) {
+
+                    return a.id ===
+                           aulaEmEdicao.id;
+
+                });
+
+
+            if (indice !== -1) {
+                aulas[indice] =
+                    aulaEmEdicao;
+            }
+
+
+            overlay.remove();
+
+            aulaEmEdicao = null;
+            alunosDaAula = [];
+
+
+            mostrarAulas();
+            renderizarCalendario();
+            atualizarDashboard();
+
+
+            mostrarNotificacao(
+                "Aula guardada com sucesso ✅"
+            );
+
+        }
+
+        catch (erro) {
+
+            console.error(
+                "Erro ao guardar aula:",
+                erro
+            );
+
+            mostrarNotificacao(
+                "Erro ao guardar aula.",
+                "erro"
+            );
+
+        }
+
+    };
+
+}
+
+
+// ======================================================
+// INICIALIZAÇÃO
+// ======================================================
+
+function iniciarAplicacao() {
+
+    iniciarLogin();
+
+    iniciarLogout();
+
+    configurarMenu();
+
+    configurarPesquisa();
+
+    if ($("app")) {
+        $("app").style.display = "none";
+    }
+
+}
+
+
+// ======================================================
+// ARRANCAR
+// ======================================================
+
+if (
+    document.readyState === "loading"
+) {
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        iniciarAplicacao
+    );
+
+}
+else {
+
+    iniciarAplicacao();
+
+}
 
 // ============================================
 // EXPORTAR RELATÓRIO EXCEL
