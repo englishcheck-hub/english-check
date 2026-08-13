@@ -2232,3 +2232,583 @@ if (printActiveStudentsButton) {
     );
 
 }
+
+// ======================================================
+// CALENDÁRIO
+// ======================================================
+
+// MÊS ATUAL DO CALENDÁRIO
+let mesCalendarioAtual = new Date();
+
+
+// ======================================================
+// MATÉRIAS DAS LESSONS
+// ======================================================
+
+const materiasCalendario = {
+
+    "1": "Driver Profile",
+
+    "2": "Driver and Physical/Psychological Fitness",
+
+    "3": "Road Safety and Defensive Driving",
+
+    "4": "Traffic Rules and Road Signs",
+
+    "5/6": "Vehicle and Driver Responsibilities",
+
+    "7": "Driving Licence and Legal Requirements",
+
+    "8": "Road Users",
+
+    "9": "Speed",
+
+    "10": "Safety Distance",
+
+    "11": "Overtaking",
+
+    "12": "Stopping and Parking",
+
+    "13": "Changing Direction",
+
+    "14": "Intersections",
+
+    "15": "Traffic Lights and Signals",
+
+    "16": "Road Signs",
+
+    "17": "Special Manoeuvres",
+
+    "18": "Motorways and Expressways",
+
+    "19": "Night Driving and Adverse Conditions",
+
+    "20": "Pedestrians and Vulnerable Road Users",
+
+    "21": "Emergency Situations",
+
+    "22": "Vehicle Safety",
+
+    "23": "Environmental and Economic Driving",
+
+    "24": "Final Review"
+};
+
+
+// ======================================================
+// OBTER LESSON A PARTIR DO ID
+// ======================================================
+
+function obterNumeroLesson(aula) {
+
+    if (!aula) {
+        return "";
+    }
+
+    let valor =
+        aula.idAula ||
+        aula.lesson ||
+        aula.numeroLesson ||
+        "";
+
+    valor =
+        String(valor)
+            .trim()
+            .toLowerCase();
+
+    // Aceita "Lesson 5", "lesson 5", "5", etc.
+    valor =
+        valor.replace(
+            /^lesson\s*/i,
+            ""
+        );
+
+    // Lessons 5 e 6 são uma só
+    if (
+        valor === "5" ||
+        valor === "6" ||
+        valor === "5/6"
+    ) {
+        return "5/6";
+    }
+
+    return valor;
+}
+
+
+// ======================================================
+// COR DA LESSON
+// ======================================================
+
+function obterClasseLesson(lesson) {
+
+    if (lesson === "24") {
+        return "lesson-red";
+    }
+
+    const numero =
+        parseInt(
+            lesson,
+            10
+        );
+
+    if (
+        !isNaN(numero) &&
+        numero >= 1 &&
+        numero <= 7
+    ) {
+
+        return "lesson-green";
+
+    }
+
+    if (
+        !isNaN(numero) &&
+        numero >= 8 &&
+        numero <= 23
+    ) {
+
+        return "lesson-yellow";
+
+    }
+
+    // 5/6 pertence ao grupo verde
+    if (lesson === "5/6") {
+        return "lesson-green";
+    }
+
+    return "";
+}
+
+
+// ======================================================
+// NOME DA MATÉRIA
+// ======================================================
+
+function obterMateriaLesson(lesson, aula) {
+
+    if (
+        materiasCalendario[lesson]
+    ) {
+
+        return materiasCalendario[lesson];
+
+    }
+
+    if (
+        aula &&
+        aula.materia
+    ) {
+
+        return aula.materia;
+
+    }
+
+    return "Lesson " + lesson;
+}
+
+
+// ======================================================
+// RENDERIZAR CALENDÁRIO
+// ======================================================
+
+function renderizarCalendario() {
+
+    const calendario =
+        $("calendar");
+
+    if (!calendario) {
+
+        console.warn(
+            "Elemento #calendar não encontrado."
+        );
+
+        return;
+    }
+
+
+    const ano =
+        mesCalendarioAtual.getFullYear();
+
+    const mes =
+        mesCalendarioAtual.getMonth();
+
+
+    const primeiroDia =
+        new Date(
+            ano,
+            mes,
+            1
+        );
+
+
+    const ultimoDia =
+        new Date(
+            ano,
+            mes + 1,
+            0
+        );
+
+
+    let primeiroDiaSemana =
+        primeiroDia.getDay();
+
+
+    // Domingo = 0
+    // Queremos segunda-feira = 0
+
+    primeiroDiaSemana =
+        primeiroDiaSemana === 0
+            ? 6
+            : primeiroDiaSemana - 1;
+
+
+    const totalDias =
+        ultimoDia.getDate();
+
+
+    const nomeMes =
+        primeiroDia.toLocaleDateString(
+            "pt-PT",
+            {
+                month: "long",
+                year: "numeric"
+            }
+        );
+
+
+    calendario.innerHTML = `
+
+        <div class="calendar-header">
+
+            <button
+                type="button"
+                id="previousMonth"
+            >
+                ◀
+            </button>
+
+            <h2>
+                ${nomeMes}
+            </h2>
+
+            <button
+                type="button"
+                id="nextMonth"
+            >
+                ▶
+            </button>
+
+        </div>
+
+
+        <div class="calendar-weekdays">
+
+            <div>SEG</div>
+            <div>TER</div>
+            <div>QUA</div>
+            <div>QUI</div>
+            <div>SEX</div>
+            <div>SÁB</div>
+            <div>DOM</div>
+
+        </div>
+
+
+        <div
+            class="calendar-grid"
+            id="calendarGrid"
+        ></div>
+
+    `;
+
+
+    const grid =
+        $("calendarGrid");
+
+
+    if (!grid) {
+        return;
+    }
+
+
+    // Espaços antes do primeiro dia
+
+    for (
+        let i = 0;
+        i < primeiroDiaSemana;
+        i++
+    ) {
+
+        const vazio =
+            document.createElement("div");
+
+        vazio.className =
+            "calendar-day empty";
+
+        grid.appendChild(
+            vazio
+        );
+
+    }
+
+
+    // Dias do mês
+
+    for (
+        let dia = 1;
+        dia <= totalDias;
+        dia++
+    ) {
+
+        criarDiaCalendario(
+            grid,
+            ano,
+            mes,
+            dia
+        );
+
+    }
+
+
+    configurarNavegacaoCalendario();
+
+}
+
+
+// ======================================================
+// CRIAR DIA
+// ======================================================
+
+function criarDiaCalendario(
+    grid,
+    ano,
+    mes,
+    dia
+) {
+
+    const elemento =
+        document.createElement("div");
+
+    elemento.className =
+        "calendar-day";
+
+
+    const dataString =
+        ano +
+        "-" +
+        String(mes + 1).padStart(2, "0") +
+        "-" +
+        String(dia).padStart(2, "0");
+
+
+    const hoje =
+        new Date();
+
+
+    const hojeString =
+        hoje.getFullYear() +
+        "-" +
+        String(
+            hoje.getMonth() + 1
+        ).padStart(2, "0") +
+        "-" +
+        String(
+            hoje.getDate()
+        ).padStart(2, "0");
+
+
+    if (
+        dataString === hojeString
+    ) {
+
+        elemento.classList.add(
+            "today"
+        );
+
+    }
+
+
+    elemento.innerHTML = `
+
+        <div class="calendar-number">
+            ${dia}
+        </div>
+
+        <div class="calendar-lessons"></div>
+
+    `;
+
+
+    const lista =
+        elemento.querySelector(
+            ".calendar-lessons"
+        );
+
+
+    // Procurar aulas deste dia
+
+    const aulasDoDia =
+        aulas.filter(
+            function (aula) {
+
+                return (
+                    String(aula.data || "") ===
+                    dataString
+                );
+
+            }
+        );
+
+
+    aulasDoDia.forEach(
+        function (aula) {
+
+            const lesson =
+                obterNumeroLesson(
+                    aula
+                );
+
+
+            const materia =
+                obterMateriaLesson(
+                    lesson,
+                    aula
+                );
+
+
+            const classe =
+                obterClasseLesson(
+                    lesson
+                );
+
+
+            const bloco =
+                document.createElement(
+                    "div"
+                );
+
+
+            bloco.className =
+                "calendar-lesson " +
+                classe;
+
+
+            bloco.innerHTML = `
+
+                <strong>
+                    Lesson ${lesson}
+                </strong>
+
+                <span>
+                    ${materia}
+                </span>
+
+                ${
+                    aula.hora
+                        ? `<small>${aula.hora}</small>`
+                        : ""
+                }
+
+            `;
+
+
+            bloco.title =
+                "Lesson " +
+                lesson +
+                " - " +
+                materia;
+
+
+            bloco.onclick =
+                function (event) {
+
+                    event.stopPropagation();
+
+                    abrirAula(
+                        aula
+                    );
+
+                };
+
+
+            lista.appendChild(
+                bloco
+            );
+
+        }
+    );
+
+
+    // Dia fechado
+
+    if (
+        Array.isArray(diasFechados) &&
+        diasFechados.includes(dataString)
+    ) {
+
+        elemento.classList.add(
+            "closed-day"
+        );
+
+        elemento.innerHTML += `
+            <div class="closed-label">
+                FECHADO
+            </div>
+        `;
+
+    }
+
+
+    grid.appendChild(
+        elemento
+    );
+
+}
+
+
+// ======================================================
+// NAVEGAÇÃO DO CALENDÁRIO
+// ======================================================
+
+function configurarNavegacaoCalendario() {
+
+    const anterior =
+        $("previousMonth");
+
+    const seguinte =
+        $("nextMonth");
+
+
+    if (anterior) {
+
+        anterior.onclick =
+            function () {
+
+                mesCalendarioAtual.setMonth(
+                    mesCalendarioAtual.getMonth() - 1
+                );
+
+                renderizarCalendario();
+
+            };
+
+    }
+
+
+    if (seguinte) {
+
+        seguinte.onclick =
+            function () {
+
+                mesCalendarioAtual.setMonth(
+                    mesCalendarioAtual.getMonth() + 1
+                );
+
+                renderizarCalendario();
+
+            };
+
+    }
+
+}
