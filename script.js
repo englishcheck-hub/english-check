@@ -3073,6 +3073,10 @@ async function guardarAula() {
             : "";
 
 
+    // --------------------------------------------------------
+    // VERIFICAR DADOS DA AULA
+    // --------------------------------------------------------
+
     if (
         !numero ||
         !data ||
@@ -3089,22 +3093,24 @@ async function guardarAula() {
     }
 
 
-    if (
-        !Array.isArray(
+    // --------------------------------------------------------
+    // ALUNOS
+    //
+    // A aula pode ser guardada sem alunos.
+    // Os alunos podem ser adicionados mais tarde.
+    // --------------------------------------------------------
+
+    const alunosDaAula =
+        Array.isArray(
             window.alunosDaAula
-        ) ||
-        window.alunosDaAula.length === 0
-    ) {
+        )
+            ? [...window.alunosDaAula]
+            : [];
 
-        mostrarNotificacao(
-            "Adiciona pelo menos um aluno à aula.",
-            "erro"
-        );
 
-        return;
-
-    }
-
+    // --------------------------------------------------------
+    // DADOS DA AULA
+    // --------------------------------------------------------
 
     const dados = {
 
@@ -3123,13 +3129,19 @@ async function guardarAula() {
             hora,
 
         cor:
-            obterCorAula(numero),
+            obterCorAula(
+                numero
+            ),
 
         alunos:
-            [...window.alunosDaAula]
+            alunosDaAula
 
     };
 
+
+    // --------------------------------------------------------
+    // GUARDAR NO FIREBASE
+    // --------------------------------------------------------
 
     try {
 
@@ -3169,13 +3181,25 @@ async function guardarAula() {
 
 
             mostrarNotificacao(
-                "Aula guardada com sucesso."
+                alunosDaAula.length === 0
+                    ? "Aula criada sem alunos. Podes adicioná-los mais tarde."
+                    : "Aula guardada com sucesso."
+
             );
 
         }
 
 
+        // ----------------------------------------------------
+        // FECHAR EDITOR
+        // ----------------------------------------------------
+
         fecharEditorAula();
+
+
+        // ----------------------------------------------------
+        // ATUALIZAR APLICAÇÃO
+        // ----------------------------------------------------
 
         mostrarAulas();
 
@@ -3198,7 +3222,6 @@ async function guardarAula() {
     }
 
 }
-
 
 // ============================================================
 // MOSTRAR AULAS
