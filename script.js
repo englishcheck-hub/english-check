@@ -3355,9 +3355,10 @@ function configurarEditorAula() {
 }
 
 // ============================================================
-// CALENDÁRIO MENSAL EM FORMATO DE ESCALA
+// CALENDÁRIO MENSAL EM GRELHA
 // DIAS NA HORIZONTAL
 // HORAS NA VERTICAL
+// CLIQUE NUMA CÉLULA = NOVA AULA
 // ============================================================
 
 function renderizarCalendario() {
@@ -3367,10 +3368,6 @@ function renderizarCalendario() {
     if (!container) {
         return;
     }
-
-    // --------------------------------------------------------
-    // Se não houver aulas
-    // --------------------------------------------------------
 
     if (aulas.length === 0) {
 
@@ -3386,7 +3383,7 @@ function renderizarCalendario() {
 
 
     // --------------------------------------------------------
-    // Descobrir os meses existentes
+    // Agrupar aulas por mês
     // --------------------------------------------------------
 
     const meses = {};
@@ -3409,7 +3406,9 @@ function renderizarCalendario() {
 
 
     const mesesOrdenados =
-        Object.keys(meses).sort().reverse();
+        Object.keys(meses)
+            .sort()
+            .reverse();
 
 
     container.innerHTML = "";
@@ -3449,7 +3448,7 @@ function renderizarCalendario() {
 
 
         // ----------------------------------------------------
-        // Título do mês
+        // TÍTULO
         // ----------------------------------------------------
 
         const titulo =
@@ -3465,7 +3464,7 @@ function renderizarCalendario() {
 
 
         // ----------------------------------------------------
-        // Área com scroll horizontal
+        // WRAPPER
         // ----------------------------------------------------
 
         const wrapper =
@@ -3476,7 +3475,7 @@ function renderizarCalendario() {
 
 
         // ----------------------------------------------------
-        // Tabela
+        // TABELA
         // ----------------------------------------------------
 
         const tabela =
@@ -3497,8 +3496,6 @@ function renderizarCalendario() {
             document.createElement("tr");
 
 
-        // Coluna das horas
-
         const thHora =
             document.createElement("th");
 
@@ -3513,8 +3510,6 @@ function renderizarCalendario() {
         );
 
 
-        // Dias
-
         for (
             let dia = 1;
             dia <= diasNoMes;
@@ -3527,11 +3522,6 @@ function renderizarCalendario() {
             th.className =
                 "schedule-day-header";
 
-            th.innerText =
-                String(dia).padStart(2, "0");
-
-
-            // Dia da semana
 
             const dataDia =
                 new Date(
@@ -3550,16 +3540,17 @@ function renderizarCalendario() {
                 );
 
 
-            const pequeno =
-                document.createElement("small");
+            th.innerHTML = `
 
-            pequeno.innerText =
-                diaSemana;
+                <strong>
+                    ${String(dia).padStart(2, "0")}
+                </strong>
 
+                <small>
+                    ${diaSemana}
+                </small>
 
-            th.appendChild(
-                pequeno
-            );
+            `;
 
 
             header.appendChild(
@@ -3579,7 +3570,7 @@ function renderizarCalendario() {
 
 
         // ----------------------------------------------------
-        // HORAS
+        // CORPO DA GRELHA
         // ----------------------------------------------------
 
         const tbody =
@@ -3589,8 +3580,7 @@ function renderizarCalendario() {
         /*
          * Horário da escala.
          *
-         * Podes aumentar ou diminuir
-         * este intervalo facilmente.
+         * Das 07:00 às 22:00.
          */
 
         const horaInicio = 7;
@@ -3608,7 +3598,7 @@ function renderizarCalendario() {
 
 
             // ------------------------------------------------
-            // COLUNA DA HORA
+            // HORA
             // ------------------------------------------------
 
             const tdHora =
@@ -3621,14 +3611,13 @@ function renderizarCalendario() {
                 String(hora).padStart(2, "0") +
                 ":00";
 
-
             tr.appendChild(
                 tdHora
             );
 
 
             // ------------------------------------------------
-            // CÉLULAS DOS DIAS
+            // DIAS
             // ------------------------------------------------
 
             for (
@@ -3653,7 +3642,7 @@ function renderizarCalendario() {
 
 
                 // ------------------------------------------------
-                // Aulas desse dia e desta hora
+                // TODAS AS AULAS DESTE DIA/HORA
                 // ------------------------------------------------
 
                 const aulasDoHorario =
@@ -3695,7 +3684,52 @@ function renderizarCalendario() {
 
 
                 // ------------------------------------------------
-                // Colocar aulas dentro da célula
+                // CÉLULA VAZIA
+                // ------------------------------------------------
+
+                if (
+                    aulasDoHorario.length === 0
+                ) {
+
+                    td.classList.add(
+                        "empty-schedule-cell"
+                    );
+
+
+                    td.title =
+                        "Clique para adicionar uma aula";
+
+
+                    /*
+                     * CLIQUE NA CÉLULA
+                     */
+
+                    td.onclick =
+                        function () {
+
+                            abrirNovaAulaPeloCalendario(
+                                dataString,
+                                hora
+                            );
+
+                        };
+
+
+                    /*
+                     * Sinal visual "+"
+                     */
+
+                    td.innerHTML = `
+                        <span class="add-hour-symbol">
+                            +
+                        </span>
+                    `;
+
+                }
+
+
+                // ------------------------------------------------
+                // AULAS EXISTENTES
                 // ------------------------------------------------
 
                 aulasDoHorario.forEach(
@@ -3717,8 +3751,6 @@ function renderizarCalendario() {
                                 aula.numero
                             );
 
-
-                        // Cor da aula
 
                         if (
                             cor === "green"
@@ -3749,16 +3781,6 @@ function renderizarCalendario() {
                         }
 
 
-                        const numero =
-                            aula.numero ||
-                            "";
-
-
-                        const materia =
-                            aula.materia ||
-                            "";
-
-
                         const quantidade =
                             Array.isArray(
                                 aula.alunos
@@ -3770,8 +3792,9 @@ function renderizarCalendario() {
                         aulaDiv.innerHTML = `
 
                             <strong>
-                                Lesson ${escapeHTML(
-                                    numero
+                                Lesson
+                                ${escapeHTML(
+                                    aula.numero || ""
                                 )}
                             </strong>
 
@@ -3783,7 +3806,7 @@ function renderizarCalendario() {
 
                             <small>
                                 ${escapeHTML(
-                                    materia
+                                    aula.materia || ""
                                 )}
                             </small>
 
@@ -3795,12 +3818,15 @@ function renderizarCalendario() {
                         `;
 
 
-                        // ----------------------------------------
-                        // Abrir a aula ao clicar
-                        // ----------------------------------------
+                        /*
+                         * Clicar na aula existente
+                         * abre para edição.
+                         */
 
                         aulaDiv.onclick =
-                            function () {
+                            function (event) {
+
+                                event.stopPropagation();
 
                                 abrirEditorAula(
                                     aula
@@ -3846,6 +3872,60 @@ function renderizarCalendario() {
         );
 
     });
+
+}
+
+
+// ============================================================
+// NOVA AULA A PARTIR DO CALENDÁRIO
+// ============================================================
+
+function abrirNovaAulaPeloCalendario(
+    data,
+    hora
+) {
+
+    /*
+     * Abrir o editor normal
+     */
+
+    abrirEditorAula();
+
+
+    /*
+     * Preencher automaticamente a data
+     */
+
+    if ($("lessonDate")) {
+
+        $("lessonDate").value =
+            data;
+
+    }
+
+
+    /*
+     * Preencher automaticamente a hora
+     */
+
+    if ($("lessonTime")) {
+
+        $("lessonTime").value =
+            String(hora).padStart(2, "0") +
+            ":00";
+
+    }
+
+
+    /*
+     * Garantir que começa sem alunos
+     */
+
+    window.alunosDaAula =
+        [];
+
+
+    mostrarAlunosDaAula();
 
 }
 
