@@ -1,13 +1,13 @@
-// ======================================================
+// ============================================
 // ENGLISH CHECK
 // GESTÃO DE AULAS DE CÓDIGO DA ESTRADA
 // SCRIPT PRINCIPAL
-// ======================================================
+// ============================================
 
 
-// ======================================================
+// ============================================
 // FIREBASE
-// ======================================================
+// ============================================
 
 import {
     initializeApp
@@ -25,9 +25,9 @@ import {
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 
-// ======================================================
+// ============================================
 // CONFIGURAÇÃO FIREBASE
-// ======================================================
+// ============================================
 
 const firebaseConfig = {
 
@@ -55,9 +55,9 @@ const firebaseConfig = {
 };
 
 
-// ======================================================
+// ============================================
 // INICIAR FIREBASE
-// ======================================================
+// ============================================
 
 const app =
     initializeApp(firebaseConfig);
@@ -66,9 +66,9 @@ const db =
     getFirestore(app);
 
 
-// ======================================================
-// DADOS DA APLICAÇÃO
-// ======================================================
+// ============================================
+// DADOS
+// ============================================
 
 let alunos = [];
 
@@ -78,30 +78,18 @@ let alunosDaAula = [];
 
 let aulaEmEdicao = null;
 
-
-// ======================================================
-// CALENDÁRIO
-// IMPORTANTE:
-// Estas variáveis são declaradas APENAS UMA VEZ.
-// ======================================================
-
-let mesCalendarioAtual = new Date();
-
 let mesesCalendario = [];
 
 let diasFechados = [];
 
-
-// ======================================================
-// RESULTADO DO EXAME
-// ======================================================
+let mesCalendarioAtual = new Date();
 
 let alunoResultadoExame = null;
 
 
-// ======================================================
+// ============================================
 // UTILIZADORES
-// ======================================================
+// ============================================
 
 const utilizadores = [
 
@@ -118,87 +106,9 @@ const utilizadores = [
 ];
 
 
-// ======================================================
-// MATÉRIAS DAS LESSONS
-// ======================================================
-
-const materiasCalendario = {
-
-    "01":
-        "Driver Profile",
-
-    "02":
-        "Driver and Physical/Psychological Fitness",
-
-    "03":
-        "Road Safety and Defensive Driving",
-
-    "04":
-        "Traffic Rules and Road Signs",
-
-    "05/06":
-        "Vehicle and Driver Responsibilities",
-
-    "07":
-        "Driving Licence and Legal Requirements",
-
-    "08":
-        "Road Users",
-
-    "09":
-        "Speed",
-
-    "10":
-        "Safety Distance",
-
-    "11":
-        "Overtaking",
-
-    "12":
-        "Stopping and Parking",
-
-    "13":
-        "Changing Direction",
-
-    "14":
-        "Intersections",
-
-    "15":
-        "Traffic Lights and Signals",
-
-    "16":
-        "Road Signs",
-
-    "17":
-        "Special Manoeuvres",
-
-    "18":
-        "Motorways and Expressways",
-
-    "19":
-        "Night Driving and Adverse Conditions",
-
-    "20":
-        "Pedestrians and Vulnerable Road Users",
-
-    "21":
-        "Emergency Situations",
-
-    "22":
-        "Vehicle Safety",
-
-    "23":
-        "Environmental and Economic Driving",
-
-    "24":
-        "Final Review"
-
-};
-
-
-// ======================================================
+// ============================================
 // FUNÇÃO AUXILIAR
-// ======================================================
+// ============================================
 
 function $(id) {
 
@@ -207,9 +117,9 @@ function $(id) {
 }
 
 
-// ======================================================
-// NOTIFICAÇÕES
-// ======================================================
+// ============================================
+// NOTIFICAÇÃO
+// ============================================
 
 function mostrarNotificacao(
     mensagem,
@@ -240,7 +150,7 @@ function mostrarNotificacao(
             "99999";
 
         notificacao.style.padding =
-            "15px 20px";
+            "14px 20px";
 
         notificacao.style.borderRadius =
             "8px";
@@ -248,11 +158,8 @@ function mostrarNotificacao(
         notificacao.style.fontWeight =
             "bold";
 
-        notificacao.style.background =
-            "#222";
-
-        notificacao.style.color =
-            "#fff";
+        notificacao.style.boxShadow =
+            "0 4px 15px rgba(0,0,0,0.2)";
 
         document.body.appendChild(
             notificacao
@@ -260,20 +167,25 @@ function mostrarNotificacao(
 
     }
 
-    notificacao.innerHTML =
+    notificacao.innerText =
         mensagem;
 
     notificacao.style.background =
         tipo === "erro"
-            ? "#c62828"
-            : "#2e7d32";
+            ? "#dc2626"
+            : "#16a34a";
+
+    notificacao.style.color =
+        "#ffffff";
 
     notificacao.style.display =
         "block";
 
+
     clearTimeout(
         notificacao._timer
     );
+
 
     notificacao._timer =
         setTimeout(
@@ -289,188 +201,159 @@ function mostrarNotificacao(
 }
 
 
-// ======================================================
-// FIREBASE - ALUNOS
-// ======================================================
+// ============================================
+// LER ALUNOS DO FIREBASE
+// ============================================
 
-function carregarAlunos() {
+onSnapshot(
 
-    onSnapshot(
+    collection(
+        db,
+        "alunos"
+    ),
 
-        collection(
-            db,
-            "alunos"
-        ),
+    function (snapshot) {
 
-        function (snapshot) {
+        alunos = [];
 
-            alunos = [];
+        snapshot.forEach(
+            function (documento) {
 
-            snapshot.forEach(
-                function (documento) {
+                alunos.push({
 
-                    alunos.push({
+                    id:
+                        documento.id,
 
-                        id:
-                            documento.id,
+                    ...documento.data()
 
-                        ...documento.data()
+                });
 
-                    });
-
-                }
-            );
+            }
+        );
 
 
-            console.log(
-                "Alunos carregados:",
-                alunos
-            );
+        console.log(
+            "Alunos carregados:",
+            alunos
+        );
 
+
+        if (
+            typeof atualizarDashboard ===
+            "function"
+        ) {
 
             atualizarDashboard();
 
+        }
+
+
+        if (
+            typeof mostrarAlunos ===
+            "function"
+        ) {
+
             mostrarAlunos();
 
-            mostrarAulas();
-
-            renderizarCalendario();
-
-        },
-
-        function (erro) {
-
-            console.error(
-                "Erro ao carregar alunos:",
-                erro
-            );
-
         }
 
-    );
 
-}
-
-
-// ======================================================
-// FIREBASE - AULAS
-// ======================================================
-
-function carregarAulas() {
-
-    onSnapshot(
-
-        collection(
-            db,
-            "aulas"
-        ),
-
-        function (snapshot) {
-
-            aulas = [];
-
-            snapshot.forEach(
-                function (documento) {
-
-                    aulas.push({
-
-                        id:
-                            documento.id,
-
-                        ...documento.data()
-
-                    });
-
-                }
-            );
-
-
-            console.log(
-                "Aulas carregadas:",
-                aulas
-            );
-
+        if (
+            typeof mostrarAulas ===
+            "function"
+        ) {
 
             mostrarAulas();
 
-            renderizarCalendario();
+        }
 
-        },
+    },
 
-        function (erro) {
+    function (erro) {
 
-            console.error(
-                "Erro ao carregar aulas:",
-                erro
-            );
+        console.error(
+            "Erro ao carregar alunos:",
+            erro
+        );
+
+    }
+
+);
+
+
+// ============================================
+// LER AULAS DO FIREBASE
+// ============================================
+
+onSnapshot(
+
+    collection(
+        db,
+        "aulas"
+    ),
+
+    function (snapshot) {
+
+        aulas = [];
+
+        snapshot.forEach(
+            function (documento) {
+
+                aulas.push({
+
+                    id:
+                        documento.id,
+
+                    ...documento.data()
+
+                });
+
+            }
+        );
+
+
+        console.log(
+            "Aulas carregadas:",
+            aulas
+        );
+
+
+        if (
+            typeof mostrarAulas ===
+            "function"
+        ) {
+
+            mostrarAulas();
 
         }
 
-    );
 
-}
-
-
-// ======================================================
-// FIREBASE - MESES DO CALENDÁRIO
-// ======================================================
-
-function carregarMesesCalendario() {
-
-    onSnapshot(
-
-        collection(
-            db,
-            "mesesCalendario"
-        ),
-
-        function (snapshot) {
-
-            mesesCalendario = [];
-
-            snapshot.forEach(
-                function (documento) {
-
-                    mesesCalendario.push({
-
-                        id:
-                            documento.id,
-
-                        ...documento.data()
-
-                    });
-
-                }
-            );
-
-
-            console.log(
-                "Meses do calendário:",
-                mesesCalendario
-            );
-
+        if (
+            typeof renderizarCalendario ===
+            "function"
+        ) {
 
             renderizarCalendario();
 
-        },
-
-        function (erro) {
-
-            console.error(
-                "Erro ao carregar meses:",
-                erro
-            );
-
         }
 
-    );
+    },
 
-}
+    function (erro) {
+
+        console.error(
+            "Erro ao carregar aulas:",
+            erro
+        );
+
+    }
+
+);
 
 
-// ======================================================
+// ============================================
 // LOGIN
-// ======================================================
+// ============================================
 
 function iniciarLogin() {
 
@@ -636,9 +519,9 @@ function iniciarLogin() {
 }
 
 
-// ======================================================
+// ============================================
 // LOGOUT
-// ======================================================
+// ============================================
 
 function iniciarLogout() {
 
@@ -654,24 +537,17 @@ function iniciarLogout() {
     button.onclick =
         function () {
 
-            const appPage =
-                $("app");
+            if ($("app")) {
 
-            const loginPage =
-                $("loginPage");
-
-
-            if (appPage) {
-
-                appPage.style.display =
+                $("app").style.display =
                     "none";
 
             }
 
 
-            if (loginPage) {
+            if ($("loginPage")) {
 
-                loginPage.style.display =
+                $("loginPage").style.display =
                     "flex";
 
             }
@@ -705,24 +581,18 @@ function iniciarLogout() {
 }
 
 
-// ======================================================
+// ============================================
 // MENU
-// ======================================================
+// ============================================
 
-function mostrarPagina(
-    pagina
-) {
+function mostrarPagina(pagina) {
 
     const paginas = [
 
         "homePage",
-
         "studentsPage",
-
         "lessonsPage",
-
         "calendarPage",
-
         "reportsPage"
 
     ];
@@ -751,9 +621,9 @@ function mostrarPagina(
 }
 
 
-// ======================================================
+// ============================================
 // CONFIGURAR MENU
-// ======================================================
+// ============================================
 
 function configurarMenu() {
 
@@ -841,13 +711,15 @@ function configurarMenu() {
 }
 
 
-// ======================================================
+// ============================================
 // DASHBOARD
-// ======================================================
+// ============================================
 
 function atualizarDashboard() {
 
-    if (!Array.isArray(alunos)) {
+    if (
+        !Array.isArray(alunos)
+    ) {
         return;
     }
 
@@ -899,9 +771,9 @@ function atualizarDashboard() {
 }
 
 
-// ======================================================
+// ============================================
 // ALERTAS
-// ======================================================
+// ============================================
 
 function mostrarAlertas() {
 
@@ -913,9 +785,7 @@ function mostrarAlertas() {
         !lista ||
         !Array.isArray(alunos)
     ) {
-
         return;
-
     }
 
 
@@ -977,9 +847,7 @@ function mostrarAlertas() {
                 validade.getTime()
             )
         ) {
-
             return;
-
         }
 
 
@@ -1021,7 +889,8 @@ function mostrarAlertas() {
 
                     <br>
 
-                    ${tipo} termina em breve:
+                    ${tipo}
+                    termina em breve:
 
                     ${formatarData(data)}
 
@@ -1069,13 +938,11 @@ function mostrarAlertas() {
 }
 
 
-// ======================================================
+// ============================================
 // FORMATAR DATA
-// ======================================================
+// ============================================
 
-function formatarData(
-    data
-) {
+function formatarData(data) {
 
     if (!data) {
 
@@ -1108,9 +975,9 @@ function formatarData(
 }
 
 
-// ======================================================
+// ============================================
 // ALUNOS
-// ======================================================
+// ============================================
 
 function mostrarAlunos() {
 
@@ -1122,19 +989,14 @@ function mostrarAlunos() {
         !lista ||
         !Array.isArray(alunos)
     ) {
-
         return;
-
     }
 
 
-    const campoPesquisa =
-        $("searchStudent");
-
-
     const pesquisa =
-        campoPesquisa
-            ? campoPesquisa.value
+        $("searchStudent")
+            ? $("searchStudent")
+                .value
                 .trim()
                 .toLowerCase()
             : "";
@@ -1142,19 +1004,22 @@ function mostrarAlunos() {
 
     const resultado =
         [...alunos]
+
             .filter(
                 function (aluno) {
 
                     const numero =
                         String(
                             aluno.numero || ""
-                        ).toLowerCase();
+                        )
+                        .toLowerCase();
 
 
                     const nome =
                         String(
                             aluno.nome || ""
-                        ).toLowerCase();
+                        )
+                        .toLowerCase();
 
 
                     return (
@@ -1165,16 +1030,13 @@ function mostrarAlunos() {
 
                 }
             )
+
             .sort(
                 function (a, b) {
 
                     return (
-                        Number(
-                            a.numero || 0
-                        ) -
-                        Number(
-                            b.numero || 0
-                        )
+                        Number(a.numero || 0) -
+                        Number(b.numero || 0)
                     );
 
                 }
@@ -1296,9 +1158,9 @@ function mostrarAlunos() {
 }
 
 
-// ======================================================
+// ============================================
 // PESQUISA
-// ======================================================
+// ============================================
 
 function configurarPesquisa() {
 
@@ -1321,9 +1183,9 @@ function configurarPesquisa() {
 }
 
 
-// ======================================================
+// ============================================
 // AULAS
-// ======================================================
+// ============================================
 
 function mostrarAulas() {
 
@@ -1354,24 +1216,18 @@ function mostrarAulas() {
 
 
     [...aulas]
+
         .sort(
             function (a, b) {
 
                 return (
-                    new Date(
-                        b.data +
-                        "T" +
-                        (b.hora || "00:00")
-                    ) -
-                    new Date(
-                        a.data +
-                        "T" +
-                        (a.hora || "00:00")
-                    )
+                    new Date(b.data) -
+                    new Date(a.data)
                 );
 
             }
         )
+
         .forEach(
             function (aula) {
 
@@ -1380,14 +1236,13 @@ function mostrarAulas() {
 
 
                 if (
-                    Array.isArray(
-                        aula.alunos
-                    ) &&
+                    Array.isArray(aula.alunos) &&
                     aula.alunos.length
                 ) {
 
                     alunosTexto =
                         aula.alunos
+
                             .map(
                                 function (numero) {
 
@@ -1396,12 +1251,8 @@ function mostrarAulas() {
                                             function (a) {
 
                                                 return (
-                                                    String(
-                                                        a.numero
-                                                    ) ===
-                                                    String(
-                                                        numero
-                                                    )
+                                                    String(a.numero) ===
+                                                    String(numero)
                                                 );
 
                                             }
@@ -1421,6 +1272,7 @@ function mostrarAulas() {
 
                                 }
                             )
+
                             .join("<br>");
 
                 }
@@ -1499,7 +1351,9 @@ function mostrarAulas() {
 
 
                     <p>
+
                         ${alunosTexto}
+
                     </p>
 
 
@@ -1508,7 +1362,10 @@ function mostrarAulas() {
                         class="editLessonButton"
                         data-id="${aula.id}"
                     >
-                        👨‍🎓 Abrir Aula / Alunos
+
+                        👨‍🎓
+                        Abrir Aula / Alunos
+
                     </button>
 
 
@@ -1517,7 +1374,10 @@ function mostrarAulas() {
                         class="deleteLessonButton danger-button"
                         data-id="${aula.id}"
                     >
-                        🗑️ Apagar Aula
+
+                        🗑️
+                        Apagar Aula
+
                     </button>
 
                 `;
@@ -1536,9 +1396,9 @@ function mostrarAulas() {
 }
 
 
-// ======================================================
+// ============================================
 // EVENTOS DAS AULAS
-// ======================================================
+// ============================================
 
 function adicionarEventosDasAulas() {
 
@@ -1618,9 +1478,7 @@ function adicionarEventosDasAulas() {
                                 "Pretendes apagar esta aula?"
                             )
                         ) {
-
                             return;
-
                         }
 
 
@@ -1664,188 +1522,11 @@ function adicionarEventosDasAulas() {
 }
 
 
-// ======================================================
-// OBTER LESSON
-// ======================================================
-
-function obterNumeroLesson(
-    aula
-) {
-
-    if (!aula) {
-        return "";
-    }
-
-
-    let valor =
-        aula.idAula ||
-        aula.lesson ||
-        aula.numeroLesson ||
-        "";
-
-
-    valor =
-        String(
-            valor
-        ).trim();
-
-
-    valor =
-        valor.replace(
-            /^lesson\s*/i,
-            ""
-        );
-
-
-    if (
-        valor === "5" ||
-        valor === "6" ||
-        valor === "05" ||
-        valor === "06" ||
-        valor === "5/6" ||
-        valor === "05/06"
-    ) {
-
-        return "05/06";
-
-    }
-
-
-    const numero =
-        parseInt(
-            valor,
-            10
-        );
-
-
-    if (
-        !isNaN(numero) &&
-        numero >= 1 &&
-        numero <= 24
-    ) {
-
-        return String(
-            numero
-        ).padStart(
-            2,
-            "0"
-        );
-
-    }
-
-
-    return valor;
-
-}
-
-
-// ======================================================
-// COR DA LESSON
-// ======================================================
-
-function obterClasseLesson(
-    lesson
-) {
-
-    if (
-        lesson === "24"
-    ) {
-
-        return "lesson-vermelho";
-
-    }
-
-
-    if (
-        lesson === "05/06"
-    ) {
-
-        return "lesson-verde";
-
-    }
-
-
-    const numero =
-        parseInt(
-            lesson,
-            10
-        );
-
-
-    if (
-        !isNaN(numero) &&
-        numero >= 1 &&
-        numero <= 7
-    ) {
-
-        return "lesson-verde";
-
-    }
-
-
-    if (
-        !isNaN(numero) &&
-        numero >= 8 &&
-        numero <= 23
-    ) {
-
-        return "lesson-amarelo";
-
-    }
-
-
-    return "";
-
-}
-
-
-// ======================================================
-// MATÉRIA
-// ======================================================
-
-function obterMateriaLesson(
-    lesson,
-    aula
-) {
-
-    if (
-        materiasCalendario[
-            lesson
-        ]
-    ) {
-
-        return materiasCalendario[
-            lesson
-        ];
-
-    }
-
-
-    if (
-        aula &&
-        aula.materia
-    ) {
-
-        return aula.materia;
-
-    }
-
-
-    return (
-        "Lesson " +
-        lesson
-    );
-
-}
-
-
-// ======================================================
+// ============================================
 // ABRIR AULA EXISTENTE
-// ======================================================
+// ============================================
 
-function abrirAula(
-    aula
-) {
+function abrirAula(aula) {
 
     if (!aula) {
         return;
@@ -1860,133 +1541,76 @@ function abrirAula(
         [];
 
 
-    (
-        aula.alunos || []
-    ).forEach(
-        function (numero) {
+    (aula.alunos || [])
+        .forEach(
+            function (numero) {
 
-            const aluno =
-                alunos.find(
-                    function (a) {
+                const aluno =
+                    alunos.find(
+                        function (a) {
 
-                        return (
-                            String(
-                                a.numero
-                            ) ===
-                            String(
-                                numero
-                            )
-                        );
+                            return (
+                                String(a.numero) ===
+                                String(numero)
+                            );
 
-                    }
-                );
+                        }
+                    );
 
 
-            if (aluno) {
+                if (aluno) {
 
-                alunosDaAula.push(
-                    aluno
-                );
+                    alunosDaAula.push(
+                        aluno
+                    );
+
+                }
 
             }
-
-        }
-    );
+        );
 
 
     const original =
-        $("lessonEditorOverlay");
+        $("saveLesson");
 
 
-    if (original) {
+    if (!original) {
 
-        preencherFormularioEditor(
-            original,
-            aula
+        mostrarNotificacao(
+            "Formulário da aula não encontrado.",
+            "erro"
+        );
+
+        return;
+    }
+
+
+    const section =
+        original.closest(
+            ".section"
         );
 
 
-        original.style.display =
-            "flex";
+    if (!section) {
 
-
-        configurarEditorExistente(
-            original
+        mostrarNotificacao(
+            "Secção da aula não encontrada.",
+            "erro"
         );
-
 
         return;
 
     }
 
 
-    // --------------------------------------------------
-    // Caso o HTML não tenha o overlay,
-    // criamos um editor automaticamente.
-    // --------------------------------------------------
-
-    criarEditorAutomatico(
-        aula
-    );
-
-}
-
-
-// ======================================================
-// CRIAR EDITOR AUTOMÁTICO
-// ======================================================
-
-function criarEditorAutomatico(
-    aula = null,
-    data = "",
-    hora = ""
-) {
-
-    let overlay =
-        $("lessonEditorOverlay");
-
-
-    if (overlay) {
-
-        overlay.remove();
-
-    }
-
-
-    overlay =
+    const overlay =
         document.createElement(
             "div"
         );
 
 
-    overlay.id =
-        "lessonEditorOverlay";
-
-
     overlay.className =
         "lesson-editor-overlay";
-
-
-    overlay.style.position =
-        "fixed";
-
-    overlay.style.inset =
-        "0";
-
-    overlay.style.background =
-        "rgba(0,0,0,0.6)";
-
-    overlay.style.display =
-        "flex";
-
-    overlay.style.alignItems =
-        "center";
-
-    overlay.style.justifyContent =
-        "center";
-
-    overlay.style.zIndex =
-        "9999";
 
 
     const modal =
@@ -1999,275 +1623,52 @@ function criarEditorAutomatico(
         "lesson-editor-modal";
 
 
-    modal.style.background =
-        "#fff";
+    const close =
+        document.createElement(
+            "button"
+        );
 
-    modal.style.padding =
-        "25px";
 
-    modal.style.borderRadius =
-        "12px";
+    close.type =
+        "button";
 
-    modal.style.width =
-        "min(600px, 92%)";
 
-    modal.style.maxHeight =
-        "90vh";
+    close.innerHTML =
+        "×";
 
-    modal.style.overflowY =
-        "auto";
 
+    close.className =
+        "close-lesson-editor";
 
-    modal.innerHTML = `
 
-        <div
-            style="
-                display:flex;
-                justify-content:space-between;
-                align-items:center;
-            "
-        >
+    const content =
+        section.cloneNode(
+            true
+        );
 
-            <h2 id="lessonEditorTitle">
-                ${aula
-                    ? "📚 Editar Aula"
-                    : "📚 Nova Aula"}
-            </h2>
 
+    const title =
+        content.querySelector(
+            "h2"
+        );
 
-            <button
-                type="button"
-                id="closeLessonEditor"
-            >
-                ✕
-            </button>
 
-        </div>
+    if (title) {
 
+        title.innerHTML =
+            "📚 Editar Aula";
 
-        <label>
-            Lesson
-        </label>
-
-
-        <select
-            id="lessonId"
-            style="width:100%;margin-bottom:12px;"
-        >
-
-            <option value="">
-                Selecionar Lesson
-            </option>
-
-            <option value="01">
-                Lesson 01
-            </option>
-
-            <option value="02">
-                Lesson 02
-            </option>
-
-            <option value="03">
-                Lesson 03
-            </option>
-
-            <option value="04">
-                Lesson 04
-            </option>
-
-            <option value="05/06">
-                Lesson 05/06
-            </option>
-
-            <option value="07">
-                Lesson 07
-            </option>
-
-            <option value="08">
-                Lesson 08
-            </option>
-
-            <option value="09">
-                Lesson 09
-            </option>
-
-            <option value="10">
-                Lesson 10
-            </option>
-
-            <option value="11">
-                Lesson 11
-            </option>
-
-            <option value="12">
-                Lesson 12
-            </option>
-
-            <option value="13">
-                Lesson 13
-            </option>
-
-            <option value="14">
-                Lesson 14
-            </option>
-
-            <option value="15">
-                Lesson 15
-            </option>
-
-            <option value="16">
-                Lesson 16
-            </option>
-
-            <option value="17">
-                Lesson 17
-            </option>
-
-            <option value="18">
-                Lesson 18
-            </option>
-
-            <option value="19">
-                Lesson 19
-            </option>
-
-            <option value="20">
-                Lesson 20
-            </option>
-
-            <option value="21">
-                Lesson 21
-            </option>
-
-            <option value="22">
-                Lesson 22
-            </option>
-
-            <option value="23">
-                Lesson 23
-            </option>
-
-            <option value="24">
-                Lesson 24
-            </option>
-
-        </select>
-
-
-        <label>
-            Matéria
-        </label>
-
-
-        <input
-            id="lessonSubject"
-            type="text"
-            readonly
-            style="width:100%;margin-bottom:12px;"
-        >
-
-
-        <label>
-            Data
-        </label>
-
-
-        <input
-            id="lessonDate"
-            type="date"
-            style="width:100%;margin-bottom:12px;"
-        >
-
-
-        <label>
-            Hora
-        </label>
-
-
-        <input
-            id="lessonTime"
-            type="time"
-            style="width:100%;margin-bottom:12px;"
-        >
-
-
-        <hr>
-
-
-        <h3>
-            👨‍🎓 Alunos da Aula
-        </h3>
-
-
-        <input
-            id="lessonStudentNumber"
-            type="text"
-            placeholder="Número do aluno"
-            style="width:100%;margin-bottom:8px;"
-        >
-
-
-        <button
-            type="button"
-            id="addStudentToLesson"
-        >
-            ➕ Adicionar aluno
-        </button>
-
-
-        <button
-            type="button"
-            id="selectMultipleStudents"
-        >
-            ☑️ Selecionar vários
-        </button>
-
-
-        <div
-            id="multipleStudentsBox"
-            style="display:none;margin-top:10px;"
-        ></div>
-
-
-        <button
-            type="button"
-            id="addSelectedStudents"
-            style="display:none;"
-        >
-            ➕ Adicionar selecionados
-        </button>
-
-
-        <div
-            id="lessonStudents"
-            style="margin-top:15px;"
-        ></div>
-
-
-        <hr>
-
-
-        <button
-            type="button"
-            id="saveLesson"
-        >
-            💾 Guardar Aula
-        </button>
-
-    `;
+    }
 
 
     modal.appendChild(
-        modal.querySelector("#lessonEditorTitle")
+        close
     );
 
 
-    // reconstruir corretamente
-    const conteudo =
-        modal.innerHTML;
-
-    modal.innerHTML =
-        conteudo;
+    modal.appendChild(
+        content
+    );
 
 
     overlay.appendChild(
@@ -2280,82 +1681,53 @@ function criarEditorAutomatico(
     );
 
 
-    if (aula) {
-
-        aulaEmEdicao =
-            aula;
-
-        preencherFormularioEditor(
-            overlay,
-            aula
-        );
-
-        configurarEditorExistente(
-            overlay
-        );
-
-    }
-
-    else {
-
-        aulaEmEdicao =
-            null;
-
-        alunosDaAula =
-            [];
-
-        const dataInput =
-            overlay.querySelector(
-                "#lessonDate"
-            );
-
-        const horaInput =
-            overlay.querySelector(
-                "#lessonTime"
-            );
-
-
-        if (dataInput) {
-            dataInput.value =
-                data;
-        }
-
-
-        if (horaInput) {
-            horaInput.value =
-                hora;
-        }
-
-
-        configurarEditorNovaAula(
-            overlay
-        );
-
-    }
-
-
-    configurarMateriasDoEditor(
-        overlay
+    preencherEditorAula(
+        overlay,
+        aula
     );
 
 
-    configurarFechoEditor(
-        overlay
-    );
+    close.onclick =
+        function () {
+
+            overlay.remove();
+
+            aulaEmEdicao =
+                null;
+
+            alunosDaAula =
+                [];
+
+        };
 
 
-    atualizarListaDaAulaNoEditor(
-        overlay
-    );
+    overlay.onclick =
+        function (event) {
+
+            if (
+                event.target === overlay
+            ) {
+
+                overlay.remove();
+
+                aulaEmEdicao =
+                    null;
+
+                alunosDaAula =
+                    [];
+
+            }
+
+        };
 
 }
 
 
-// ======================================================
+// ============================================
 // PREENCHER EDITOR
-// ======================================================
+// ============================================
 
-function preencherFormularioEditor(
+function preencherEditorAula(
     overlay,
     aula
 ) {
@@ -2387,9 +1759,7 @@ function preencherFormularioEditor(
     if (id) {
 
         id.value =
-            obterNumeroLesson(
-                aula
-            );
+            aula.idAula || "";
 
     }
 
@@ -2397,10 +1767,7 @@ function preencherFormularioEditor(
     if (materia) {
 
         materia.value =
-            aula.materia ||
-            obterMateriaLesson(
-                obterNumeroLesson(aula)
-            );
+            aula.materia || "";
 
     }
 
@@ -2408,8 +1775,7 @@ function preencherFormularioEditor(
     if (data) {
 
         data.value =
-            aula.data ||
-            "";
+            aula.data || "";
 
     }
 
@@ -2417,8 +1783,7 @@ function preencherFormularioEditor(
     if (hora) {
 
         hora.value =
-            aula.hora ||
-            "";
+            aula.hora || "";
 
     }
 
@@ -2427,535 +1792,32 @@ function preencherFormularioEditor(
         overlay
     );
 
-}
-
-
-// ======================================================
-// EDITOR DE AULA EXISTENTE
-// ======================================================
-
-function configurarEditorExistente(
-    overlay
-) {
 
     configurarBotaoAdicionarAluno(
         overlay
     );
 
+
     configurarBotaoSelecionarAlunos(
         overlay
     );
+
 
     configurarBotaoAdicionarSelecionados(
         overlay
     );
 
 
-    const button =
-        overlay.querySelector(
-            "#saveLesson"
-        );
-
-
-    if (!button) {
-        return;
-    }
-
-
-    button.onclick =
-        async function (event) {
-
-            event.preventDefault();
-
-
-            if (!aulaEmEdicao) {
-                return;
-            }
-
-
-            const id =
-                overlay.querySelector(
-                    "#lessonId"
-                );
-
-
-            const materia =
-                overlay.querySelector(
-                    "#lessonSubject"
-                );
-
-
-            const data =
-                overlay.querySelector(
-                    "#lessonDate"
-                );
-
-
-            const hora =
-                overlay.querySelector(
-                    "#lessonTime"
-                );
-
-
-            if (
-                !id ||
-                !materia ||
-                !data ||
-                !hora
-            ) {
-
-                mostrarNotificacao(
-                    "Campos da aula não encontrados.",
-                    "erro"
-                );
-
-                return;
-
-            }
-
-
-            if (
-                !id.value ||
-                !data.value ||
-                !hora.value
-            ) {
-
-                mostrarNotificacao(
-                    "Preenche a Lesson, a data e a hora.",
-                    "erro"
-                );
-
-                return;
-
-            }
-
-
-            const numeros =
-                alunosDaAula.map(
-                    function (aluno) {
-
-                        return aluno.numero;
-
-                    }
-                );
-
-
-            try {
-
-                await updateDoc(
-
-                    doc(
-                        db,
-                        "aulas",
-                        aulaEmEdicao.id
-                    ),
-
-                    {
-
-                        idAula:
-                            id.value,
-
-                        materia:
-                            obterMateriaLesson(
-                                obterNumeroLesson({
-                                    idAula:
-                                        id.value
-                                })
-                            ),
-
-                        data:
-                            data.value,
-
-                        hora:
-                            hora.value,
-
-                        alunos:
-                            numeros
-
-                    }
-
-                );
-
-
-                overlay.style.display =
-                    "none";
-
-
-                aulaEmEdicao =
-                    null;
-
-
-                alunosDaAula =
-                    [];
-
-
-                mostrarNotificacao(
-                    "Aula guardada com sucesso ✅"
-                );
-
-            }
-
-            catch (erro) {
-
-                console.error(
-                    "Erro ao guardar aula:",
-                    erro
-                );
-
-
-                mostrarNotificacao(
-                    "Erro ao guardar aula.",
-                    "erro"
-                );
-
-            }
-
-        };
-
-}
-
-
-// ======================================================
-// EDITOR - NOVA AULA
-// ======================================================
-
-function configurarEditorNovaAula(
-    overlay
-) {
-
-    configurarBotaoAdicionarAluno(
+    configurarBotaoGuardar(
         overlay
     );
 
-    configurarBotaoSelecionarAlunos(
-        overlay
-    );
-
-    configurarBotaoAdicionarSelecionados(
-        overlay
-    );
-
-
-    const button =
-        overlay.querySelector(
-            "#saveLesson"
-        );
-
-
-    if (!button) {
-        return;
-    }
-
-
-    button.onclick =
-        async function (event) {
-
-            event.preventDefault();
-
-
-            const id =
-                overlay.querySelector(
-                    "#lessonId"
-                );
-
-
-            const materia =
-                overlay.querySelector(
-                    "#lessonSubject"
-                );
-
-
-            const data =
-                overlay.querySelector(
-                    "#lessonDate"
-                );
-
-
-            const hora =
-                overlay.querySelector(
-                    "#lessonTime"
-                );
-
-
-            if (
-                !id ||
-                !materia ||
-                !data ||
-                !hora
-            ) {
-
-                mostrarNotificacao(
-                    "Campos da aula não encontrados.",
-                    "erro"
-                );
-
-                return;
-
-            }
-
-
-            if (
-                !id.value ||
-                !data.value ||
-                !hora.value
-            ) {
-
-                mostrarNotificacao(
-                    "Seleciona a Lesson, a data e a hora.",
-                    "erro"
-                );
-
-                return;
-
-            }
-
-
-            const existe =
-                aulas.some(
-                    function (aula) {
-
-                        return (
-                            aula.data ===
-                            data.value &&
-                            aula.hora ===
-                            hora.value
-                        );
-
-                    }
-                );
-
-
-            if (existe) {
-
-                mostrarNotificacao(
-                    "Já existe uma aula nesse horário.",
-                    "erro"
-                );
-
-                return;
-
-            }
-
-
-            const lesson =
-                obterNumeroLesson({
-                    idAula:
-                        id.value
-                });
-
-
-            const nomeMateria =
-                obterMateriaLesson(
-                    lesson
-                );
-
-
-            const numeros =
-                alunosDaAula.map(
-                    function (aluno) {
-
-                        return aluno.numero;
-
-                    }
-                );
-
-
-            try {
-
-                await addDoc(
-
-                    collection(
-                        db,
-                        "aulas"
-                    ),
-
-                    {
-
-                        idAula:
-                            id.value,
-
-                        materia:
-                            nomeMateria,
-
-                        data:
-                            data.value,
-
-                        hora:
-                            hora.value,
-
-                        alunos:
-                            numeros
-
-                    }
-
-                );
-
-
-                overlay.style.display =
-                    "none";
-
-
-                aulaEmEdicao =
-                    null;
-
-
-                alunosDaAula =
-                    [];
-
-
-                mostrarNotificacao(
-                    "Aula criada com sucesso ✅"
-                );
-
-            }
-
-            catch (erro) {
-
-                console.error(
-                    "Erro ao criar aula:",
-                    erro
-                );
-
-
-                mostrarNotificacao(
-                    "Erro ao criar aula.",
-                    "erro"
-                );
-
-            }
-
-        };
-
 }
 
 
-// ======================================================
-// MATÉRIA AUTOMÁTICA
-// ======================================================
-
-function configurarMateriasDoEditor(
-    overlay
-) {
-
-    const select =
-        overlay.querySelector(
-            "#lessonId"
-        );
-
-
-    const campoMateria =
-        overlay.querySelector(
-            "#lessonSubject"
-        );
-
-
-    if (
-        !select ||
-        !campoMateria
-    ) {
-
-        return;
-
-    }
-
-
-    select.onchange =
-        function () {
-
-            const lesson =
-                obterNumeroLesson({
-                    idAula:
-                        this.value
-                });
-
-
-            campoMateria.value =
-                obterMateriaLesson(
-                    lesson
-                );
-
-        };
-
-
-    if (select.value) {
-
-        const lesson =
-            obterNumeroLesson({
-                idAula:
-                    select.value
-            });
-
-
-        campoMateria.value =
-            obterMateriaLesson(
-                lesson
-            );
-
-    }
-
-}
-
-
-// ======================================================
-// FECHAR EDITOR
-// ======================================================
-
-function configurarFechoEditor(
-    overlay
-) {
-
-    const fechar =
-        overlay.querySelector(
-            "#closeLessonEditor"
-        );
-
-
-    if (fechar) {
-
-        fechar.onclick =
-            function () {
-
-                overlay.style.display =
-                    "none";
-
-                aulaEmEdicao =
-                    null;
-
-                alunosDaAula =
-                    [];
-
-            };
-
-    }
-
-
-    overlay.onclick =
-        function (event) {
-
-            if (
-                event.target ===
-                overlay
-            ) {
-
-                overlay.style.display =
-                    "none";
-
-                aulaEmEdicao =
-                    null;
-
-                alunosDaAula =
-                    [];
-
-            }
-
-        };
-
-}
-
-
-// ======================================================
+// ============================================
 // LISTA DE ALUNOS DA AULA
-// ======================================================
+// ============================================
 
 function atualizarListaDaAulaNoEditor(
     overlay
@@ -2973,14 +1835,17 @@ function atualizarListaDaAulaNoEditor(
 
 
     if (
-        !Array.isArray(
-            alunosDaAula
-        ) ||
+        !Array.isArray(alunosDaAula) ||
         alunosDaAula.length === 0
     ) {
 
-        lista.innerHTML =
-            "Ainda não existem alunos nesta aula.";
+        lista.innerHTML = `
+
+            <p>
+                Ainda não existem alunos nesta aula.
+            </p>
+
+        `;
 
         return;
 
@@ -3001,18 +1866,60 @@ function atualizarListaDaAulaNoEditor(
 
 
             div.className =
-                "student-card";
+                "student-card lesson-student-item";
 
 
-            div.innerHTML =
-                `
+            div.style.display =
+                "flex";
+
+
+            div.style.alignItems =
+                "center";
+
+
+            div.style.justifyContent =
+                "space-between";
+
+
+            div.style.gap =
+                "10px";
+
+
+            div.innerHTML = `
+
+                <span>
+
                     <strong>
                         ${aluno.numero}
                     </strong>
 
                     -
                     ${aluno.nome}
-                `;
+
+                </span>
+
+
+                <button
+                    type="button"
+                    class="removeStudentFromLesson"
+                    data-student-id="${aluno.id}"
+                    title="Remover aluno da aula"
+                    style="
+                        width:auto;
+                        min-width:35px;
+                        padding:6px 10px;
+                        background:#dc2626;
+                        color:white;
+                        border:none;
+                        border-radius:6px;
+                        cursor:pointer;
+                        font-weight:bold;
+                    "
+                >
+                    ✕
+                </button>
+
+            `;
 
 
             lista.appendChild(
@@ -3022,12 +1929,94 @@ function atualizarListaDaAulaNoEditor(
         }
     );
 
+
+    configurarRemoverAlunoDaAula(
+        overlay
+    );
+
 }
 
 
-// ======================================================
+// ============================================
+// REMOVER ALUNO DA AULA
+// ============================================
+
+function configurarRemoverAlunoDaAula(
+    overlay
+) {
+
+    overlay
+        .querySelectorAll(
+            ".removeStudentFromLesson"
+        )
+        .forEach(
+            function (button) {
+
+                button.onclick =
+                    function (event) {
+
+                        event.preventDefault();
+
+                        event.stopPropagation();
+
+
+                        const studentId =
+                            this.dataset.studentId;
+
+
+                        const indice =
+                            alunosDaAula.findIndex(
+                                function (aluno) {
+
+                                    return (
+                                        String(aluno.id) ===
+                                        String(studentId)
+                                    );
+
+                                }
+                            );
+
+
+                        if (
+                            indice === -1
+                        ) {
+                            return;
+                        }
+
+
+                        const alunoRemovido =
+                            alunosDaAula[
+                                indice
+                            ];
+
+
+                        alunosDaAula.splice(
+                            indice,
+                            1
+                        );
+
+
+                        atualizarListaDaAulaNoEditor(
+                            overlay
+                        );
+
+
+                        mostrarNotificacao(
+                            alunoRemovido.nome +
+                            " foi retirado da aula."
+                        );
+
+                    };
+
+            }
+        );
+
+}
+
+
+// ============================================
 // ADICIONAR UM ALUNO
-// ======================================================
+// ============================================
 
 function configurarBotaoAdicionarAluno(
     overlay
@@ -3082,12 +2071,8 @@ function configurarBotaoAdicionarAluno(
                     function (a) {
 
                         return (
-                            String(
-                                a.numero
-                            ) ===
-                            String(
-                                numero
-                            )
+                            String(a.numero) ===
+                            String(numero)
                         );
 
                     }
@@ -3111,12 +2096,8 @@ function configurarBotaoAdicionarAluno(
                     function (a) {
 
                         return (
-                            String(
-                                a.id
-                            ) ===
-                            String(
-                                aluno.id
-                            )
+                            String(a.id) ===
+                            String(aluno.id)
                         );
 
                     }
@@ -3159,9 +2140,9 @@ function configurarBotaoAdicionarAluno(
 }
 
 
-// ======================================================
+// ============================================
 // SELECIONAR VÁRIOS ALUNOS
-// ======================================================
+// ============================================
 
 function configurarBotaoSelecionarAlunos(
     overlay
@@ -3235,12 +2216,8 @@ function configurarBotaoSelecionarAlunos(
                             function (a) {
 
                                 return (
-                                    String(
-                                        a.id
-                                    ) ===
-                                    String(
-                                        aluno.id
-                                    )
+                                    String(a.id) ===
+                                    String(aluno.id)
                                 );
 
                             }
@@ -3292,9 +2269,9 @@ function configurarBotaoSelecionarAlunos(
 }
 
 
-// ======================================================
+// ============================================
 // ADICIONAR SELECIONADOS
-// ======================================================
+// ============================================
 
 function configurarBotaoAdicionarSelecionados(
     overlay
@@ -3340,12 +2317,8 @@ function configurarBotaoAdicionarSelecionados(
                                 function (a) {
 
                                     return (
-                                        String(
-                                            a.numero
-                                        ) ===
-                                        String(
-                                            checkbox.value
-                                        )
+                                        String(a.numero) ===
+                                        String(checkbox.value)
                                     );
 
                                 }
@@ -3362,12 +2335,8 @@ function configurarBotaoAdicionarSelecionados(
                                 function (a) {
 
                                     return (
-                                        String(
-                                            a.id
-                                        ) ===
-                                        String(
-                                            aluno.id
-                                        )
+                                        String(a.id) ===
+                                        String(aluno.id)
                                     );
 
                                 }
@@ -3403,9 +2372,489 @@ function configurarBotaoAdicionarSelecionados(
 }
 
 
-// ======================================================
+// ============================================
+// GUARDAR AULA EXISTENTE
+// ============================================
+
+function configurarBotaoGuardar(
+    overlay
+) {
+
+    const button =
+        overlay.querySelector(
+            "#saveLesson"
+        );
+
+
+    if (!button) {
+        return;
+    }
+
+
+    button.onclick =
+        async function (event) {
+
+            event.preventDefault();
+
+
+            if (!aulaEmEdicao) {
+
+                mostrarNotificacao(
+                    "Nenhuma aula em edição.",
+                    "erro"
+                );
+
+                return;
+
+            }
+
+
+            const id =
+                overlay.querySelector(
+                    "#lessonId"
+                );
+
+
+            const materia =
+                overlay.querySelector(
+                    "#lessonSubject"
+                );
+
+
+            const data =
+                overlay.querySelector(
+                    "#lessonDate"
+                );
+
+
+            const hora =
+                overlay.querySelector(
+                    "#lessonTime"
+                );
+
+
+            if (
+                !id ||
+                !materia ||
+                !data ||
+                !hora
+            ) {
+
+                mostrarNotificacao(
+                    "Campos da aula não encontrados.",
+                    "erro"
+                );
+
+                return;
+
+            }
+
+
+            if (
+                !id.value.trim() ||
+                !data.value ||
+                !hora.value
+            ) {
+
+                mostrarNotificacao(
+                    "Preenche a Lesson, a data e a hora.",
+                    "erro"
+                );
+
+                return;
+
+            }
+
+
+            const lesson =
+                obterNumeroLesson({
+                    idAula:
+                        id.value
+                });
+
+
+            const nomeMateria =
+                obterMateriaLesson(
+                    lesson
+                );
+
+
+            const numeros =
+                alunosDaAula.map(
+                    function (aluno) {
+
+                        return aluno.numero;
+
+                    }
+                );
+
+
+            try {
+
+                await updateDoc(
+
+                    doc(
+                        db,
+                        "aulas",
+                        aulaEmEdicao.id
+                    ),
+
+                    {
+
+                        idAula:
+                            id.value.trim(),
+
+                        materia:
+                            nomeMateria,
+
+                        data:
+                            data.value,
+
+                        hora:
+                            hora.value,
+
+                        alunos:
+                            numeros
+
+                    }
+
+                );
+
+
+                aulaEmEdicao.idAula =
+                    id.value.trim();
+
+
+                aulaEmEdicao.materia =
+                    nomeMateria;
+
+
+                aulaEmEdicao.data =
+                    data.value;
+
+
+                aulaEmEdicao.hora =
+                    hora.value;
+
+
+                aulaEmEdicao.alunos =
+                    numeros;
+
+
+                overlay.remove();
+
+
+                aulaEmEdicao =
+                    null;
+
+
+                alunosDaAula =
+                    [];
+
+
+                mostrarNotificacao(
+                    "Aula guardada com sucesso ✅"
+                );
+
+            }
+
+            catch (erro) {
+
+                console.error(
+                    "Erro ao guardar aula:",
+                    erro
+                );
+
+
+                mostrarNotificacao(
+                    "Erro ao guardar aula.",
+                    "erro"
+                );
+
+            }
+
+        };
+
+}
+
+
+// ============================================
 // CALENDÁRIO
-// ======================================================
+// ============================================
+
+
+// ============================================
+// MATÉRIAS DAS LESSONS
+// ============================================
+
+const materiasCalendario = {
+
+    "01":
+        "Driver Profile",
+
+    "02":
+        "Driver and Physical/Psychological Fitness",
+
+    "03":
+        "Road Safety and Defensive Driving",
+
+    "04":
+        "Traffic Rules and Road Signs",
+
+    "05/06":
+        "Vehicle and Driver Responsibilities",
+
+    "07":
+        "Driving Licence and Legal Requirements",
+
+    "08":
+        "Road Users",
+
+    "09":
+        "Speed",
+
+    "10":
+        "Safety Distance",
+
+    "11":
+        "Overtaking",
+
+    "12":
+        "Stopping and Parking",
+
+    "13":
+        "Changing Direction",
+
+    "14":
+        "Intersections",
+
+    "15":
+        "Traffic Lights and Signals",
+
+    "16":
+        "Road Signs",
+
+    "17":
+        "Special Manoeuvres",
+
+    "18":
+        "Motorways and Expressways",
+
+    "19":
+        "Night Driving and Adverse Conditions",
+
+    "20":
+        "Pedestrians and Vulnerable Road Users",
+
+    "21":
+        "Emergency Situations",
+
+    "22":
+        "Vehicle Safety",
+
+    "23":
+        "Environmental and Economic Driving",
+
+    "24":
+        "Final Review"
+
+};
+
+
+// ============================================
+// OBTER LESSON
+// ============================================
+
+function obterNumeroLesson(aula) {
+
+    if (!aula) {
+        return "";
+    }
+
+
+    let valor =
+        aula.idAula ||
+        aula.lesson ||
+        aula.numeroLesson ||
+        "";
+
+
+    valor =
+        String(valor)
+            .trim();
+
+
+    valor =
+        valor.replace(
+            /^lesson\s*/i,
+            ""
+        );
+
+
+    if (
+        valor === "5" ||
+        valor === "6" ||
+        valor === "05" ||
+        valor === "06" ||
+        valor === "5/6" ||
+        valor === "05/06"
+    ) {
+
+        return "05/06";
+
+    }
+
+
+    if (
+        valor.length === 1 &&
+        !isNaN(valor)
+    ) {
+
+        valor =
+            "0" + valor;
+
+    }
+
+
+    return valor;
+
+}
+
+
+// ============================================
+// COR DA LESSON
+// ============================================
+
+function obterClasseLesson(
+    lesson
+) {
+
+    if (
+        lesson === "24"
+    ) {
+
+        return "lesson-vermelho";
+
+    }
+
+
+    if (
+        lesson === "05/06"
+    ) {
+
+        return "lesson-verde";
+
+    }
+
+
+    const numero =
+        parseInt(
+            lesson,
+            10
+        );
+
+
+    if (
+        !isNaN(numero) &&
+        numero >= 1 &&
+        numero <= 7
+    ) {
+
+        return "lesson-verde";
+
+    }
+
+
+    if (
+        !isNaN(numero) &&
+        numero >= 8 &&
+        numero <= 23
+    ) {
+
+        return "lesson-amarelo";
+
+    }
+
+
+    return "";
+
+}
+
+
+// ============================================
+// MATÉRIA
+// ============================================
+
+function obterMateriaLesson(
+    lesson,
+    aula
+) {
+
+    if (
+        materiasCalendario[lesson]
+    ) {
+
+        return materiasCalendario[
+            lesson
+        ];
+
+    }
+
+
+    if (
+        aula &&
+        aula.materia
+    ) {
+
+        return aula.materia;
+
+    }
+
+
+    return (
+        "Lesson " +
+        lesson
+    );
+
+}
+
+
+// ============================================
+// DATA STRING
+// ============================================
+
+function criarDataString(
+    ano,
+    mes,
+    dia
+) {
+
+    return (
+
+        ano +
+        "-" +
+        String(
+            mes + 1
+        ).padStart(
+            2,
+            "0"
+        ) +
+        "-" +
+        String(
+            dia
+        ).padStart(
+            2,
+            "0"
+        )
+
+    );
+
+}
+
+
+// ============================================
+// RENDERIZAR CALENDÁRIO
+// ============================================
 
 function renderizarCalendario() {
 
@@ -3458,6 +2907,7 @@ function renderizarCalendario() {
             {
                 month:
                     "long",
+
                 year:
                     "numeric"
             }
@@ -3475,7 +2925,8 @@ function renderizarCalendario() {
                 ${
                     nomeMes
                         .charAt(0)
-                        .toUpperCase() +
+                        .toUpperCase()
+                    +
                     nomeMes.slice(1)
                 }
 
@@ -3495,7 +2946,9 @@ function renderizarCalendario() {
                     id="previousMonth"
                     style="width:auto;"
                 >
+
                     ◀ Mês anterior
+
                 </button>
 
 
@@ -3504,7 +2957,9 @@ function renderizarCalendario() {
                     id="nextMonth"
                     style="width:auto;"
                 >
+
                     Próximo mês ▶
+
                 </button>
 
             </div>
@@ -3547,9 +3002,9 @@ function renderizarCalendario() {
 }
 
 
-// ======================================================
-// CABEÇALHO DOS DIAS
-// ======================================================
+// ============================================
+// CABEÇALHO DIAS
+// ============================================
 
 function criarCabecalhoDias(
     ano,
@@ -3593,10 +3048,23 @@ function criarCabecalhoDias(
             );
 
 
-        const fechado =
+        let classe =
+            "";
+
+
+        if (
+            Array.isArray(
+                diasFechados
+            ) &&
             diasFechados.includes(
                 data
-            );
+            )
+        ) {
+
+            classe =
+                "closed-day";
+
+        }
 
 
         html += `
@@ -3604,9 +3072,7 @@ function criarCabecalhoDias(
             <div
                 class="
                     calendar-day-header
-                    ${fechado
-                        ? "closed-day"
-                        : ""}
+                    ${classe}
                 "
                 data-date="${data}"
             >
@@ -3614,7 +3080,6 @@ function criarCabecalhoDias(
                 <strong>
                     ${semana.toUpperCase()}
                 </strong>
-
 
                 <span>
                     ${dia}
@@ -3632,9 +3097,9 @@ function criarCabecalhoDias(
 }
 
 
-// ======================================================
+// ============================================
 // LINHAS HORÁRIAS
-// ======================================================
+// ============================================
 
 function criarLinhasHorarias(
     ano,
@@ -3670,8 +3135,11 @@ function criarLinhasHorarias(
                 <div class="calendar-row">
 
                     <div class="calendar-time">
+
                         ${hora}
+
                     </div>
+
 
                     ${criarCelulasHora(
                         ano,
@@ -3693,9 +3161,9 @@ function criarLinhasHorarias(
 }
 
 
-// ======================================================
-// CÉLULAS DAS HORAS
-// ======================================================
+// ============================================
+// CÉLULAS
+// ============================================
 
 function criarCelulasHora(
     ano,
@@ -3727,22 +3195,33 @@ function criarCelulasHora(
                 function (aula) {
 
                     return (
-                        String(
-                            aula.data || ""
-                        ) === data &&
-                        String(
-                            aula.hora || ""
-                        ) === hora
+
+                        aula.data === data &&
+                        aula.hora === hora
+
                     );
 
                 }
             );
 
 
-        const fechado =
+        let classeDia =
+            "";
+
+
+        if (
+            Array.isArray(
+                diasFechados
+            ) &&
             diasFechados.includes(
                 data
-            );
+            )
+        ) {
+
+            classeDia =
+                "closed-day";
+
+        }
 
 
         html += `
@@ -3750,9 +3229,7 @@ function criarCelulasHora(
             <div
                 class="
                     calendar-cell
-                    ${fechado
-                        ? "closed-day"
-                        : ""}
+                    ${classeDia}
                 "
                 data-date="${data}"
                 data-time="${hora}"
@@ -3774,9 +3251,9 @@ function criarCelulasHora(
 }
 
 
-// ======================================================
-// AULAS DENTRO DO CALENDÁRIO
-// ======================================================
+// ============================================
+// AULAS DA CÉLULA
+// ============================================
 
 function criarAulasDaCelula(
     lista
@@ -3855,42 +3332,9 @@ function criarAulasDaCelula(
 }
 
 
-// ======================================================
-// DATA STRING
-// ======================================================
-
-function criarDataString(
-    ano,
-    mes,
-    dia
-) {
-
-    return (
-
-        ano +
-        "-" +
-        String(
-            mes + 1
-        ).padStart(
-            2,
-            "0"
-        ) +
-        "-" +
-        String(
-            dia
-        ).padStart(
-            2,
-            "0"
-        )
-
-    );
-
-}
-
-
-// ======================================================
-// NAVEGAÇÃO DO CALENDÁRIO
-// ======================================================
+// ============================================
+// NAVEGAÇÃO CALENDÁRIO
+// ============================================
 
 function configurarNavegacaoCalendario() {
 
@@ -3938,9 +3382,9 @@ function configurarNavegacaoCalendario() {
 }
 
 
-// ======================================================
-// CLIQUES NO CALENDÁRIO
-// ======================================================
+// ============================================
+// CLIQUES CALENDÁRIO
+// ============================================
 
 function configurarCliquesCalendario() {
 
@@ -3967,21 +3411,17 @@ function configurarCliquesCalendario() {
                                 function (aula) {
 
                                     return (
-                                        String(
-                                            aula.data
-                                        ) === data &&
-                                        String(
-                                            aula.hora
-                                        ) === hora
+
+                                        aula.data === data &&
+                                        aula.hora === hora
+
                                     );
 
                                 }
                             );
 
 
-                        if (
-                            aulaExistente
-                        ) {
+                        if (aulaExistente) {
 
                             abrirAula(
                                 aulaExistente
@@ -4064,14 +3504,63 @@ function configurarCliquesCalendario() {
 }
 
 
-// ======================================================
+// ============================================
 // NOVA AULA PELO CALENDÁRIO
-// ======================================================
+// ============================================
 
 function abrirNovaAulaCalendario(
     data,
     hora
 ) {
+
+    const overlay =
+        $("lessonEditorOverlay");
+
+
+    if (!overlay) {
+
+        mostrarNotificacao(
+            "Editor de aula não encontrado.",
+            "erro"
+        );
+
+        return;
+
+    }
+
+
+    const id =
+        $("lessonId");
+
+
+    const materia =
+        $("lessonSubject");
+
+
+    const dataInput =
+        $("lessonDate");
+
+
+    const horaInput =
+        $("lessonTime");
+
+
+    if (
+        !id ||
+        !materia ||
+        !dataInput ||
+        !horaInput
+    ) {
+
+        mostrarNotificacao(
+            "Campos da aula não encontrados.",
+            "erro"
+        );
+
+        return;
+
+    }
+
 
     aulaEmEdicao =
         null;
@@ -4081,18 +3570,417 @@ function abrirNovaAulaCalendario(
         [];
 
 
-    criarEditorAutomatico(
-        null,
-        data,
-        hora
+    id.value =
+        "";
+
+
+    materia.value =
+        "";
+
+
+    dataInput.value =
+        data;
+
+
+    horaInput.value =
+        hora;
+
+
+    const titulo =
+        $("lessonEditorTitle");
+
+
+    if (titulo) {
+
+        titulo.innerHTML =
+            "📚 Nova Aula";
+
+    }
+
+
+    atualizarListaDaAulaNoEditor(
+        overlay
+    );
+
+
+    overlay.style.display =
+        "flex";
+
+
+    configurarBotaoNovaAula(
+        overlay
+    );
+
+
+    configurarBotaoAdicionarAluno(
+        overlay
+    );
+
+
+    configurarBotaoSelecionarAlunos(
+        overlay
+    );
+
+
+    configurarBotaoAdicionarSelecionados(
+        overlay
     );
 
 }
 
 
-// ======================================================
-// ADICIONAR NOVO MÊS
-// ======================================================
+// ============================================
+// GUARDAR NOVA AULA
+// ============================================
+
+function configurarBotaoNovaAula(
+    overlay
+) {
+
+    const button =
+        overlay.querySelector(
+            "#saveLesson"
+        );
+
+
+    if (!button) {
+        return;
+    }
+
+
+    button.onclick =
+        async function (event) {
+
+            event.preventDefault();
+
+
+            const id =
+                overlay.querySelector(
+                    "#lessonId"
+                );
+
+
+            const materia =
+                overlay.querySelector(
+                    "#lessonSubject"
+                );
+
+
+            const data =
+                overlay.querySelector(
+                    "#lessonDate"
+                );
+
+
+            const hora =
+                overlay.querySelector(
+                    "#lessonTime"
+                );
+
+
+            if (
+                !id ||
+                !materia ||
+                !data ||
+                !hora
+            ) {
+
+                mostrarNotificacao(
+                    "Campos da aula não encontrados.",
+                    "erro"
+                );
+
+                return;
+
+            }
+
+
+            if (
+                !id.value ||
+                !data.value ||
+                !hora.value
+            ) {
+
+                mostrarNotificacao(
+                    "Seleciona a Lesson, a data e a hora.",
+                    "erro"
+                );
+
+                return;
+
+            }
+
+
+            const existe =
+                aulas.some(
+                    function (aula) {
+
+                        return (
+
+                            aula.data === data.value &&
+                            aula.hora === hora.value
+
+                        );
+
+                    }
+                );
+
+
+            if (existe) {
+
+                mostrarNotificacao(
+                    "Já existe uma aula nesse horário.",
+                    "erro"
+                );
+
+                return;
+
+            }
+
+
+            const lesson =
+                obterNumeroLesson({
+                    idAula:
+                        id.value
+                });
+
+
+            const nomeMateria =
+                obterMateriaLesson(
+                    lesson
+                );
+
+
+            try {
+
+                const novoDocumento =
+                    await addDoc(
+
+                        collection(
+                            db,
+                            "aulas"
+                        ),
+
+                        {
+
+                            idAula:
+                                id.value,
+
+                            materia:
+                                nomeMateria,
+
+                            data:
+                                data.value,
+
+                            hora:
+                                hora.value,
+
+                            alunos:
+                                alunosDaAula.map(
+                                    function (aluno) {
+
+                                        return aluno.numero;
+
+                                    }
+                                )
+
+                        }
+
+                    );
+
+
+                const novaAula = {
+
+                    id:
+                        novoDocumento.id,
+
+                    idAula:
+                        id.value,
+
+                    materia:
+                        nomeMateria,
+
+                    data:
+                        data.value,
+
+                    hora:
+                        hora.value,
+
+                    alunos:
+                        alunosDaAula.map(
+                            function (aluno) {
+
+                                return aluno.numero;
+
+                            }
+                        )
+
+                };
+
+
+                aulas.push(
+                    novaAula
+                );
+
+
+                overlay.style.display =
+                    "none";
+
+
+                alunosDaAula =
+                    [];
+
+
+                aulaEmEdicao =
+                    null;
+
+
+                mostrarAulas();
+
+                renderizarCalendario();
+
+                atualizarDashboard();
+
+
+                mostrarNotificacao(
+                    "Aula criada com sucesso ✅"
+                );
+
+            }
+
+            catch (erro) {
+
+                console.error(
+                    "Erro ao criar aula:",
+                    erro
+                );
+
+
+                mostrarNotificacao(
+                    "Erro ao criar aula.",
+                    "erro"
+                );
+
+            }
+
+        };
+
+}
+
+
+// ============================================
+// MATÉRIA AUTOMÁTICA
+// ============================================
+
+function configurarMateriasLesson() {
+
+    const select =
+        $("lessonId");
+
+
+    const campoMateria =
+        $("lessonSubject");
+
+
+    if (
+        !select ||
+        !campoMateria
+    ) {
+        return;
+    }
+
+
+    select.onchange =
+        function () {
+
+            const lesson =
+                obterNumeroLesson({
+                    idAula:
+                        this.value
+                });
+
+
+            campoMateria.value =
+                obterMateriaLesson(
+                    lesson
+                );
+
+        };
+
+}
+
+
+// ============================================
+// FECHAR EDITOR
+// ============================================
+
+function configurarFechoEditorCalendario() {
+
+    const fechar =
+        $("closeLessonEditor");
+
+
+    const overlay =
+        $("lessonEditorOverlay");
+
+
+    if (fechar) {
+
+        fechar.onclick =
+            function () {
+
+                if (overlay) {
+
+                    overlay.style.display =
+                        "none";
+
+                }
+
+
+                aulaEmEdicao =
+                    null;
+
+
+                alunosDaAula =
+                    [];
+
+            };
+
+    }
+
+
+    if (overlay) {
+
+        overlay.onclick =
+            function (event) {
+
+                if (
+                    event.target === overlay
+                ) {
+
+                    overlay.style.display =
+                        "none";
+
+
+                    aulaEmEdicao =
+                        null;
+
+
+                    alunosDaAula =
+                        [];
+
+                }
+
+            };
+
+    }
+
+}
+
+
+// ============================================
+// ADICIONAR MÊS
+// ============================================
 
 function configurarAdicionarMes() {
 
@@ -4128,7 +4016,20 @@ function configurarAdicionarMes() {
                 atual.getFullYear();
 
 
-            const id =
+            const nome =
+                atual.toLocaleDateString(
+                    "pt-PT",
+                    {
+                        month:
+                            "long",
+
+                        year:
+                            "numeric"
+                    }
+                );
+
+
+            const idMes =
                 ano +
                 "-" +
                 String(
@@ -4139,18 +4040,6 @@ function configurarAdicionarMes() {
                 );
 
 
-            const nome =
-                atual.toLocaleDateString(
-                    "pt-PT",
-                    {
-                        month:
-                            "long",
-                        year:
-                            "numeric"
-                    }
-                );
-
-
             try {
 
                 await setDoc(
@@ -4158,7 +4047,7 @@ function configurarAdicionarMes() {
                     doc(
                         db,
                         "mesesCalendario",
-                        id
+                        idMes
                     ),
 
                     {
@@ -4209,35 +4098,85 @@ function configurarAdicionarMes() {
 }
 
 
-// ======================================================
-// CONFIGURAR CALENDÁRIO
-// ======================================================
+// ============================================
+// LER MESES DO FIREBASE
+// ============================================
+
+function carregarMesesCalendario() {
+
+    onSnapshot(
+
+        collection(
+            db,
+            "mesesCalendario"
+        ),
+
+        function (snapshot) {
+
+            mesesCalendario =
+                [];
+
+
+            snapshot.forEach(
+                function (documento) {
+
+                    mesesCalendario.push({
+
+                        id:
+                            documento.id,
+
+                        ...documento.data()
+
+                    });
+
+                }
+            );
+
+
+            console.log(
+                "Meses do calendário:",
+                mesesCalendario
+            );
+
+
+            renderizarCalendario();
+
+        },
+
+        function (erro) {
+
+            console.error(
+                "Erro ao carregar meses:",
+                erro
+            );
+
+        }
+
+    );
+
+}
+
+
+// ============================================
+// INICIAR CALENDÁRIO
+// ============================================
 
 function iniciarCalendario() {
 
     configurarAdicionarMes();
 
+    configurarMateriasLesson();
+
+    configurarFechoEditorCalendario();
+
     carregarMesesCalendario();
 
-    renderizarCalendario();
-
 }
 
 
-// ======================================================
-// PESQUISA
-// ======================================================
-
-function iniciarPesquisa() {
-
-    configurarPesquisa();
-
-}
-
-
-// ======================================================
+// ============================================
 // EXPORTAR EXCEL
-// ======================================================
+// ============================================
 
 function configurarExportacaoExcel() {
 
@@ -4386,12 +4325,14 @@ function configurarExportacaoExcel() {
             catch (erro) {
 
                 console.error(
+                    "Erro ao exportar Excel:",
                     erro
                 );
 
 
                 mostrarNotificacao(
-                    "Erro ao exportar relatório.",
+                    "Erro ao exportar relatório: " +
+                    erro.message,
                     "erro"
                 );
 
@@ -4402,11 +4343,11 @@ function configurarExportacaoExcel() {
 }
 
 
-// ======================================================
-// PDF - ALUNOS ATIVOS
-// ======================================================
+// ============================================
+// IMPRIMIR ALUNOS ATIVOS
+// ============================================
 
-function configurarPDF() {
+function configurarImpressaoPDF() {
 
     const button =
         $("printActiveStudentsButton");
@@ -4503,8 +4444,9 @@ function configurarPDF() {
                     50;
 
 
-                const ativos =
-                    alunos
+                const alunosAtivos =
+                    [...alunos]
+
                         .filter(
                             function (aluno) {
 
@@ -4515,15 +4457,16 @@ function configurarPDF() {
 
                             }
                         )
+
                         .sort(
                             function (a, b) {
 
                                 return (
                                     Number(
-                                        a.numero || 0
+                                        a.numero
                                     ) -
                                     Number(
-                                        b.numero || 0
+                                        b.numero
                                     )
                                 );
 
@@ -4532,7 +4475,8 @@ function configurarPDF() {
 
 
                 if (
-                    ativos.length === 0
+                    alunosAtivos.length ===
+                    0
                 ) {
 
                     pdf.text(
@@ -4544,7 +4488,7 @@ function configurarPDF() {
                 }
 
 
-                ativos.forEach(
+                alunosAtivos.forEach(
                     function (
                         aluno,
                         index
@@ -4641,12 +4585,14 @@ function configurarPDF() {
             catch (erro) {
 
                 console.error(
+                    "Erro ao criar PDF:",
                     erro
                 );
 
 
                 mostrarNotificacao(
-                    "Erro ao criar PDF.",
+                    "Erro ao criar PDF: " +
+                    erro.message,
                     "erro"
                 );
 
@@ -4657,16 +4603,11 @@ function configurarPDF() {
 }
 
 
-// ======================================================
+// ============================================
 // INICIALIZAÇÃO
-// ======================================================
+// ============================================
 
 function iniciarAplicacao() {
-
-    console.log(
-        "ENGLISH CHECK iniciado."
-    );
-
 
     iniciarLogin();
 
@@ -4674,13 +4615,13 @@ function iniciarAplicacao() {
 
     configurarMenu();
 
-    iniciarPesquisa();
+    configurarPesquisa();
 
     iniciarCalendario();
 
     configurarExportacaoExcel();
 
-    configurarPDF();
+    configurarImpressaoPDF();
 
 
     if ($("app")) {
@@ -4690,17 +4631,12 @@ function iniciarAplicacao() {
 
     }
 
-
-    carregarAlunos();
-
-    carregarAulas();
-
 }
 
 
-// ======================================================
+// ============================================
 // ARRANCAR
-// ======================================================
+// ============================================
 
 if (
     document.readyState ===
