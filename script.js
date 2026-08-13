@@ -3907,20 +3907,64 @@ function renderizarCalendario() {
 
 
         // ----------------------------------------------------
-        // TÍTULO
-        // ----------------------------------------------------
+// TÍTULO + BOTÃO DE IMPRESSÃO
+// ----------------------------------------------------
 
-        const titulo =
-            document.createElement("h2");
+const tituloLinha =
+    document.createElement("div");
 
-        titulo.className =
-            "calendar-month-title";
+tituloLinha.className =
+    "calendar-month-title-row";
 
-        titulo.innerHTML =
-            `📅 ${nomeMes}`;
 
-        container.appendChild(titulo);
+const titulo =
+    document.createElement("h2");
 
+titulo.className =
+    "calendar-month-title";
+
+titulo.innerHTML =
+    `📅 ${nomeMes}`;
+
+
+// ----------------------------------------------------
+// BOTÃO "IMPRIMIR HORÁRIO"
+// ----------------------------------------------------
+
+const botaoImprimir =
+    document.createElement("button");
+
+botaoImprimir.type =
+    "button";
+
+botaoImprimir.className =
+    "print-schedule-button";
+
+botaoImprimir.innerHTML =
+    "🖨️ Imprimir horário";
+
+
+botaoImprimir.onclick =
+    function () {
+
+        imprimirHorario(
+            wrapper
+        );
+
+    };
+
+
+tituloLinha.appendChild(
+    titulo
+);
+
+tituloLinha.appendChild(
+    botaoImprimir
+);
+
+container.appendChild(
+    tituloLinha
+);
 
         // ----------------------------------------------------
         // WRAPPER
@@ -4334,6 +4378,183 @@ function renderizarCalendario() {
 
 }
 
+// ============================================================
+// IMPRIMIR HORÁRIO
+// ============================================================
+
+function imprimirHorario(wrapper) {
+
+    const tabela =
+        wrapper.querySelector(".monthly-schedule");
+
+    if (!tabela) {
+        return;
+    }
+
+
+    const janela =
+        window.open(
+            "",
+            "_blank"
+        );
+
+    if (!janela) {
+        alert(
+            "Não foi possível abrir a janela de impressão."
+        );
+        return;
+    }
+
+
+    janela.document.write(`
+        <!DOCTYPE html>
+
+        <html>
+
+        <head>
+
+            <meta charset="UTF-8">
+
+            <title>Horário</title>
+
+            <style>
+
+                @page {
+                    size: A4 landscape;
+                    margin: 8mm;
+                }
+
+
+                * {
+                    box-sizing: border-box;
+                }
+
+
+                body {
+                    margin: 0;
+                    padding: 0;
+                    background: white;
+                    font-family: Arial, sans-serif;
+                }
+
+
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    table-layout: fixed;
+                }
+
+
+                th,
+                td {
+                    border: 1px solid #000;
+                    text-align: center;
+                    vertical-align: middle;
+                }
+
+
+                th {
+                    background: #111;
+                    color: white;
+                    height: 35px;
+                    font-size: 9px;
+                }
+
+
+                td {
+                    height: 45px;
+                    font-size: 8px;
+                }
+
+
+                .schedule-time-header,
+                .schedule-time {
+                    width: 45px;
+                }
+
+
+                .schedule-lesson {
+                    padding: 2px;
+                    font-size: 7px;
+                }
+
+
+                .schedule-lesson strong,
+                .schedule-lesson span,
+                .schedule-lesson small {
+                    display: block;
+                }
+
+
+                .schedule-lesson strong {
+                    font-size: 8px;
+                }
+
+
+                .schedule-lesson span {
+                    font-size: 7px;
+                }
+
+
+                .schedule-lesson small {
+                    font-size: 6px;
+                }
+
+
+                .empty-schedule-cell {
+                    background: white !important;
+                }
+
+
+                .add-hour-symbol {
+                    display: none;
+                }
+
+
+                .lesson-green {
+                    background: #b7e1b0 !important;
+                }
+
+
+                .lesson-yellow {
+                    background: #ffe680 !important;
+                }
+
+
+                .lesson-red {
+                    background: #ff9999 !important;
+                }
+
+            </style>
+
+        </head>
+
+
+        <body>
+
+            ${tabela.outerHTML}
+
+        </body>
+
+        </html>
+    `);
+
+
+    janela.document.close();
+
+
+    janela.onload =
+        function () {
+
+            janela.focus();
+
+            janela.print();
+
+            janela.close();
+
+        };
+
+}
 
 // ============================================================
 // NOVA AULA A PARTIR DO CALENDÁRIO
