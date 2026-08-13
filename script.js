@@ -1228,6 +1228,14 @@ function mostrarAlunos() {
                         📝 Resultado exame
                     </button>
 
+                    <button
+    type="button"
+    class="registerLessonStudentButton"
+    data-id="${aluno.id}"
+>
+    📚 Registar aula
+</button>
+
                 </div>
 
                 <div
@@ -1251,6 +1259,399 @@ function mostrarAlunos() {
 
 }
 
+// ============================================================
+// REGISTAR AULA DIRETAMENTE NA FICHA DO ALUNO
+// ============================================================
+
+function abrirRegistoAulaAluno(aluno) {
+
+    if (!aluno) {
+        return;
+    }
+
+    const overlay =
+        document.createElement("div");
+
+    overlay.className =
+        "lesson-editor-overlay";
+
+    overlay.style.display =
+        "flex";
+
+    const modal =
+        document.createElement("div");
+
+    modal.className =
+        "lesson-editor-modal";
+
+    // --------------------------------------------------------
+    // DATA ATUAL
+    // --------------------------------------------------------
+
+    const hoje =
+        new Date();
+
+    const ano =
+        hoje.getFullYear();
+
+    const mes =
+        String(
+            hoje.getMonth() + 1
+        ).padStart(2, "0");
+
+    const dia =
+        String(
+            hoje.getDate()
+        ).padStart(2, "0");
+
+    const dataHoje =
+        `${ano}-${mes}-${dia}`;
+
+
+    // --------------------------------------------------------
+    // PRÓXIMA AULA
+    // --------------------------------------------------------
+
+    const contagem =
+        obterContagemAulas(aluno);
+
+    let proximaAula =
+        "";
+
+    if (contagem.total < 24) {
+
+        proximaAula =
+            String(
+                contagem.total + 1
+            ).padStart(
+                2,
+                "0"
+            );
+
+    }
+    else {
+
+        proximaAula =
+            "24";
+
+    }
+
+
+    // --------------------------------------------------------
+    // HTML
+    // --------------------------------------------------------
+
+    modal.innerHTML = `
+
+        <button
+            type="button"
+            class="close-lesson-editor"
+            id="closeRegisterStudentLesson"
+        >
+            ✕
+        </button>
+
+        <h2>
+            📚 Registar aula
+        </h2>
+
+        <div
+            style="
+                background:#f5f5f5;
+                padding:12px;
+                border-radius:8px;
+                margin-bottom:15px;
+            "
+        >
+
+            <strong>
+                👨‍🎓 ${escapeHTML(
+                    aluno.nome || ""
+                )}
+            </strong>
+
+            <br>
+
+            Nº
+            ${escapeHTML(
+                aluno.numero || ""
+            )}
+
+            <br>
+
+            Aulas realizadas:
+            ${contagem.total}
+
+        </div>
+
+
+        <label>
+            Lesson
+        </label>
+
+        <select
+            id="registerStudentLesson"
+        >
+
+            ${Object.keys(materias)
+                .map(
+                    function (numero) {
+
+                        return `
+
+                            <option
+                                value="${numero}"
+                                ${
+                                    numero === proximaAula
+                                        ? "selected"
+                                        : ""
+                                }
+                            >
+                                Lesson ${numero}
+                                -
+                                ${escapeHTML(
+                                    materias[numero]
+                                )}
+                            </option>
+
+                        `;
+
+                    }
+                )
+                .join("")
+            }
+
+        </select>
+
+
+        <label>
+            Data
+        </label>
+
+        <input
+            id="registerStudentLessonDate"
+            type="date"
+            value="${dataHoje}"
+        >
+
+
+        <label>
+            Hora
+        </label>
+
+        <input
+            id="registerStudentLessonTime"
+            type="time"
+            value=""
+        >
+
+
+        <button
+            type="button"
+            id="saveStudentLesson"
+            style="
+                margin-top:15px;
+                width:100%;
+            "
+        >
+            💾 Guardar aula
+        </button>
+
+    `;
+
+
+    overlay.appendChild(
+        modal
+    );
+
+    document.body.appendChild(
+        overlay
+    );
+
+
+    // --------------------------------------------------------
+    // FECHAR
+    // --------------------------------------------------------
+
+    $("closeRegisterStudentLesson").onclick =
+        function () {
+
+            overlay.remove();
+
+        };
+
+
+    // --------------------------------------------------------
+    // GUARDAR
+    // --------------------------------------------------------
+
+    $("saveStudentLesson").onclick =
+        async function () {
+
+            const numero =
+                $("registerStudentLesson")
+                    .value;
+
+            const data =
+                $("registerStudentLessonDate")
+                    .value;
+
+            const hora =
+                $("registerStudentLessonTime")
+                    .value;
+
+
+            if (
+                !numero ||
+                !data ||
+                !hora
+            ) {
+
+                mostrarNotificacao(
+                    "Seleciona a Lesson, a data e a hora.",
+                    "erro"
+                );
+
+                return;
+
+            }
+
+
+            // ------------------------------------------------
+            // VERIFICAR SE JÁ EXISTE UMA AULA IGUAL
+            // ------------------------------------------------
+
+            const aulaExistente =
+                aulas.some(
+                    function (aula) {
+
+                        return (
+
+                            aula.numero ===
+                                numero &&
+
+                            aula.data ===
+                                data &&
+
+                            aula.hora ===
+                                hora &&
+
+                            Array.isArray(
+                                aula.alunos
+                            ) &&
+
+                            aula.alunos.some(
+                                function (n) {
+
+                                    return (
+                                        String(n) ===
+                                        String(aluno.numero)
+                                    );
+
+                                }
+                            )
+
+                        );
+
+                    }
+                );
+
+
+            if (aulaExistente) {
+
+                mostrarNotificacao(
+                    "Este aluno já está registado nessa aula.",
+                    "erro"
+                );
+
+                return;
+
+            }
+
+
+            // ------------------------------------------------
+            // DADOS DA AULA
+            // ------------------------------------------------
+
+            const dados = {
+
+                numero:
+                    numero,
+
+                materia:
+                    materias[numero] ||
+                    "",
+
+                data:
+                    data,
+
+                hora:
+                    hora,
+
+                cor:
+                    obterCorAula(
+                        numero
+                    ),
+
+                alunos:
+                    [
+                        String(
+                            aluno.numero
+                        )
+                    ],
+
+                criadaEm:
+                    new Date()
+                        .toISOString()
+
+            };
+
+
+            try {
+
+                await addDoc(
+                    collection(
+                        db,
+                        "aulas"
+                    ),
+                    dados
+                );
+
+
+                overlay.remove();
+
+
+                mostrarNotificacao(
+                    `Lesson ${numero} registada para ${aluno.nome}.`
+                );
+
+
+                // Atualizar imediatamente
+                mostrarAlunos();
+
+                mostrarAulas();
+
+                renderizarCalendario();
+
+                atualizarDashboard();
+
+            }
+            catch (erro) {
+
+                console.error(
+                    erro
+                );
+
+                mostrarNotificacao(
+                    "Erro ao registar a aula.",
+                    "erro"
+                );
+
+            }
+
+        };
+
+}
 
 // ============================================================
 // ESCAPAR HTML
@@ -1386,6 +1787,41 @@ function configurarEventosAlunos() {
 
 }
 
+document
+    .querySelectorAll(
+        ".registerLessonStudentButton"
+    )
+    .forEach(
+        function (button) {
+
+            button.onclick =
+                function () {
+
+                    const aluno =
+                        alunos.find(
+                            function (a) {
+
+                                return (
+                                    a.id ===
+                                    button.dataset.id
+                                );
+
+                            }
+                        );
+
+
+                    if (aluno) {
+
+                        abrirRegistoAulaAluno(
+                            aluno
+                        );
+
+                    }
+
+                };
+
+        }
+    );
 
 // ============================================================
 // QR CODE DO ALUNO
