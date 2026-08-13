@@ -1320,15 +1320,14 @@ label {
    ============================================================ */
 
 .schedule-cell {
-    width: 75px;
-    min-width: 75px;
-    max-width: 75px;
+    width: auto;
+    min-width: 0;
+    max-width: none;
     height: 65px;
     padding: 3px;
     vertical-align: top;
     background: #fff;
 }
-
 
 /* ============================================================
    AULA
