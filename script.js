@@ -1770,12 +1770,13 @@ function iniciarAplicacao() {
 
     configurarPesquisa();
 
+    iniciarCalendario();
+
     if ($("app")) {
         $("app").style.display = "none";
     }
 
 }
-
 
 // ======================================================
 // ARRANCAR
@@ -2237,8 +2238,14 @@ if (printActiveStudentsButton) {
 // CALENDÁRIO
 // ======================================================
 
-// MÊS ATUAL DO CALENDÁRIO
+// Mês que está a ser visualizado
 let mesCalendarioAtual = new Date();
+
+// Meses criados no calendário
+let mesesCalendario = [];
+
+// Dias fechados
+let diasFechados = [];
 
 
 // ======================================================
@@ -2247,21 +2254,21 @@ let mesCalendarioAtual = new Date();
 
 const materiasCalendario = {
 
-    "1": "Driver Profile",
+    "01": "Driver Profile",
 
-    "2": "Driver and Physical/Psychological Fitness",
+    "02": "Driver and Physical/Psychological Fitness",
 
-    "3": "Road Safety and Defensive Driving",
+    "03": "Road Safety and Defensive Driving",
 
-    "4": "Traffic Rules and Road Signs",
+    "04": "Traffic Rules and Road Signs",
 
-    "5/6": "Vehicle and Driver Responsibilities",
+    "05/06": "Vehicle and Driver Responsibilities",
 
-    "7": "Driving Licence and Legal Requirements",
+    "07": "Driving Licence and Legal Requirements",
 
-    "8": "Road Users",
+    "08": "Road Users",
 
-    "9": "Speed",
+    "09": "Speed",
 
     "10": "Safety Distance",
 
@@ -2292,11 +2299,12 @@ const materiasCalendario = {
     "23": "Environmental and Economic Driving",
 
     "24": "Final Review"
+
 };
 
 
 // ======================================================
-// OBTER LESSON A PARTIR DO ID
+// OBTER LESSON
 // ======================================================
 
 function obterNumeroLesson(aula) {
@@ -2311,25 +2319,29 @@ function obterNumeroLesson(aula) {
         aula.numeroLesson ||
         "";
 
-    valor =
-        String(valor)
-            .trim()
-            .toLowerCase();
+    valor = String(valor).trim();
 
-    // Aceita "Lesson 5", "lesson 5", "5", etc.
-    valor =
-        valor.replace(
-            /^lesson\s*/i,
-            ""
-        );
+    valor = valor.replace(
+        /^lesson\s*/i,
+        ""
+    );
 
-    // Lessons 5 e 6 são uma só
     if (
         valor === "5" ||
         valor === "6" ||
-        valor === "5/6"
+        valor === "05" ||
+        valor === "06" ||
+        valor === "5/6" ||
+        valor === "05/06"
     ) {
-        return "5/6";
+        return "05/06";
+    }
+
+    if (
+        valor.length === 1 &&
+        !isNaN(valor)
+    ) {
+        valor = "0" + valor;
     }
 
     return valor;
@@ -2343,7 +2355,11 @@ function obterNumeroLesson(aula) {
 function obterClasseLesson(lesson) {
 
     if (lesson === "24") {
-        return "lesson-red";
+        return "lesson-vermelho";
+    }
+
+    if (lesson === "05/06") {
+        return "lesson-verde";
     }
 
     const numero =
@@ -2357,9 +2373,7 @@ function obterClasseLesson(lesson) {
         numero >= 1 &&
         numero <= 7
     ) {
-
-        return "lesson-green";
-
+        return "lesson-verde";
     }
 
     if (
@@ -2367,14 +2381,7 @@ function obterClasseLesson(lesson) {
         numero >= 8 &&
         numero <= 23
     ) {
-
-        return "lesson-yellow";
-
-    }
-
-    // 5/6 pertence ao grupo verde
-    if (lesson === "5/6") {
-        return "lesson-green";
+        return "lesson-amarelo";
     }
 
     return "";
@@ -2382,7 +2389,7 @@ function obterClasseLesson(lesson) {
 
 
 // ======================================================
-// NOME DA MATÉRIA
+// MATÉRIA
 // ======================================================
 
 function obterMateriaLesson(lesson, aula) {
@@ -2390,18 +2397,14 @@ function obterMateriaLesson(lesson, aula) {
     if (
         materiasCalendario[lesson]
     ) {
-
         return materiasCalendario[lesson];
-
     }
 
     if (
         aula &&
         aula.materia
     ) {
-
         return aula.materia;
-
     }
 
     return "Lesson " + lesson;
@@ -2414,25 +2417,21 @@ function obterMateriaLesson(lesson, aula) {
 
 function renderizarCalendario() {
 
-    const calendario =
-        $("calendar");
+    const container =
+        $("monthsContainer");
 
-    if (!calendario) {
-
+    if (!container) {
         console.warn(
-            "Elemento #calendar não encontrado."
+            "Elemento #monthsContainer não encontrado."
         );
-
         return;
     }
-
 
     const ano =
         mesCalendarioAtual.getFullYear();
 
     const mes =
         mesCalendarioAtual.getMonth();
-
 
     const primeiroDia =
         new Date(
@@ -2441,7 +2440,6 @@ function renderizarCalendario() {
             1
         );
 
-
     const ultimoDia =
         new Date(
             ano,
@@ -2449,23 +2447,8 @@ function renderizarCalendario() {
             0
         );
 
-
-    let primeiroDiaSemana =
-        primeiroDia.getDay();
-
-
-    // Domingo = 0
-    // Queremos segunda-feira = 0
-
-    primeiroDiaSemana =
-        primeiroDiaSemana === 0
-            ? 6
-            : primeiroDiaSemana - 1;
-
-
     const totalDias =
         ultimoDia.getDate();
-
 
     const nomeMes =
         primeiroDia.toLocaleDateString(
@@ -2476,84 +2459,105 @@ function renderizarCalendario() {
             }
         );
 
+    let primeiroDiaSemana =
+        primeiroDia.getDay();
 
-    calendario.innerHTML = `
+    // Domingo = 0
+    // Segunda = 0
+    primeiroDiaSemana =
+        primeiroDiaSemana === 0
+            ? 6
+            : primeiroDiaSemana - 1;
 
-        <div class="calendar-header">
 
-            <button
-                type="button"
-                id="previousMonth"
+    // ==================================================
+    // CABEÇALHO
+    // ==================================================
+
+    container.innerHTML = `
+
+        <div class="calendar-month">
+
+            <h3>
+                📅
+                ${nomeMes.charAt(0).toUpperCase() +
+                nomeMes.slice(1)}
+            </h3>
+
+            <div
+                style="
+                    display:flex;
+                    gap:10px;
+                    margin-bottom:15px;
+                "
             >
-                ◀
-            </button>
 
-            <h2>
-                ${nomeMes}
-            </h2>
+                <button
+                    type="button"
+                    id="previousMonth"
+                    style="width:auto;"
+                >
+                    ◀ Mês anterior
+                </button>
 
-            <button
-                type="button"
-                id="nextMonth"
-            >
-                ▶
-            </button>
+                <button
+                    type="button"
+                    id="nextMonth"
+                    style="width:auto;"
+                >
+                    Próximo mês ▶
+                </button>
+
+            </div>
+
+            <div class="calendar-table">
+
+                <div class="calendar-header">
+
+                    <div class="calendar-time-header">
+                        Dia
+                    </div>
+
+                    ${criarCabecalhoDias(
+                        ano,
+                        mes,
+                        totalDias
+                    )}
+
+                </div>
+
+
+                ${criarLinhasHorarias(
+                    ano,
+                    mes,
+                    totalDias
+                )}
+
+            </div>
 
         </div>
-
-
-        <div class="calendar-weekdays">
-
-            <div>SEG</div>
-            <div>TER</div>
-            <div>QUA</div>
-            <div>QUI</div>
-            <div>SEX</div>
-            <div>SÁB</div>
-            <div>DOM</div>
-
-        </div>
-
-
-        <div
-            class="calendar-grid"
-            id="calendarGrid"
-        ></div>
 
     `;
 
 
-    const grid =
-        $("calendarGrid");
+    configurarNavegacaoCalendario();
+
+    configurarCliquesCalendario();
+
+}
 
 
-    if (!grid) {
-        return;
-    }
+// ======================================================
+// CABEÇALHO DOS DIAS
+// ======================================================
 
+function criarCabecalhoDias(
+    ano,
+    mes,
+    totalDias
+) {
 
-    // Espaços antes do primeiro dia
-
-    for (
-        let i = 0;
-        i < primeiroDiaSemana;
-        i++
-    ) {
-
-        const vazio =
-            document.createElement("div");
-
-        vazio.className =
-            "calendar-day empty";
-
-        grid.appendChild(
-            vazio
-        );
-
-    }
-
-
-    // Dias do mês
+    let html = "";
 
     for (
         let dia = 1;
@@ -2561,107 +2565,208 @@ function renderizarCalendario() {
         dia++
     ) {
 
-        criarDiaCalendario(
-            grid,
-            ano,
-            mes,
-            dia
-        );
+        const data =
+            criarDataString(
+                ano,
+                mes,
+                dia
+            );
+
+        const dataObj =
+            new Date(
+                ano,
+                mes,
+                dia
+            );
+
+        const semana =
+            dataObj.toLocaleDateString(
+                "pt-PT",
+                {
+                    weekday: "short"
+                }
+            );
+
+        let classe = "";
+
+        if (
+            Array.isArray(diasFechados) &&
+            diasFechados.includes(data)
+        ) {
+            classe = "closed-day";
+        }
+
+        html += `
+
+            <div
+                class="calendar-day-header ${classe}"
+                data-date="${data}"
+            >
+
+                <strong>
+                    ${semana.toUpperCase()}
+                </strong>
+
+                <span>
+                    ${dia}
+                </span>
+
+            </div>
+
+        `;
 
     }
 
-
-    configurarNavegacaoCalendario();
-
+    return html;
 }
 
 
 // ======================================================
-// CRIAR DIA
+// LINHAS HORÁRIAS
 // ======================================================
 
-function criarDiaCalendario(
-    grid,
+function criarLinhasHorarias(
     ano,
     mes,
-    dia
+    totalDias
 ) {
 
-    const elemento =
-        document.createElement("div");
+    const horas = [
+        "09:00",
+        "10:00",
+        "11:00",
+        "12:00",
+        "14:00",
+        "15:00",
+        "16:00",
+        "17:00",
+        "18:00",
+        "19:00"
+    ];
 
-    elemento.className =
-        "calendar-day";
+    let html = "";
+
+    horas.forEach(
+        function (hora) {
+
+            html += `
+
+                <div class="calendar-row">
+
+                    <div class="calendar-time">
+                        ${hora}
+                    </div>
+
+                    ${criarCelulasHora(
+                        ano,
+                        mes,
+                        totalDias,
+                        hora
+                    )}
+
+                </div>
+
+            `;
+
+        }
+    );
+
+    return html;
+}
 
 
-    const dataString =
-        ano +
-        "-" +
-        String(mes + 1).padStart(2, "0") +
-        "-" +
-        String(dia).padStart(2, "0");
+// ======================================================
+// CÉLULAS DAS HORAS
+// ======================================================
 
+function criarCelulasHora(
+    ano,
+    mes,
+    totalDias,
+    hora
+) {
 
-    const hoje =
-        new Date();
+    let html = "";
 
-
-    const hojeString =
-        hoje.getFullYear() +
-        "-" +
-        String(
-            hoje.getMonth() + 1
-        ).padStart(2, "0") +
-        "-" +
-        String(
-            hoje.getDate()
-        ).padStart(2, "0");
-
-
-    if (
-        dataString === hojeString
+    for (
+        let dia = 1;
+        dia <= totalDias;
+        dia++
     ) {
 
-        elemento.classList.add(
-            "today"
-        );
+        const data =
+            criarDataString(
+                ano,
+                mes,
+                dia
+            );
+
+        const aulasDaCelula =
+            aulas.filter(
+                function (aula) {
+
+                    return (
+                        aula.data === data &&
+                        aula.hora === hora
+                    );
+
+                }
+            );
+
+
+        let classeDia = "";
+
+        if (
+            Array.isArray(diasFechados) &&
+            diasFechados.includes(data)
+        ) {
+
+            classeDia =
+                "closed-day";
+
+        }
+
+
+        html += `
+
+            <div
+                class="calendar-cell ${classeDia}"
+                data-date="${data}"
+                data-time="${hora}"
+            >
+
+                ${criarAulasDaCelula(
+                    aulasDaCelula
+                )}
+
+            </div>
+
+        `;
 
     }
 
-
-    elemento.innerHTML = `
-
-        <div class="calendar-number">
-            ${dia}
-        </div>
-
-        <div class="calendar-lessons"></div>
-
-    `;
+    return html;
+}
 
 
-    const lista =
-        elemento.querySelector(
-            ".calendar-lessons"
-        );
+// ======================================================
+// AULAS DENTRO DA CÉLULA
+// ======================================================
 
+function criarAulasDaCelula(
+    lista
+) {
 
-    // Procurar aulas deste dia
+    if (
+        !Array.isArray(lista) ||
+        lista.length === 0
+    ) {
+        return "";
+    }
 
-    const aulasDoDia =
-        aulas.filter(
-            function (aula) {
+    let html = "";
 
-                return (
-                    String(aula.data || "") ===
-                    dataString
-                );
-
-            }
-        );
-
-
-    aulasDoDia.forEach(
+    lista.forEach(
         function (aula) {
 
             const lesson =
@@ -2669,106 +2774,70 @@ function criarDiaCalendario(
                     aula
                 );
 
-
             const materia =
                 obterMateriaLesson(
                     lesson,
                     aula
                 );
 
-
             const classe =
                 obterClasseLesson(
                     lesson
                 );
 
+            html += `
 
-            const bloco =
-                document.createElement(
-                    "div"
-                );
+                <div
+                    class="
+                        lesson-cell
+                        ${classe}
+                    "
+                    data-lesson-id="${aula.id}"
+                    title="${materia}"
+                >
 
+                    <div class="lesson-number">
+                        Lesson ${lesson}
+                    </div>
 
-            bloco.className =
-                "calendar-lesson " +
-                classe;
+                    <div class="lesson-subject">
+                        ${materia}
+                    </div>
 
-
-            bloco.innerHTML = `
-
-                <strong>
-                    Lesson ${lesson}
-                </strong>
-
-                <span>
-                    ${materia}
-                </span>
-
-                ${
-                    aula.hora
-                        ? `<small>${aula.hora}</small>`
-                        : ""
-                }
+                </div>
 
             `;
-
-
-            bloco.title =
-                "Lesson " +
-                lesson +
-                " - " +
-                materia;
-
-
-            bloco.onclick =
-                function (event) {
-
-                    event.stopPropagation();
-
-                    abrirAula(
-                        aula
-                    );
-
-                };
-
-
-            lista.appendChild(
-                bloco
-            );
 
         }
     );
 
-
-    // Dia fechado
-
-    if (
-        Array.isArray(diasFechados) &&
-        diasFechados.includes(dataString)
-    ) {
-
-        elemento.classList.add(
-            "closed-day"
-        );
-
-        elemento.innerHTML += `
-            <div class="closed-label">
-                FECHADO
-            </div>
-        `;
-
-    }
+    return html;
+}
 
 
-    grid.appendChild(
-        elemento
+// ======================================================
+// DATA STRING
+// ======================================================
+
+function criarDataString(
+    ano,
+    mes,
+    dia
+) {
+
+    return (
+        ano +
+        "-" +
+        String(mes + 1).padStart(2, "0") +
+        "-" +
+        String(dia).padStart(2, "0")
     );
 
 }
 
 
 // ======================================================
-// NAVEGAÇÃO DO CALENDÁRIO
+// NAVEGAÇÃO
 // ======================================================
 
 function configurarNavegacaoCalendario() {
@@ -2810,5 +2879,766 @@ function configurarNavegacaoCalendario() {
             };
 
     }
+
+}
+
+
+// ======================================================
+// CLIQUES NO CALENDÁRIO
+// ======================================================
+
+function configurarCliquesCalendario() {
+
+    document
+        .querySelectorAll(
+            ".calendar-cell"
+        )
+        .forEach(
+            function (celula) {
+
+                celula.onclick =
+                    function () {
+
+                        const data =
+                            this.dataset.date;
+
+                        const hora =
+                            this.dataset.time;
+
+
+                        // Se houver uma aula nesta célula,
+                        // não criar outra automaticamente.
+
+                        const aulaExistente =
+                            aulas.find(
+                                function (aula) {
+
+                                    return (
+                                        aula.data === data &&
+                                        aula.hora === hora
+                                    );
+
+                                }
+                            );
+
+
+                        if (aulaExistente) {
+
+                            abrirAula(
+                                aulaExistente
+                            );
+
+                            return;
+                        }
+
+
+                        // Dia fechado
+
+                        if (
+                            diasFechados.includes(
+                                data
+                            )
+                        ) {
+
+                            mostrarNotificacao(
+                                "Este dia está fechado.",
+                                "erro"
+                            );
+
+                            return;
+                        }
+
+
+                        abrirNovaAulaCalendario(
+                            data,
+                            hora
+                        );
+
+                    };
+
+            }
+        );
+
+
+    // Clicar numa aula existente
+
+    document
+        .querySelectorAll(
+            ".lesson-cell"
+        )
+        .forEach(
+            function (elemento) {
+
+                elemento.onclick =
+                    function (event) {
+
+                        event.stopPropagation();
+
+                        const id =
+                            this.dataset.lessonId;
+
+                        const aula =
+                            aulas.find(
+                                function (a) {
+
+                                    return a.id === id;
+
+                                }
+                            );
+
+                        if (aula) {
+                            abrirAula(aula);
+                        }
+
+                    };
+
+            }
+        );
+
+}
+
+
+// ======================================================
+// ABRIR NOVA AULA A PARTIR DO CALENDÁRIO
+// ======================================================
+
+function abrirNovaAulaCalendario(
+    data,
+    hora
+) {
+
+    const overlay =
+        $("lessonEditorOverlay");
+
+    if (!overlay) {
+
+        mostrarNotificacao(
+            "Editor de aula não encontrado.",
+            "erro"
+        );
+
+        return;
+    }
+
+
+    const id =
+        $("lessonId");
+
+    const materia =
+        $("lessonSubject");
+
+    const dataInput =
+        $("lessonDate");
+
+    const horaInput =
+        $("lessonTime");
+
+
+    if (
+        !id ||
+        !materia ||
+        !dataInput ||
+        !horaInput
+    ) {
+
+        mostrarNotificacao(
+            "Campos da aula não encontrados.",
+            "erro"
+        );
+
+        return;
+    }
+
+
+    // É uma aula nova
+    aulaEmEdicao = null;
+    alunosDaAula = [];
+
+
+    id.value = "";
+
+    materia.value = "";
+
+    dataInput.value = data;
+
+    horaInput.value = hora;
+
+
+    const titulo =
+        $("lessonEditorTitle");
+
+    if (titulo) {
+
+        titulo.innerHTML =
+            "📚 Nova Aula";
+
+    }
+
+
+    atualizarListaDaAulaNoEditor(
+        overlay
+    );
+
+
+    overlay.style.display =
+        "flex";
+
+
+    configurarBotaoNovaAula(
+        overlay
+    );
+
+
+    configurarBotaoAdicionarAluno(
+        overlay
+    );
+
+
+    configurarBotaoSelecionarAlunos(
+        overlay
+    );
+
+
+    configurarBotaoAdicionarSelecionados(
+        overlay
+    );
+
+}
+
+
+// ======================================================
+// GUARDAR NOVA AULA
+// ======================================================
+
+function configurarBotaoNovaAula(
+    overlay
+) {
+
+    const button =
+        overlay.querySelector(
+            "#saveLesson"
+        );
+
+    if (!button) {
+        return;
+    }
+
+
+    button.onclick =
+        async function (event) {
+
+            event.preventDefault();
+
+
+            const id =
+                overlay.querySelector(
+                    "#lessonId"
+                );
+
+            const materia =
+                overlay.querySelector(
+                    "#lessonSubject"
+                );
+
+            const data =
+                overlay.querySelector(
+                    "#lessonDate"
+                );
+
+            const hora =
+                overlay.querySelector(
+                    "#lessonTime"
+                );
+
+
+            if (
+                !id ||
+                !materia ||
+                !data ||
+                !hora
+            ) {
+
+                mostrarNotificacao(
+                    "Campos da aula não encontrados.",
+                    "erro"
+                );
+
+                return;
+            }
+
+
+            if (
+                !id.value ||
+                !data.value ||
+                !hora.value
+            ) {
+
+                mostrarNotificacao(
+                    "Seleciona a Lesson, a data e a hora.",
+                    "erro"
+                );
+
+                return;
+            }
+
+
+            const existe =
+                aulas.some(
+                    function (aula) {
+
+                        return (
+                            aula.data === data.value &&
+                            aula.hora === hora.value
+                        );
+
+                    }
+                );
+
+
+            if (existe) {
+
+                mostrarNotificacao(
+                    "Já existe uma aula nesse horário.",
+                    "erro"
+                );
+
+                return;
+            }
+
+
+            const lesson =
+                obterNumeroLesson({
+                    idAula: id.value
+                });
+
+
+            const nomeMateria =
+                obterMateriaLesson(
+                    lesson
+                );
+
+
+            try {
+
+                const novoDocumento =
+                    await addDoc(
+                        collection(
+                            db,
+                            "aulas"
+                        ),
+                        {
+
+                            idAula:
+                                id.value,
+
+                            materia:
+                                nomeMateria,
+
+                            data:
+                                data.value,
+
+                            hora:
+                                hora.value,
+
+                            alunos:
+                                alunosDaAula.map(
+                                    function (aluno) {
+
+                                        return aluno.numero;
+
+                                    }
+                                )
+
+                        }
+                    );
+
+
+                const novaAula = {
+
+                    id:
+                        novoDocumento.id,
+
+                    idAula:
+                        id.value,
+
+                    materia:
+                        nomeMateria,
+
+                    data:
+                        data.value,
+
+                    hora:
+                        hora.value,
+
+                    alunos:
+                        alunosDaAula.map(
+                            function (aluno) {
+
+                                return aluno.numero;
+
+                            }
+                        )
+
+                };
+
+
+                aulas.push(
+                    novaAula
+                );
+
+
+                // Atualizar a matéria automaticamente
+
+                materia.value =
+                    nomeMateria;
+
+
+                overlay.style.display =
+                    "none";
+
+
+                alunosDaAula = [];
+
+                aulaEmEdicao = null;
+
+
+                mostrarAulas();
+
+                renderizarCalendario();
+
+                atualizarDashboard();
+
+
+                mostrarNotificacao(
+                    "Aula criada com sucesso ✅"
+                );
+
+            }
+
+            catch (erro) {
+
+                console.error(
+                    "Erro ao criar aula:",
+                    erro
+                );
+
+                mostrarNotificacao(
+                    "Erro ao criar aula.",
+                    "erro"
+                );
+
+            }
+
+        };
+
+}
+
+
+// ======================================================
+// MATÉRIA AUTOMÁTICA NO SELECT
+// ======================================================
+
+function configurarMateriasLesson() {
+
+    const select =
+        $("lessonId");
+
+    const campoMateria =
+        $("lessonSubject");
+
+
+    if (
+        !select ||
+        !campoMateria
+    ) {
+        return;
+    }
+
+
+    select.onchange =
+        function () {
+
+            const lesson =
+                obterNumeroLesson({
+                    idAula: this.value
+                });
+
+
+            campoMateria.value =
+                obterMateriaLesson(
+                    lesson
+                );
+
+        };
+
+}
+
+
+// ======================================================
+// FECHAR EDITOR DE NOVA AULA
+// ======================================================
+
+function configurarFechoEditorCalendario() {
+
+    const fechar =
+        $("closeLessonEditor");
+
+    const overlay =
+        $("lessonEditorOverlay");
+
+
+    if (fechar) {
+
+        fechar.onclick =
+            function () {
+
+                overlay.style.display =
+                    "none";
+
+                aulaEmEdicao = null;
+
+                alunosDaAula = [];
+
+            };
+
+    }
+
+
+    if (overlay) {
+
+        overlay.onclick =
+            function (event) {
+
+                if (
+                    event.target === overlay
+                ) {
+
+                    overlay.style.display =
+                        "none";
+
+                    aulaEmEdicao = null;
+
+                    alunosDaAula = [];
+
+                }
+
+            };
+
+    }
+
+}
+
+
+// ======================================================
+// ADICIONAR NOVO MÊS
+// ======================================================
+
+function configurarAdicionarMes() {
+
+    const button =
+        $("addMonthButton");
+
+    if (!button) {
+
+        console.warn(
+            "Botão addMonthButton não encontrado."
+        );
+
+        return;
+    }
+
+
+    button.onclick =
+        async function () {
+
+            const atual =
+                new Date(
+                    mesCalendarioAtual
+                );
+
+
+            const mes =
+                atual.getMonth();
+
+            const ano =
+                atual.getFullYear();
+
+
+            const nome =
+                atual.toLocaleDateString(
+                    "pt-PT",
+                    {
+                        month: "long",
+                        year: "numeric"
+                    }
+                );
+
+
+            try {
+
+                await setDoc(
+                    doc(
+                        db,
+                        "mesesCalendario",
+                        ano + "-" +
+                        String(
+                            mes + 1
+                        ).padStart(2, "0")
+                    ),
+                    {
+
+                        ano:
+                            ano,
+
+                        mes:
+                            mes + 1,
+
+                        nome:
+                            nome,
+
+                        criadoEm:
+                            new Date()
+
+                    }
+                );
+
+
+                if (
+                    !mesesCalendario.some(
+                        function (m) {
+
+                            return (
+                                m.ano === ano &&
+                                m.mes === mes + 1
+                            );
+
+                        }
+                    )
+                ) {
+
+                    mesesCalendario.push({
+
+                        id:
+                            ano + "-" +
+                            String(
+                                mes + 1
+                            ).padStart(
+                                2,
+                                "0"
+                            ),
+
+                        ano:
+                            ano,
+
+                        mes:
+                            mes + 1,
+
+                        nome:
+                            nome
+
+                    });
+
+                }
+
+
+                renderizarCalendario();
+
+
+                mostrarNotificacao(
+                    "Mês adicionado com sucesso ✅"
+                );
+
+            }
+
+            catch (erro) {
+
+                console.error(
+                    "Erro ao adicionar mês:",
+                    erro
+                );
+
+                mostrarNotificacao(
+                    "Erro ao adicionar mês.",
+                    "erro"
+                );
+
+            }
+
+        };
+
+}
+
+
+// ======================================================
+// LER MESES DO FIREBASE
+// ======================================================
+
+function carregarMesesCalendario() {
+
+    onSnapshot(
+
+        collection(
+            db,
+            "mesesCalendario"
+        ),
+
+        function (snapshot) {
+
+            mesesCalendario = [];
+
+
+            snapshot.forEach(
+                function (documento) {
+
+                    mesesCalendario.push({
+
+                        id:
+                            documento.id,
+
+                        ...documento.data()
+
+                    });
+
+                }
+            );
+
+
+            console.log(
+                "Meses do calendário:",
+                mesesCalendario
+            );
+
+
+            renderizarCalendario();
+
+        },
+
+        function (erro) {
+
+            console.error(
+                "Erro ao carregar meses:",
+                erro
+            );
+
+        }
+
+    );
+
+}
+
+
+// ======================================================
+// INICIALIZAR CALENDÁRIO
+// ======================================================
+
+function iniciarCalendario() {
+
+    configurarAdicionarMes();
+
+    configurarMateriasLesson();
+
+    configurarFechoEditorCalendario();
+
+    carregarMesesCalendario();
 
 }
