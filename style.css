@@ -1433,3 +1433,341 @@ label {
     }
 
 }
+
+/* ============================================================
+   GRELHA DO CALENDÁRIO
+   ============================================================ */
+
+.monthly-schedule {
+    border-collapse: collapse;
+    border-spacing: 0;
+    table-layout: fixed;
+    min-width: 2400px;
+    width: max-content;
+}
+
+
+/* TODAS AS CÉLULAS */
+
+.monthly-schedule th,
+.monthly-schedule td {
+    border: 1px solid #999;
+}
+
+
+/* ============================================================
+   CABEÇALHO DOS DIAS
+   ============================================================ */
+
+.schedule-day-header {
+    width: 75px;
+    min-width: 75px;
+    max-width: 75px;
+
+    height: 48px;
+
+    background: #111;
+    color: white;
+
+    text-align: center;
+    vertical-align: middle;
+
+    border: 1px solid #555 !important;
+}
+
+
+.schedule-day-header strong {
+    display: block;
+    font-size: 14px;
+}
+
+
+.schedule-day-header small {
+    display: block;
+    font-size: 10px;
+    margin-top: 2px;
+}
+
+
+/* ============================================================
+   COLUNA DAS HORAS
+   ============================================================ */
+
+.schedule-time-header {
+    width: 70px;
+    min-width: 70px;
+    max-width: 70px;
+
+    background: #111;
+    color: white;
+
+    text-align: center;
+
+    position: sticky;
+    left: 0;
+
+    z-index: 10;
+}
+
+
+.schedule-time {
+    width: 70px;
+    min-width: 70px;
+    max-width: 70px;
+
+    height: 70px;
+
+    background: #f1f1f1;
+
+    font-weight: bold;
+    text-align: center;
+    vertical-align: middle;
+
+    position: sticky;
+    left: 0;
+
+    z-index: 5;
+}
+
+
+/* ============================================================
+   CÉLULAS DA GRELHA
+   ============================================================ */
+
+.schedule-cell {
+
+    width: 75px;
+    min-width: 75px;
+    max-width: 75px;
+
+    height: 70px;
+
+    padding: 3px;
+
+    vertical-align: top;
+
+    background: #ffffff;
+
+    border: 1px solid #aaa !important;
+
+    position: relative;
+}
+
+
+/* ============================================================
+   CÉLULA VAZIA
+   ============================================================ */
+
+.empty-schedule-cell {
+
+    cursor: pointer;
+
+    transition:
+        background 0.15s,
+        box-shadow 0.15s;
+
+}
+
+
+/* Quando passamos o rato */
+
+.empty-schedule-cell:hover {
+
+    background: #fffde7;
+
+    box-shadow:
+        inset 0 0 0 2px #f9a825;
+
+}
+
+
+/* Sinal + */
+
+.add-hour-symbol {
+
+    position: absolute;
+
+    top: 50%;
+    left: 50%;
+
+    transform:
+        translate(-50%, -50%);
+
+    font-size: 22px;
+
+    color: #bbb;
+
+    pointer-events: none;
+
+}
+
+
+/* O + fica mais visível ao passar */
+
+.empty-schedule-cell:hover
+.add-hour-symbol {
+
+    color: #f9a825;
+
+    font-weight: bold;
+
+}
+
+
+/* ============================================================
+   AULAS
+   ============================================================ */
+
+.schedule-lesson {
+
+    width: 100%;
+
+    min-height: 62px;
+
+    box-sizing: border-box;
+
+    border-radius: 5px;
+
+    padding: 5px;
+
+    cursor: pointer;
+
+    overflow: hidden;
+
+    font-size: 10px;
+
+    line-height: 1.2;
+
+    transition:
+        transform 0.1s,
+        box-shadow 0.1s;
+
+}
+
+
+.schedule-lesson:hover {
+
+    transform: scale(1.03);
+
+    box-shadow:
+        0 2px 7px rgba(0,0,0,0.25);
+
+}
+
+
+.schedule-lesson strong {
+
+    display: block;
+
+    font-size: 11px;
+
+    margin-bottom: 2px;
+
+}
+
+
+.schedule-lesson span {
+
+    display: block;
+
+    font-weight: bold;
+
+    font-size: 10px;
+
+}
+
+
+.schedule-lesson small {
+
+    display: block;
+
+    font-size: 9px;
+
+    margin-top: 2px;
+
+}
+
+
+/* ============================================================
+   CORES
+   ============================================================ */
+
+.lesson-green {
+
+    background: #c8e6c9;
+
+    border-left:
+        5px solid #2e7d32;
+
+    color: #1b5e20;
+
+}
+
+
+.lesson-yellow {
+
+    background: #fff3b0;
+
+    border-left:
+        5px solid #f9a825;
+
+    color: #6d4c00;
+
+}
+
+
+.lesson-red {
+
+    background: #ffcdd2;
+
+    border-left:
+        5px solid #c62828;
+
+    color: #b71c1c;
+
+}
+
+
+/* ============================================================
+   SCROLL
+   ============================================================ */
+
+.calendar-table-wrapper {
+
+    width: 100%;
+
+    overflow-x: auto;
+    overflow-y: hidden;
+
+    border:
+        1px solid #777;
+
+    background: white;
+
+    margin-bottom: 30px;
+
+}
+
+
+/* ============================================================
+   TABLET / TELEMÓVEL
+   ============================================================ */
+
+@media (max-width: 768px) {
+
+    .monthly-schedule {
+
+        min-width: 2400px;
+
+    }
+
+    .schedule-cell,
+    .schedule-day-header {
+
+        width: 75px;
+        min-width: 75px;
+        max-width: 75px;
+
+    }
+
+}
