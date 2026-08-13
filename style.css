@@ -1344,6 +1344,7 @@ label {
     overflow: hidden;
     font-size: 11px;
     line-height: 1.2;
+    word-break: break-word;
 }
 
 
@@ -1351,6 +1352,7 @@ label {
     display: block;
     font-size: 12px;
     margin-bottom: 2px;
+    overflow-wrap: anywhere;
 }
 
 
@@ -1366,7 +1368,6 @@ label {
     font-size: 9px;
     margin-top: 2px;
 }
-
 
 /* ============================================================
    CORES DAS AULAS
