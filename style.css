@@ -1241,8 +1241,8 @@ label {
 .monthly-schedule {
     border-collapse: collapse;
     table-layout: fixed;
-    min-width: 1250px;
-    width: max-content;
+    width: 100%;
+    max-width: 100%;
 }
 
 
