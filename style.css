@@ -1227,14 +1227,15 @@ label {
 
 .calendar-table-wrapper {
     width: 100%;
+    max-width: 100%;
     overflow-x: auto;
     overflow-y: hidden;
     border: 1px solid #ccc;
     border-radius: 8px;
     background: white;
     margin-bottom: 30px;
+    box-sizing: border-box;
 }
-
 
 /* TABELA */
 
