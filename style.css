@@ -1771,3 +1771,77 @@ label {
     }
 
 }
+
+/* ============================================================
+   CALENDÁRIO — GRELHA RESPONSIVA
+   ============================================================ */
+
+.calendar-table-wrapper {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+}
+
+.monthly-schedule {
+    width: 100%;
+    max-width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.schedule-time-header,
+.schedule-time {
+    width: 55px;
+    min-width: 55px;
+    max-width: 55px;
+}
+
+.schedule-day-header {
+    padding: 5px 2px;
+    text-align: center;
+}
+
+.schedule-cell {
+    height: 55px;
+    padding: 2px;
+    vertical-align: top;
+}
+
+.schedule-lesson {
+    width: 100%;
+    height: 100%;
+    min-height: 50px;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+@media (max-width: 700px) {
+
+    .calendar-table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .monthly-schedule {
+        width: 100%;
+        min-width: 700px;
+    }
+
+    .schedule-cell {
+        height: 50px;
+    }
+
+    .schedule-lesson strong {
+        font-size: 11px;
+    }
+
+    .schedule-lesson span {
+        font-size: 9px;
+    }
+
+    .schedule-lesson small {
+        font-size: 8px;
+    }
+}
