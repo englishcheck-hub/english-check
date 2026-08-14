@@ -65,9 +65,11 @@ let aulaEmEdicao = null;
 let alunoResultadoExame = null;
 
 let mesesCalendario = [];
+let mesesGuardados = [];
 let diasFechados = [];
 
 let mesCalendarioAtual = new Date();
+
 
 
 // ============================================================
@@ -3814,6 +3816,157 @@ function configurarEditorAula() {
 }
 
 // ============================================================
+// ADICIONAR NOVO MÊS
+// ============================================================
+
+function configurarAdicionarMes() {
+
+    const button =
+        $("addMonthButton");
+
+
+    if (!button) {
+        console.error(
+            "addMonthButton não encontrado."
+        );
+
+        return;
+    }
+
+
+    button.onclick =
+        async function () {
+
+            const agora =
+                new Date();
+
+
+            const anoAtual =
+                agora.getFullYear();
+
+
+            const mesAtual =
+                agora.getMonth() + 1;
+
+
+            const valor =
+                prompt(
+                    "Introduz o mês e o ano.\n\nExemplo: 09/2026",
+                    String(
+                        mesAtual
+                    ).padStart(2, "0") +
+                    "/" +
+                    anoAtual
+                );
+
+
+            if (!valor) {
+                return;
+            }
+
+
+            const partes =
+                valor.trim().split("/");
+
+
+            if (
+                partes.length !== 2
+            ) {
+
+                mostrarNotificacao(
+                    "Formato inválido. Usa MM/AAAA.",
+                    "erro"
+                );
+
+                return;
+            }
+
+
+            const mes =
+                Number(
+                    partes[0]
+                );
+
+
+            const ano =
+                Number(
+                    partes[1]
+                );
+
+
+            if (
+                !Number.isInteger(mes) ||
+                !Number.isInteger(ano) ||
+                mes < 1 ||
+                mes > 12 ||
+                ano < 2020 ||
+                ano > 2100
+            ) {
+
+                mostrarNotificacao(
+                    "Mês ou ano inválido.",
+                    "erro"
+                );
+
+                return;
+            }
+
+
+            const chave =
+                String(ano) +
+                "-" +
+                String(mes).padStart(
+                    2,
+                    "0"
+                );
+
+
+            try {
+
+                await setDoc(
+                    doc(
+                        db,
+                        "meses",
+                        chave
+                    ),
+                    {
+                        ano: ano,
+                        mes: mes,
+                        chave: chave,
+                        criadoEm:
+                            new Date().toISOString()
+                    }
+                );
+
+
+                mostrarNotificacao(
+                    "Mês adicionado com sucesso."
+                );
+
+
+                renderizarCalendario();
+
+            }
+            catch (erro) {
+
+                console.error(
+                    "Erro ao adicionar mês:",
+                    erro
+                );
+
+
+                mostrarNotificacao(
+                    "Erro ao adicionar o mês.",
+                    "erro"
+                );
+
+            }
+
+        };
+
+}
+
+// ============================================================
 // CALENDÁRIO MENSAL EM GRELHA
 // DIAS NA HORIZONTAL
 // HORAS NA VERTICAL
@@ -3828,84 +3981,115 @@ function renderizarCalendario() {
         return;
     }
 
-    if (aulas.length === 0) {
+// --------------------------------------------------------
+// Preparar meses do calendário
+// --------------------------------------------------------
 
-        container.innerHTML = `
-            <div class="calendar-empty">
-                📅
-                <p>Ainda não existem aulas.</p>
-            </div>
-        `;
+const meses = {};
 
+
+// --------------------------------------------------------
+// Criar os meses a partir das aulas existentes
+// --------------------------------------------------------
+
+aulas.forEach(function (aula) {
+
+    if (!aula.data) {
         return;
     }
 
+    const chave =
+        aula.data.substring(0, 7);
 
-    // --------------------------------------------------------
-    // Agrupar aulas por mês
-    // --------------------------------------------------------
 
-    const meses = {};
+    if (!meses[chave]) {
+        meses[chave] = [];
+    }
 
-    aulas.forEach(function (aula) {
 
-        if (!aula.data) {
+    meses[chave].push(aula);
+
+});
+
+
+// --------------------------------------------------------
+// Adicionar também os meses guardados no Firebase
+// --------------------------------------------------------
+
+mesesGuardados.forEach(
+    function (mesGuardado) {
+
+        if (
+            !mesGuardado.ano ||
+            !mesGuardado.mes
+        ) {
             return;
         }
 
-        const chave = aula.data.substring(0, 7);
 
-        if (!meses[chave]) {
-            meses[chave] = [];
-        }
-
-        meses[chave].push(aula);
-
-    });
-
-
-    const mesesOrdenados =
-        Object.keys(meses)
-            .sort()
-            .reverse();
-
-
-    container.innerHTML = "";
-
-
-    // --------------------------------------------------------
-    // Criar cada mês
-    // --------------------------------------------------------
-
-    mesesOrdenados.forEach(function (chave) {
-
-        const partes = chave.split("-");
-
-        const ano = Number(partes[0]);
-        const mes = Number(partes[1]);
-
-        const diasNoMes =
-            new Date(
-                ano,
-                mes,
-                0
-            ).getDate();
-
-
-        const nomeMes =
-            new Date(
-                ano,
-                mes - 1,
-                1
-            ).toLocaleDateString(
-                "en-GB",
-                {
-                    month: "long",
-                    year: "numeric"
-                }
+        const chave =
+            String(
+                mesGuardado.ano
+            ) +
+            "-" +
+            String(
+                mesGuardado.mes
+            ).padStart(
+                2,
+                "0"
             );
 
 
+        if (!meses[chave]) {
+
+            meses[chave] = [];
+
+        }
+
+    }
+);
+
+// --------------------------------------------------------
+// Ordenar meses
+// --------------------------------------------------------
+
+const mesesOrdenados =
+    Object.keys(meses)
+        .sort()
+        .reverse();
+
+
+// --------------------------------------------------------
+// Criar cada mês
+// --------------------------------------------------------
+
+mesesOrdenados.forEach(function (chave) {
+
+    const partes = chave.split("-");
+
+    const ano = Number(partes[0]);
+    const mes = Number(partes[1]);
+
+    const diasNoMes =
+        new Date(
+            ano,
+            mes,
+            0
+        ).getDate();
+
+    const nomeMes =
+        new Date(
+            ano,
+            mes - 1,
+            1
+        ).toLocaleDateString(
+            "en-GB",
+            {
+                month: "long",
+                year: "numeric"
+            }
+        );
+    
         // ----------------------------------------------------
 // TÍTULO + BOTÃO DE IMPRESSÃO
 // ----------------------------------------------------
@@ -4148,9 +4332,8 @@ container.appendChild(
                 // ------------------------------------------------
 
                 const aulasDoHorario =
-                    meses[chave].filter(
-                        function (aula) {
-
+    (meses[chave] || []).filter(
+        
                             if (
                                 aula.data !==
                                 dataString
@@ -5281,6 +5464,52 @@ onSnapshot(
 
 );
 
+// ============================================================
+// FIREBASE - MESES DO CALENDÁRIO
+// ============================================================
+
+onSnapshot(
+
+    collection(
+        db,
+        "meses"
+    ),
+
+    function (snapshot) {
+
+        mesesGuardados =
+            [];
+
+        snapshot.forEach(
+            function (documento) {
+
+                mesesGuardados.push({
+
+                    id:
+                        documento.id,
+
+                    ...documento.data()
+
+                });
+
+            }
+        );
+
+
+        renderizarCalendario();
+
+    },
+
+    function (erro) {
+
+        console.error(
+            "Erro ao carregar meses:",
+            erro
+        );
+
+    }
+
+);
 
 // ============================================================
 // INICIALIZAÇÃO
