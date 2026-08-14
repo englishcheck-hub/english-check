@@ -3944,16 +3944,6 @@ botaoImprimir.innerHTML =
     "🖨️ Imprimir horário";
 
 
-botaoImprimir.onclick =
-    function () {
-
-        imprimirHorario(
-            wrapper
-        );
-
-    };
-
-
 tituloLinha.appendChild(
     titulo
 );
@@ -3975,6 +3965,15 @@ container.appendChild(
 
         wrapper.className =
             "calendar-table-wrapper";
+       
+        botaoImprimir.onclick =
+    function () {
+
+        imprimirHorario(
+            wrapper
+        );
+
+    };
 
 
         // ----------------------------------------------------
