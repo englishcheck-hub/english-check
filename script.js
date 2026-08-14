@@ -4013,43 +4013,6 @@ aulas.forEach(function (aula) {
 
 
 // --------------------------------------------------------
-// Adicionar também os meses guardados no Firebase
-// --------------------------------------------------------
-
-mesesGuardados.forEach(
-    function (mesGuardado) {
-
-        if (
-            !mesGuardado.ano ||
-            !mesGuardado.mes
-        ) {
-            return;
-        }
-
-
-        const chave =
-            String(
-                mesGuardado.ano
-            ) +
-            "-" +
-            String(
-                mesGuardado.mes
-            ).padStart(
-                2,
-                "0"
-            );
-
-
-        if (!meses[chave]) {
-
-            meses[chave] = [];
-
-        }
-
-    }
-);
-
-// --------------------------------------------------------
 // Ordenar meses
 // --------------------------------------------------------
 
