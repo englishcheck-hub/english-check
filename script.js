@@ -1303,12 +1303,15 @@ function mostrarAlunos() {
 
 function abrirRegistoAulaAluno(aluno) {
 
-    const overlay = document.createElement("div");
+    const overlay =
+        document.createElement("div");
 
-    overlay.className = "modalOverlay";
+    overlay.className =
+        "modalOverlay";
 
 
-    const hoje = new Date();
+    const hoje =
+        new Date();
 
     const ano =
         hoje.getFullYear();
@@ -1342,9 +1345,11 @@ function abrirRegistoAulaAluno(aluno) {
                 contagem.total + 1
             ).padStart(2, "0");
 
-    } else {
+    }
+    else {
 
-        proximaAula = "24";
+        proximaAula =
+            "24";
 
     }
 
@@ -1361,7 +1366,9 @@ function abrirRegistoAulaAluno(aluno) {
 
             <p>
                 <strong>
-                    ${escapeHTML(aluno.nome || "")}
+                    ${escapeHTML(
+                        aluno.nome || ""
+                    )}
                 </strong>
             </p>
 
@@ -1389,9 +1396,16 @@ function abrirRegistoAulaAluno(aluno) {
                         return `
                             <option
                                 value="${numero}"
-                                ${numero === proximaAula ? "selected" : ""}
+                                ${
+                                    numero === proximaAula
+                                        ? "selected"
+                                        : ""
+                                }
                             >
-                                ${numero} - ${escapeHTML(materias[numero])}
+                                ${numero} -
+                                ${escapeHTML(
+                                    materias[numero]
+                                )}
                             </option>
                         `;
 
@@ -1445,7 +1459,9 @@ function abrirRegistoAulaAluno(aluno) {
     `;
 
 
-    document.body.appendChild(overlay);
+    document.body.appendChild(
+        overlay
+    );
 
 
     // ========================================================
@@ -1460,14 +1476,12 @@ function abrirRegistoAulaAluno(aluno) {
 
     if (cancelar) {
 
-        cancelar.addEventListener(
-            "click",
-            function() {
+        cancelar.onclick =
+            function () {
 
                 overlay.remove();
 
-            }
-        );
+            };
 
     }
 
@@ -1484,9 +1498,8 @@ function abrirRegistoAulaAluno(aluno) {
 
     if (guardar) {
 
-        guardar.addEventListener(
-            "click",
-            async function() {
+        guardar.onclick =
+            async function () {
 
                 const numero =
                     document.getElementById(
@@ -1506,9 +1519,9 @@ function abrirRegistoAulaAluno(aluno) {
                     ).value;
 
 
-                // ------------------------------------------------
+                // =================================================
                 // VALIDAÇÃO
-                // ------------------------------------------------
+                // =================================================
 
                 if (!numero) {
 
@@ -1547,7 +1560,7 @@ function abrirRegistoAulaAluno(aluno) {
 
 
                 // =================================================
-                // VERIFICAR DUPLICADO APENAS NAS AULAS DIRETAS
+                // AULAS DIRETAS EXISTENTES
                 // =================================================
 
                 const aulasDiretas =
@@ -1558,9 +1571,13 @@ function abrirRegistoAulaAluno(aluno) {
                         : [];
 
 
+                // =================================================
+                // VERIFICAR DUPLICADO
+                // =================================================
+
                 const aulaDuplicada =
                     aulasDiretas.some(
-                        function(aula) {
+                        function (aula) {
 
                             return (
                                 aula &&
@@ -1585,7 +1602,7 @@ function abrirRegistoAulaAluno(aluno) {
 
 
                 // =================================================
-                // NOVA AULA DIRETA
+                // NOVA AULA
                 // =================================================
 
                 const novaAula = {
@@ -1621,53 +1638,64 @@ function abrirRegistoAulaAluno(aluno) {
 
 
                 // =================================================
-                // GUARDAR APENAS NA FICHA DO ALUNO
+                // GUARDAR NA FICHA DO ALUNO
                 // =================================================
 
-                await updateDoc(
-                    doc(
-                        db,
-                        "alunos",
-                        aluno.id
-                    ),
-                    {
+                try {
 
-                        aulasDiretas:
-                            novasAulasDiretas
-
-                    }
-                );
-
-
-                // Atualizar imediatamente o aluno
-                aluno.aulasDiretas =
-                    novasAulasDiretas;
+                    await updateDoc(
+                        doc(
+                            db,
+                            "alunos",
+                            aluno.id
+                        ),
+                        {
+                            aulasDiretas:
+                                novasAulasDiretas
+                        }
+                    );
 
 
-                // =================================================
-                // FECHAR
-                // =================================================
-
-                overlay.remove();
+                    // Atualizar imediatamente
+                    aluno.aulasDiretas =
+                        novasAulasDiretas;
 
 
-                mostrarNotificacao(
-                    "Aula registada diretamente na ficha do aluno.",
-                    "sucesso"
-                );
+                    // Fechar modal
+                    overlay.remove();
 
 
-                // Atualizar apenas as áreas necessárias
-                mostrarAlunos();
+                    mostrarNotificacao(
+                        "Aula registada diretamente na ficha do aluno.",
+                        "sucesso"
+                    );
 
-                atualizarDashboard();
 
-            }
-        );
+                    mostrarAlunos();
+
+                    atualizarDashboard();
+
+                }
+                catch (erro) {
+
+                    console.error(
+                        "Erro ao registar aula:",
+                        erro
+                    );
+
+                    mostrarNotificacao(
+                        "Erro ao guardar a aula.",
+                        "erro"
+                    );
+
+                }
+
+            };
 
     }
 
 }
+
 
 // ============================================================
 // ESCAPAR HTML
@@ -1691,6 +1719,11 @@ function escapeHTML(valor) {
 
 function configurarEventosAlunos() {
 
+
+    // ========================================================
+    // EDITAR ALUNO
+    // ========================================================
+
     document
         .querySelectorAll(
             ".editStudentButton"
@@ -1699,15 +1732,19 @@ function configurarEventosAlunos() {
             function (button) {
 
                 button.onclick =
-                    function () {
+                    function (event) {
+
+                        event.preventDefault();
 
                         const aluno =
                             alunos.find(
                                 function (a) {
 
                                     return (
-                                        a.id ===
-                                        button.dataset.id
+                                        String(a.id) ===
+                                        String(
+                                            button.dataset.id
+                                        )
                                     );
 
                                 }
@@ -1728,6 +1765,10 @@ function configurarEventosAlunos() {
         );
 
 
+    // ========================================================
+    // QR CODE
+    // ========================================================
+
     document
         .querySelectorAll(
             ".qrStudentButton"
@@ -1736,15 +1777,19 @@ function configurarEventosAlunos() {
             function (button) {
 
                 button.onclick =
-                    function () {
+                    function (event) {
+
+                        event.preventDefault();
 
                         const aluno =
                             alunos.find(
                                 function (a) {
 
                                     return (
-                                        a.id ===
-                                        button.dataset.id
+                                        String(a.id) ===
+                                        String(
+                                            button.dataset.id
+                                        )
                                     );
 
                                 }
@@ -1765,6 +1810,10 @@ function configurarEventosAlunos() {
         );
 
 
+    // ========================================================
+    // RESULTADO DO EXAME
+    // ========================================================
+
     document
         .querySelectorAll(
             ".examStudentButton"
@@ -1773,15 +1822,19 @@ function configurarEventosAlunos() {
             function (button) {
 
                 button.onclick =
-                    function () {
+                    function (event) {
+
+                        event.preventDefault();
 
                         const aluno =
                             alunos.find(
                                 function (a) {
 
                                     return (
-                                        a.id ===
-                                        button.dataset.id
+                                        String(a.id) ===
+                                        String(
+                                            button.dataset.id
+                                        )
                                     );
 
                                 }
@@ -1803,59 +1856,71 @@ function configurarEventosAlunos() {
 
 
     // ========================================================
-    // CORREÇÃO:
-    // ESTE EVENTO TEM DE SER CONFIGURADO DEPOIS
-    // DE mostrarAlunos() CRIAR OS BOTÕES.
+    // REGISTAR AULA
     // ========================================================
 
     document
-    .querySelectorAll(
-        ".registerLessonStudentButton"
-    )
-    .forEach(
-        function (button) {
+        .querySelectorAll(
+            ".registerLessonStudentButton"
+        )
+        .forEach(
+            function (button) {
 
-            button.addEventListener(
-                "click",
-                function () {
+                button.onclick =
+                    function (event) {
 
-                    const aluno =
-                        alunos.find(
-                            function (a) {
+                        event.preventDefault();
+                        event.stopPropagation();
 
-                                return (
-                                    String(a.id) ===
-                                    String(button.dataset.id)
-                                );
 
-                            }
+                        const idAluno =
+                            String(
+                                button.dataset.id || ""
+                            );
+
+
+                        const aluno =
+                            alunos.find(
+                                function (a) {
+
+                                    return (
+                                        String(a.id) ===
+                                        idAluno
+                                    );
+
+                                }
+                            );
+
+
+                        if (!aluno) {
+
+                            console.error(
+                                "Aluno não encontrado. ID:",
+                                idAluno
+                            );
+
+                            mostrarNotificacao(
+                                "Aluno não encontrado.",
+                                "erro"
+                            );
+
+                            return;
+
+                        }
+
+
+                        abrirRegistoAulaAluno(
+                            aluno
                         );
 
+                    };
 
-                    if (!aluno) {
+            }
+        );
 
-                        mostrarNotificacao(
-                            "Aluno não encontrado.",
-                            "erro"
-                        );
-
-                        return;
-
-                    }
-
-
-                    abrirRegistoAulaAluno(
-                        aluno
-                    );
-
-                }
-            );
-
-        }
-    );
 }
-    
-    
+
+
 // ============================================================
 // QR CODE DO ALUNO
 // ============================================================
