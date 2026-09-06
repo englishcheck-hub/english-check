@@ -903,12 +903,58 @@ function obterContagemAulas(aluno) {
                             numero
                         );
 
+// ============================================================
+// CONTAGEM DAS AULAS
+// ============================================================
+
+function obterContagemAulas(aluno) {
+
+    const numero =
+        String(
+            aluno.numero || ""
+        );
+
+
+    let total = 0;
+
+    let posReprovacao = 0;
+
+
+    // ========================================================
+    // 1. AULAS NORMAIS DO CALENDÁRIO
+    // ========================================================
+
+    aulas.forEach(
+        function (aula) {
+
+            if (
+                !Array.isArray(
+                    aula.alunos
+                )
+            ) {
+
+                return;
+
+            }
+
+
+            const presente =
+                aula.alunos.some(
+                    function (valor) {
+
+                        return (
+                            String(valor) ===
+                            numero
+                        );
+
                     }
                 );
 
 
             if (!presente) {
+
                 return;
+
             }
 
 
@@ -929,6 +975,50 @@ function obterContagemAulas(aluno) {
         }
     );
 
+
+    // ========================================================
+    // 2. AULAS REGISTADAS DIRETAMENTE NA FICHA DO ALUNO
+    // ========================================================
+
+    if (
+        Array.isArray(
+            aluno.aulasDiretas
+        )
+    ) {
+
+        aluno.aulasDiretas.forEach(
+            function (aula) {
+
+                if (!aula) {
+
+                    return;
+
+                }
+
+
+                total++;
+
+
+                if (
+                    aluno.dataReprovacao &&
+                    aula.data &&
+                    aula.data >
+                        aluno.dataReprovacao
+                ) {
+
+                    posReprovacao++;
+
+                }
+
+            }
+        );
+
+    }
+
+
+    // ========================================================
+    // 3. RESULTADO DA CONTAGEM
+    // ========================================================
 
     return {
 
@@ -957,7 +1047,6 @@ function obterContagemAulas(aluno) {
     };
 
 }
-
 
 // ============================================================
 // MOSTRAR ALUNOS
@@ -1255,27 +1344,12 @@ function mostrarAlunos() {
 
 function abrirRegistoAulaAluno(aluno) {
 
-    if (!aluno) {
-        return;
-    }
+    const overlay = document.createElement("div");
 
-    const overlay =
-        document.createElement("div");
+    overlay.className = "modalOverlay";
 
-    overlay.className =
-        "lesson-editor-overlay";
 
-    overlay.style.display =
-        "flex";
-
-    const modal =
-        document.createElement("div");
-
-    modal.className =
-        "lesson-editor-modal";
-
-    const hoje =
-        new Date();
+    const hoje = new Date();
 
     const ano =
         hoje.getFullYear();
@@ -1290,6 +1364,7 @@ function abrirRegistoAulaAluno(aluno) {
             hoje.getDate()
         ).padStart(2, "0");
 
+
     const dataHoje =
         `${ano}-${mes}-${dia}`;
 
@@ -1297,323 +1372,343 @@ function abrirRegistoAulaAluno(aluno) {
     const contagem =
         obterContagemAulas(aluno);
 
-    let proximaAula =
-        "";
+
+    let proximaAula;
+
 
     if (contagem.total < 24) {
 
         proximaAula =
             String(
                 contagem.total + 1
-            ).padStart(
-                2,
-                "0"
-            );
+            ).padStart(2, "0");
 
-    }
-    else {
+    } else {
 
-        proximaAula =
-            "24";
+        proximaAula = "24";
 
     }
 
 
-    modal.innerHTML = `
+    // ========================================================
+    // HTML DO MODAL
+    // ========================================================
 
-        <button
-            type="button"
-            class="close-lesson-editor"
-            id="closeRegisterStudentLesson"
-        >
-            ✕
-        </button>
+    overlay.innerHTML = `
 
-        <h2>
-            📚 Registar aula
-        </h2>
+        <div class="modal">
 
-        <div
-            style="
-                background:#f5f5f5;
-                padding:12px;
-                border-radius:8px;
-                margin-bottom:15px;
-            "
-        >
+            <h2>📚 Registar aula</h2>
 
-            <strong>
-                👨‍🎓 ${escapeHTML(
-                    aluno.nome || ""
-                )}
-            </strong>
+            <p>
+                <strong>
+                    ${escapeHTML(aluno.nome || "")}
+                </strong>
+            </p>
 
-            <br>
-
-            Nº
-            ${escapeHTML(
-                aluno.numero || ""
-            )}
-
-            <br>
-
-            Aulas realizadas:
-            ${contagem.total}
-
-        </div>
+            <p>
+                Aulas realizadas:
+                <strong>
+                    ${contagem.total}
+                </strong>
+            </p>
 
 
-        <label>
-            Lesson
-        </label>
+            <label>
+                Lesson
+            </label>
 
-        <select
-            id="registerStudentLesson"
-        >
+            <select id="directLessonNumber">
 
-            ${Object.keys(materias)
-                .map(
-                    function (numero) {
+                <option value="">
+                    Selecionar Lesson
+                </option>
+
+                ${Object.keys(materias).map(
+                    function(numero) {
 
                         return `
-
                             <option
                                 value="${numero}"
-                                ${
-                                    numero === proximaAula
-                                        ? "selected"
-                                        : ""
-                                }
+                                ${numero === proximaAula ? "selected" : ""}
                             >
-                                Lesson ${numero}
-                                -
-                                ${escapeHTML(
-                                    materias[numero]
-                                )}
+                                ${numero} - ${escapeHTML(materias[numero])}
                             </option>
-
                         `;
 
                     }
-                )
-                .join("")
-            }
+                ).join("")}
 
-        </select>
+            </select>
 
 
-        <label>
-            Data
-        </label>
+            <label>
+                Data
+            </label>
 
-        <input
-            id="registerStudentLessonDate"
-            type="date"
-            value="${dataHoje}"
-        >
-
-
-        <label>
-            Hora
-        </label>
-
-        <input
-            id="registerStudentLessonTime"
-            type="time"
-            value=""
-        >
+            <input
+                type="date"
+                id="directLessonDate"
+                value="${dataHoje}"
+            />
 
 
-        <button
-            type="button"
-            id="saveStudentLesson"
-            style="
-                margin-top:15px;
-                width:100%;
-            "
-        >
-            💾 Guardar aula
-        </button>
+            <label>
+                Hora
+            </label>
+
+            <input
+                type="time"
+                id="directLessonTime"
+            />
+
+
+            <div class="modalButtons">
+
+                <button
+                    type="button"
+                    id="saveDirectLessonButton"
+                >
+                    💾 Registar aula
+                </button>
+
+                <button
+                    type="button"
+                    id="cancelDirectLessonButton"
+                >
+                    Cancelar
+                </button>
+
+            </div>
+
+        </div>
 
     `;
 
 
-    overlay.appendChild(
-        modal
-    );
-
-    document.body.appendChild(
-        overlay
-    );
+    document.body.appendChild(overlay);
 
 
-    $("closeRegisterStudentLesson").onclick =
-        function () {
+    // ========================================================
+    // CANCELAR
+    // ========================================================
 
-            overlay.remove();
-
-        };
-
-
-    $("saveStudentLesson").onclick =
-        async function () {
-
-            const numero =
-                $("registerStudentLesson")
-                    .value;
-
-            const data =
-                $("registerStudentLessonDate")
-                    .value;
-
-            const hora =
-                $("registerStudentLessonTime")
-                    .value;
+    const cancelar =
+        document.getElementById(
+            "cancelDirectLessonButton"
+        );
 
 
-            if (
-                !numero ||
-                !data ||
-                !hora
-            ) {
+    if (cancelar) {
 
-                mostrarNotificacao(
-                    "Seleciona a Lesson, a data e a hora.",
-                    "erro"
-                );
+        cancelar.addEventListener(
+            "click",
+            function() {
 
-                return;
+                overlay.remove();
 
             }
+        );
+
+    }
 
 
-            const aulaExistente =
-                aulas.some(
-                    function (aula) {
+    // ========================================================
+    // GUARDAR AULA DIRETA
+    // ========================================================
 
-                        return (
+    const guardar =
+        document.getElementById(
+            "saveDirectLessonButton"
+        );
 
-                            aula.numero ===
-                                numero &&
 
-                            aula.data ===
-                                data &&
+    if (guardar) {
 
-                            aula.hora ===
-                                hora &&
+        guardar.addEventListener(
+            "click",
+            async function() {
 
-                            Array.isArray(
-                                aula.alunos
-                            ) &&
+                const numero =
+                    document.getElementById(
+                        "directLessonNumber"
+                    ).value;
 
-                            aula.alunos.some(
-                                function (n) {
 
-                                    return (
-                                        String(n) ===
-                                        String(aluno.numero)
-                                    );
+                const data =
+                    document.getElementById(
+                        "directLessonDate"
+                    ).value;
 
-                                }
-                            )
 
-                        );
+                const hora =
+                    document.getElementById(
+                        "directLessonTime"
+                    ).value;
+
+
+                // ------------------------------------------------
+                // VALIDAÇÃO
+                // ------------------------------------------------
+
+                if (!numero) {
+
+                    mostrarNotificacao(
+                        "Seleciona a Lesson.",
+                        "erro"
+                    );
+
+                    return;
+
+                }
+
+
+                if (!data) {
+
+                    mostrarNotificacao(
+                        "Seleciona a data da aula.",
+                        "erro"
+                    );
+
+                    return;
+
+                }
+
+
+                if (!hora) {
+
+                    mostrarNotificacao(
+                        "Indica a hora da aula.",
+                        "erro"
+                    );
+
+                    return;
+
+                }
+
+
+                // =================================================
+                // VERIFICAR DUPLICADO APENAS NAS AULAS DIRETAS
+                // =================================================
+
+                const aulasDiretas =
+                    Array.isArray(
+                        aluno.aulasDiretas
+                    )
+                        ? aluno.aulasDiretas
+                        : [];
+
+
+                const aulaDuplicada =
+                    aulasDiretas.some(
+                        function(aula) {
+
+                            return (
+                                aula &&
+                                aula.data === data &&
+                                aula.hora === hora
+                            );
+
+                        }
+                    );
+
+
+                if (aulaDuplicada) {
+
+                    mostrarNotificacao(
+                        "Já existe uma aula registada para este aluno nessa data e hora.",
+                        "erro"
+                    );
+
+                    return;
+
+                }
+
+
+                // =================================================
+                // NOVA AULA DIRETA
+                // =================================================
+
+                const novaAula = {
+
+                    numero:
+                        numero,
+
+                    materia:
+                        materias[numero] || "",
+
+                    data:
+                        data,
+
+                    hora:
+                        hora,
+
+                    cor:
+                        obterCorAula(numero),
+
+                    criadaEm:
+                        new Date().toISOString()
+
+                };
+
+
+                const novasAulasDiretas = [
+
+                    ...aulasDiretas,
+
+                    novaAula
+
+                ];
+
+
+                // =================================================
+                // GUARDAR APENAS NA FICHA DO ALUNO
+                // =================================================
+
+                await updateDoc(
+                    doc(
+                        db,
+                        "alunos",
+                        aluno.id
+                    ),
+                    {
+
+                        aulasDiretas:
+                            novasAulasDiretas
 
                     }
                 );
 
 
-            if (aulaExistente) {
-
-                mostrarNotificacao(
-                    "Este aluno já está registado nessa aula.",
-                    "erro"
-                );
-
-                return;
-
-            }
+                // Atualizar imediatamente o aluno
+                aluno.aulasDiretas =
+                    novasAulasDiretas;
 
 
-            const dados = {
-
-                numero:
-                    numero,
-
-                materia:
-                    materias[numero] ||
-                    "",
-
-                data:
-                    data,
-
-                hora:
-                    hora,
-
-                cor:
-                    obterCorAula(
-                        numero
-                    ),
-
-                alunos:
-                    [
-                        String(
-                            aluno.numero
-                        )
-                    ],
-
-                criadaEm:
-                    new Date()
-                        .toISOString()
-
-            };
-
-
-            try {
-
-                await addDoc(
-                    collection(
-                        db,
-                        "aulas"
-                    ),
-                    dados
-                );
-
+                // =================================================
+                // FECHAR
+                // =================================================
 
                 overlay.remove();
 
 
                 mostrarNotificacao(
-                    `Lesson ${numero} registada para ${aluno.nome}.`
+                    "Aula registada diretamente na ficha do aluno.",
+                    "sucesso"
                 );
 
 
+                // Atualizar apenas as áreas necessárias
                 mostrarAlunos();
-
-                mostrarAulas();
-
-                renderizarCalendario();
 
                 atualizarDashboard();
 
             }
-            catch (erro) {
+        );
 
-                console.error(
-                    erro
-                );
-
-                mostrarNotificacao(
-                    "Erro ao registar a aula.",
-                    "erro"
-                );
-
-            }
-
-        };
+    }
 
 }
-
 
 // ============================================================
 // ESCAPAR HTML
