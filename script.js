@@ -880,46 +880,6 @@ function obterContagemAulas(aluno) {
         0;
 
 
-    aulas.forEach(
-        function (aula) {
-
-            if (
-                !Array.isArray(
-                    aula.alunos
-                )
-            ) {
-
-                return;
-
-            }
-
-
-            const presente =
-                aula.alunos.some(
-                    function (valor) {
-
-                        return (
-                            String(valor) ===
-                            numero
-                        );
-
-// ============================================================
-// CONTAGEM DAS AULAS
-// ============================================================
-
-function obterContagemAulas(aluno) {
-
-    const numero =
-        String(
-            aluno.numero || ""
-        );
-
-
-    let total = 0;
-
-    let posReprovacao = 0;
-
-
     // ========================================================
     // 1. AULAS NORMAIS DO CALENDÁRIO
     // ========================================================
@@ -1047,7 +1007,6 @@ function obterContagemAulas(aluno) {
     };
 
 }
-
 // ============================================================
 // MOSTRAR ALUNOS
 // ============================================================
