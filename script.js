@@ -1281,6 +1281,7 @@ function mostrarAlunos() {
 
 
     configurarEventosAlunos();
+    alert("EVENTOS DOS ALUNOS CONFIGURADOS");
 
 }
 
