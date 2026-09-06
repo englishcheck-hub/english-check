@@ -1856,69 +1856,46 @@ function configurarEventosAlunos() {
 
 
     // ========================================================
-    // REGISTAR AULA
-    // ========================================================
+// REGISTAR AULA DIRETAMENTE NA FICHA DO ALUNO
+// ========================================================
 
-    document
-        .querySelectorAll(
-            ".registerLessonStudentButton"
-        )
-        .forEach(
-            function (button) {
+document
+    .querySelectorAll(".registerLessonStudentButton")
+    .forEach(function (button) {
 
-                button.onclick =
-                    function (event) {
+        button.onclick = function (event) {
 
-                        event.preventDefault();
-                        event.stopPropagation();
+            event.preventDefault();
+            event.stopPropagation();
 
+            const idAluno =
+                String(button.dataset.id || "");
 
-                        const idAluno =
-                            String(
-                                button.dataset.id || ""
-                            );
+            const aluno =
+                alunos.find(function (a) {
 
+                    return String(a.id) === idAluno;
 
-                        const aluno =
-                            alunos.find(
-                                function (a) {
+                });
 
-                                    return (
-                                        String(a.id) ===
-                                        idAluno
-                                    );
+            if (!aluno) {
 
-                                }
-                            );
+                console.error(
+                    "Aluno não encontrado:",
+                    idAluno
+                );
 
+                mostrarNotificacao(
+                    "Aluno não encontrado.",
+                    "erro"
+                );
 
-                        if (!aluno) {
-
-                            console.error(
-                                "Aluno não encontrado. ID:",
-                                idAluno
-                            );
-
-                            mostrarNotificacao(
-                                "Aluno não encontrado.",
-                                "erro"
-                            );
-
-                            return;
-
-                        }
-
-
-                        abrirRegistoAulaAluno(
-                            aluno
-                        );
-
-                    };
-
+                return;
             }
-        );
 
-}
+            abrirRegistoAulaAluno(aluno);
+        };
+    });
 
 
 // ============================================================
