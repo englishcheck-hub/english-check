@@ -1007,6 +1007,7 @@ function obterContagemAulas(aluno) {
     };
 
 }
+
 // ============================================================
 // MOSTRAR ALUNOS
 // ============================================================
@@ -1044,7 +1045,6 @@ function mostrarAlunos() {
                         aluno.nome || ""
                     ).toLowerCase();
 
-
                 return (
                     !pesquisa ||
                     numero.includes(pesquisa) ||
@@ -1074,9 +1074,7 @@ function mostrarAlunos() {
     );
 
 
-    if (
-        resultado.length === 0
-    ) {
+    if (resultado.length === 0) {
 
         lista.innerHTML =
             "<p>No students found.</p>";
@@ -1094,15 +1092,11 @@ function mostrarAlunos() {
         function (aluno) {
 
             const contagem =
-                obterContagemAulas(
-                    aluno
-                );
+                obterContagemAulas(aluno);
 
 
             const card =
-                document.createElement(
-                    "div"
-                );
+                document.createElement("div");
 
 
             card.className =
@@ -1119,13 +1113,9 @@ function mostrarAlunos() {
                 "";
 
 
-            if (
-                aluno.dataReprovacao
-            ) {
+            if (aluno.dataReprovacao) {
 
-                if (
-                    contagem.posReprovacaoCompleta
-                ) {
+                if (contagem.posReprovacaoCompleta) {
 
                     posReprovacao = `
                         <p>
@@ -1284,9 +1274,7 @@ function mostrarAlunos() {
             `;
 
 
-            lista.appendChild(
-                card
-            );
+            lista.appendChild(card);
 
         }
     );
@@ -1354,10 +1342,6 @@ function abrirRegistoAulaAluno(aluno) {
     }
 
 
-    // ========================================================
-    // HTML DO MODAL
-    // ========================================================
-
     overlay.innerHTML = `
 
         <div class="modal">
@@ -1378,7 +1362,6 @@ function abrirRegistoAulaAluno(aluno) {
                     ${contagem.total}
                 </strong>
             </p>
-
 
             <label>
                 Lesson
@@ -1414,7 +1397,6 @@ function abrirRegistoAulaAluno(aluno) {
 
             </select>
 
-
             <label>
                 Data
             </label>
@@ -1425,7 +1407,6 @@ function abrirRegistoAulaAluno(aluno) {
                 value="${dataHoje}"
             />
 
-
             <label>
                 Hora
             </label>
@@ -1434,7 +1415,6 @@ function abrirRegistoAulaAluno(aluno) {
                 type="time"
                 id="directLessonTime"
             />
-
 
             <div class="modalButtons">
 
@@ -1459,14 +1439,8 @@ function abrirRegistoAulaAluno(aluno) {
     `;
 
 
-    document.body.appendChild(
-        overlay
-    );
+    document.body.appendChild(overlay);
 
-
-    // ========================================================
-    // CANCELAR
-    // ========================================================
 
     const cancelar =
         document.getElementById(
@@ -1485,10 +1459,6 @@ function abrirRegistoAulaAluno(aluno) {
 
     }
 
-
-    // ========================================================
-    // GUARDAR AULA DIRETA
-    // ========================================================
 
     const guardar =
         document.getElementById(
@@ -1518,10 +1488,6 @@ function abrirRegistoAulaAluno(aluno) {
                         "directLessonTime"
                     ).value;
 
-
-                // =================================================
-                // VALIDAÇÃO
-                // =================================================
 
                 if (!numero) {
 
@@ -1559,10 +1525,6 @@ function abrirRegistoAulaAluno(aluno) {
                 }
 
 
-                // =================================================
-                // AULAS DIRETAS EXISTENTES
-                // =================================================
-
                 const aulasDiretas =
                     Array.isArray(
                         aluno.aulasDiretas
@@ -1570,10 +1532,6 @@ function abrirRegistoAulaAluno(aluno) {
                         ? aluno.aulasDiretas
                         : [];
 
-
-                // =================================================
-                // VERIFICAR DUPLICADO
-                // =================================================
 
                 const aulaDuplicada =
                     aulasDiretas.some(
@@ -1601,10 +1559,6 @@ function abrirRegistoAulaAluno(aluno) {
                 }
 
 
-                // =================================================
-                // NOVA AULA
-                // =================================================
-
                 const novaAula = {
 
                     numero:
@@ -1629,17 +1583,10 @@ function abrirRegistoAulaAluno(aluno) {
 
 
                 const novasAulasDiretas = [
-
                     ...aulasDiretas,
-
                     novaAula
-
                 ];
 
-
-                // =================================================
-                // GUARDAR NA FICHA DO ALUNO
-                // =================================================
 
                 try {
 
@@ -1656,12 +1603,10 @@ function abrirRegistoAulaAluno(aluno) {
                     );
 
 
-                    // Atualizar imediatamente
                     aluno.aulasDiretas =
                         novasAulasDiretas;
 
 
-                    // Fechar modal
                     overlay.remove();
 
 
@@ -1725,44 +1670,39 @@ function configurarEventosAlunos() {
     // ========================================================
 
     document
-        .querySelectorAll(
-            ".editStudentButton"
-        )
-        .forEach(
-            function (button) {
+        .querySelectorAll(".editStudentButton")
+        .forEach(function (button) {
 
-                button.onclick =
-                    function (event) {
+            button.onclick =
+                function (event) {
 
-                        event.preventDefault();
+                    event.preventDefault();
+                    event.stopPropagation();
 
-                        const aluno =
-                            alunos.find(
-                                function (a) {
+                    const aluno =
+                        alunos.find(
+                            function (a) {
 
-                                    return (
-                                        String(a.id) ===
-                                        String(
-                                            button.dataset.id
-                                        )
-                                    );
+                                return (
+                                    String(a.id) ===
+                                    String(
+                                        button.dataset.id
+                                    )
+                                );
 
-                                }
-                            );
+                            }
+                        );
 
 
-                        if (aluno) {
+                    if (aluno) {
 
-                            editarAluno(
-                                aluno
-                            );
+                        editarAluno(aluno);
 
-                        }
+                    }
 
-                    };
+                };
 
-            }
-        );
+        });
 
 
     // ========================================================
@@ -1770,44 +1710,39 @@ function configurarEventosAlunos() {
     // ========================================================
 
     document
-        .querySelectorAll(
-            ".qrStudentButton"
-        )
-        .forEach(
-            function (button) {
+        .querySelectorAll(".qrStudentButton")
+        .forEach(function (button) {
 
-                button.onclick =
-                    function (event) {
+            button.onclick =
+                function (event) {
 
-                        event.preventDefault();
+                    event.preventDefault();
+                    event.stopPropagation();
 
-                        const aluno =
-                            alunos.find(
-                                function (a) {
+                    const aluno =
+                        alunos.find(
+                            function (a) {
 
-                                    return (
-                                        String(a.id) ===
-                                        String(
-                                            button.dataset.id
-                                        )
-                                    );
+                                return (
+                                    String(a.id) ===
+                                    String(
+                                        button.dataset.id
+                                    )
+                                );
 
-                                }
-                            );
+                            }
+                        );
 
 
-                        if (aluno) {
+                    if (aluno) {
 
-                            mostrarQRCodeAluno(
-                                aluno
-                            );
+                        mostrarQRCodeAluno(aluno);
 
-                        }
+                    }
 
-                    };
+                };
 
-            }
-        );
+        });
 
 
     // ========================================================
@@ -1815,99 +1750,114 @@ function configurarEventosAlunos() {
     // ========================================================
 
     document
+        .querySelectorAll(".examStudentButton")
+        .forEach(function (button) {
+
+            button.onclick =
+                function (event) {
+
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    const aluno =
+                        alunos.find(
+                            function (a) {
+
+                                return (
+                                    String(a.id) ===
+                                    String(
+                                        button.dataset.id
+                                    )
+                                );
+
+                            }
+                        );
+
+
+                    if (aluno) {
+
+                        abrirModalExame(aluno);
+
+                    }
+
+                };
+
+        });
+
+
+    // ========================================================
+    // REGISTAR AULA
+    // ========================================================
+
+    document
         .querySelectorAll(
-            ".examStudentButton"
+            ".registerLessonStudentButton"
         )
-        .forEach(
-            function (button) {
+        .forEach(function (button) {
 
-                button.onclick =
-                    function (event) {
+            button.onclick =
+                function (event) {
 
-                        event.preventDefault();
-
-                        const aluno =
-                            alunos.find(
-                                function (a) {
-
-                                    return (
-                                        String(a.id) ===
-                                        String(
-                                            button.dataset.id
-                                        )
-                                    );
-
-                                }
-                            );
+                    event.preventDefault();
+                    event.stopPropagation();
 
 
-                        if (aluno) {
-
-                            abrirModalExame(
-                                aluno
-                            );
-
-                        }
-
-                    };
-
-            }
-        );
+                    const idAluno =
+                        String(
+                            button.dataset.id || ""
+                        );
 
 
-// ========================================================
-// REGISTAR AULA DIRETAMENTE NA FICHA DO ALUNO
-// ========================================================
+                    const aluno =
+                        alunos.find(
+                            function (a) {
 
-document
-    .querySelectorAll(".registerLessonStudentButton")
-    .forEach(function (button) {
+                                return (
+                                    String(a.id) ===
+                                    idAluno
+                                );
 
-        button.onclick = function (event) {
+                            }
+                        );
 
-            event.preventDefault();
-            event.stopPropagation();
 
-            const idAluno =
-                String(button.dataset.id || "");
+                    if (!aluno) {
 
-            const aluno =
-                alunos.find(function (a) {
+                        console.error(
+                            "Aluno não encontrado:",
+                            idAluno
+                        );
 
-                    return String(a.id) === idAluno;
+                        mostrarNotificacao(
+                            "Aluno não encontrado.",
+                            "erro"
+                        );
 
-                });
+                        return;
 
-            if (!aluno) {
+                    }
 
-                console.error(
-                    "Aluno não encontrado:",
-                    idAluno
-                );
 
-                mostrarNotificacao(
-                    "Aluno não encontrado.",
-                    "erro"
-                );
+                    abrirRegistoAulaAluno(
+                        aluno
+                    );
 
-                return;
-            }
+                };
 
-            abrirRegistoAulaAluno(aluno);
-        };
-    });
+        });
+
 }
+
 
 // ============================================================
 // QR CODE DO ALUNO
 // ============================================================
 
-function mostrarQRCodeAluno(
-    aluno
-) {
+function mostrarQRCodeAluno(aluno) {
 
     const caixa =
         $("qr-" + aluno.id);
+
 
     if (!caixa) {
         return;
@@ -2015,6 +1965,7 @@ function configurarPesquisa() {
     const campo =
         $("searchStudent");
 
+
     if (!campo) {
         return;
     }
@@ -2036,9 +1987,7 @@ function configurarPesquisa() {
 // EDITAR ALUNO
 // ============================================================
 
-function editarAluno(
-    aluno
-) {
+function editarAluno(aluno) {
 
     const overlay =
         document.createElement(
@@ -2187,13 +2136,9 @@ function editarAluno(
     `;
 
 
-    overlay.appendChild(
-        modal
-    );
+    overlay.appendChild(modal);
 
-    document.body.appendChild(
-        overlay
-    );
+    document.body.appendChild(overlay);
 
 
     $("editStudentNumber").value =
@@ -2368,13 +2313,12 @@ function editarAluno(
 
 }
 
+
 // ============================================================
 // MODAL DE EXAME
 // ============================================================
 
-function abrirModalExame(
-    aluno
-) {
+function abrirModalExame(aluno) {
 
     alunoResultadoExame =
         aluno;
@@ -2436,6 +2380,7 @@ function configurarExame() {
                     $("examDate")
                         ? $("examDate").value
                         : "";
+
 
                 const resultado =
                     $("examResult")
@@ -2532,9 +2477,7 @@ function configurarExame() {
 // CRIAR / EDITAR AULA
 // ============================================================
 
-function abrirEditorAula(
-    aula = null
-) {
+function abrirEditorAula(aula = null) {
 
     aulaEmEdicao =
         aula;
@@ -2624,7 +2567,6 @@ function fecharEditorAula() {
         [];
 
 }
-
 
 // ============================================================
 // MATÉRIA AUTOMÁTICA
