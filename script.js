@@ -1809,43 +1809,50 @@ function configurarEventosAlunos() {
     // ========================================================
 
     document
-        .querySelectorAll(
-            ".registerLessonStudentButton"
-        )
-        .forEach(
-            function (button) {
+    .querySelectorAll(
+        ".registerLessonStudentButton"
+    )
+    .forEach(
+        function (button) {
 
-                button.onclick =
-                    function () {
+            button.addEventListener(
+                "click",
+                function () {
 
-                        const aluno =
-                            alunos.find(
-                                function (a) {
+                    const aluno =
+                        alunos.find(
+                            function (a) {
 
-                                    return (
-                                        a.id ===
-                                        button.dataset.id
-                                    );
+                                return (
+                                    String(a.id) ===
+                                    String(button.dataset.id)
+                                );
 
-                                }
-                            );
+                            }
+                        );
 
 
-                        if (aluno) {
+                    if (!aluno) {
 
-                            abrirRegistoAulaAluno(
-                                aluno
-                            );
+                        mostrarNotificacao(
+                            "Aluno não encontrado.",
+                            "erro"
+                        );
 
-                        }
+                        return;
 
-                    };
+                    }
 
-            }
-        );
 
-}
+                    abrirRegistoAulaAluno(
+                        aluno
+                    );
 
+                }
+            );
+
+        }
+    );
 
 // ============================================================
 // QR CODE DO ALUNO
