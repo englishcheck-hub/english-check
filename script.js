@@ -1794,16 +1794,12 @@ const botoesRegistarAula =
         ".registerLessonStudentButton"
     );
 
-alert(
-    "BOTÕES ENCONTRADOS: " +
-    botoesRegistarAula.length
-);
-
 botoesRegistarAula
     .forEach(function (button) {
 
         button.onclick =
             function (event) {
+                alert("CLIQUEI NO REGISTAR AULA");
 
                 event.preventDefault();
                 event.stopPropagation();
