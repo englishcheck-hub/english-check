@@ -1094,6 +1094,8 @@ function mostrarAlunos() {
             const contagem =
                 obterContagemAulas(aluno);
 
+alert("CONTAGEM OBTIDA: " + contagem.total);
+
 
             const card =
                 document.createElement("div");
@@ -1293,8 +1295,6 @@ function abrirRegistoAulaAluno(aluno) {
 
     const overlay =
         document.createElement("div");
-
-    alert("OVERLAY CRIADO");
 
     overlay.className =
         "modalOverlay";
