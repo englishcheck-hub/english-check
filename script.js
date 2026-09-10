@@ -1291,10 +1291,10 @@ function mostrarAlunos() {
 
 function abrirRegistoAulaAluno(aluno) {
 
-    alert("ENTREI NA FUNÇÃO");
-
     const overlay =
         document.createElement("div");
+
+    alert("OVERLAY CRIADO");
 
     overlay.className =
         "modalOverlay";
@@ -1801,8 +1801,6 @@ botoesRegistarAula
 
         button.onclick =
             function (event) {
-                
-                alert("CLIQUEI NO REGISTAR AULA");
 
                 event.preventDefault();
                 event.stopPropagation();
@@ -1840,8 +1838,6 @@ botoesRegistarAula
 
                 }
 
-alert("VOU ABRIR O REGISTO DA AULA");
-                
                 abrirRegistoAulaAluno(
                     aluno
                 );
