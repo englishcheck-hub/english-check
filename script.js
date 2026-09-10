@@ -1838,6 +1838,8 @@ botoesRegistarAula
 
                 }
 
+alert("VOU ABRIR O REGISTO DA AULA");
+                
                 abrirRegistoAulaAluno(
                     aluno
                 );
