@@ -1281,7 +1281,6 @@ function mostrarAlunos() {
 
 
     configurarEventosAlunos();
-    alert("EVENTOS DOS ALUNOS CONFIGURADOS");
 
 }
 
@@ -1790,6 +1789,9 @@ function configurarEventosAlunos() {
     // REGISTAR AULA
     // ========================================================
 
+    alert(
+    "ENCONTREI A PARTE DO REGISTAR AULA"
+        
     document
         .querySelectorAll(
             ".registerLessonStudentButton"
