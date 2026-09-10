@@ -1786,10 +1786,10 @@ function configurarEventosAlunos() {
 
 
     // ========================================================
-    // REGISTAR AULA
-    // ========================================================
+// REGISTAR AULA
+// ========================================================
 
-    const botoesRegistarAula =
+const botoesRegistarAula =
     document.querySelectorAll(
         ".registerLessonStudentButton"
     );
@@ -1801,58 +1801,53 @@ alert(
 
 botoesRegistarAula
     .forEach(function (button) {
-    .forEach(function (button) {
 
-            button.onclick =
-                function (event) {
+        button.onclick =
+            function (event) {
 
-                    event.preventDefault();
-                    event.stopPropagation();
+                event.preventDefault();
+                event.stopPropagation();
 
-
-                    const idAluno =
-                        String(
-                            button.dataset.id || ""
-                        );
-
-
-                    const aluno =
-                        alunos.find(
-                            function (a) {
-
-                                return (
-                                    String(a.id) ===
-                                    idAluno
-                                );
-
-                            }
-                        );
-
-
-                    if (!aluno) {
-
-                        console.error(
-                            "Aluno não encontrado:",
-                            idAluno
-                        );
-
-                        mostrarNotificacao(
-                            "Aluno não encontrado.",
-                            "erro"
-                        );
-
-                        return;
-
-                    }
-
-
-                    abrirRegistoAulaAluno(
-                        aluno
+                const idAluno =
+                    String(
+                        button.dataset.id || ""
                     );
 
-                };
+                const aluno =
+                    alunos.find(
+                        function (a) {
 
-        });
+                            return (
+                                String(a.id) ===
+                                idAluno
+                            );
+
+                        }
+                    );
+
+                if (!aluno) {
+
+                    console.error(
+                        "Aluno não encontrado:",
+                        idAluno
+                    );
+
+                    mostrarNotificacao(
+                        "Aluno não encontrado.",
+                        "erro"
+                    );
+
+                    return;
+
+                }
+
+                abrirRegistoAulaAluno(
+                    aluno
+                );
+
+            };
+
+    });
 
 }
 
