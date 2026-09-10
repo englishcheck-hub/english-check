@@ -1789,15 +1789,19 @@ function configurarEventosAlunos() {
     // REGISTAR AULA
     // ========================================================
 
-    alert(
-    "ENCONTREI A PARTE DO REGISTAR AULA"
-        );
-        
-    document
-        .querySelectorAll(
-            ".registerLessonStudentButton"
-        )
-        .forEach(function (button) {
+    const botoesRegistarAula =
+    document.querySelectorAll(
+        ".registerLessonStudentButton"
+    );
+
+alert(
+    "BOTÕES ENCONTRADOS: " +
+    botoesRegistarAula.length
+);
+
+botoesRegistarAula
+    .forEach(function (button) {
+    .forEach(function (button) {
 
             button.onclick =
                 function (event) {
