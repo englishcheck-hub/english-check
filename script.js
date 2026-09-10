@@ -1793,8 +1793,8 @@ const botoesRegistarAula =
         ".registerLessonStudentButton"
     );
 
-botoesRegistarAula
-    .forEach(function (button) {
+botoesRegistarAula.forEach(
+    function (button) {
 
         button.onclick =
             function (event) {
@@ -1810,41 +1810,22 @@ botoesRegistarAula
                 const aluno =
                     alunos.find(
                         function (a) {
-
-                            return (
-                                String(a.id) ===
-                                idAluno
-                            );
-
+                            return String(a.id) === idAluno;
                         }
                     );
 
                 if (!aluno) {
-
-                    console.error(
-                        "Aluno não encontrado:",
-                        idAluno
-                    );
-
                     mostrarNotificacao(
                         "Aluno não encontrado.",
                         "erro"
                     );
-
                     return;
-
                 }
 
-                abrirRegistoAulaAluno(
-                    aluno
-                );
-
+                abrirRegistoAulaAluno(aluno);
             };
-
-    });
-
-}
-
+    }
+);
 
 // ============================================================
 // QR CODE DO ALUNO
