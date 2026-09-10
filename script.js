@@ -1799,6 +1799,7 @@ botoesRegistarAula
 
         button.onclick =
             function (event) {
+                
                 alert("CLIQUEI NO REGISTAR AULA");
 
                 event.preventDefault();
