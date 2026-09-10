@@ -1094,9 +1094,6 @@ function mostrarAlunos() {
             const contagem =
                 obterContagemAulas(aluno);
 
-alert("CONTAGEM OBTIDA: " + contagem.total);
-
-
             const card =
                 document.createElement("div");
 
