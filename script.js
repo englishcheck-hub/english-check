@@ -1791,6 +1791,7 @@ function configurarEventosAlunos() {
 
     alert(
     "ENCONTREI A PARTE DO REGISTAR AULA"
+        );
         
     document
         .querySelectorAll(
