@@ -1291,6 +1291,8 @@ function mostrarAlunos() {
 
 function abrirRegistoAulaAluno(aluno) {
 
+    alert("ENTREI NA FUNÇÃO");
+
     const overlay =
         document.createElement("div");
 
