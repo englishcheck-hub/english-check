@@ -1280,8 +1280,6 @@ function mostrarAlunos() {
 
 
     configurarEventosAlunos();
-    
-    alert("EVENTOS CONFIGURADOS");
 
 }
 
@@ -1794,6 +1792,8 @@ const botoesRegistarAula =
     document.querySelectorAll(
         ".registerLessonStudentButton"
     );
+
+    alert("BOTÕES: " + botoesRegistarAula.length);
 
 botoesRegistarAula.forEach(
     function (button) {
