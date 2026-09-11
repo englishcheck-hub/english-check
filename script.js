@@ -1021,7 +1021,6 @@ function mostrarAlunos() {
         return;
     }
 
-
     const pesquisa =
         $("searchStudent")
             ? $("searchStudent")
@@ -1029,7 +1028,6 @@ function mostrarAlunos() {
                 .trim()
                 .toLowerCase()
             : "";
-
 
     let resultado =
         alunos.filter(
@@ -1050,10 +1048,8 @@ function mostrarAlunos() {
                     numero.includes(pesquisa) ||
                     nome.includes(pesquisa)
                 );
-
             }
         );
-
 
     resultado.sort(
         function (a, b) {
@@ -1069,10 +1065,8 @@ function mostrarAlunos() {
                     numeric: true
                 }
             );
-
         }
     );
-
 
     if (resultado.length === 0) {
 
@@ -1080,13 +1074,10 @@ function mostrarAlunos() {
             "<p>No students found.</p>";
 
         return;
-
     }
-
 
     lista.innerHTML =
         "";
-
 
     resultado.forEach(
         function (aluno) {
@@ -1097,24 +1088,22 @@ function mostrarAlunos() {
             const card =
                 document.createElement("div");
 
-
             card.className =
                 "student-card";
-
 
             let aulasTexto =
                 contagem.teoricaCompleta
                     ? "✅ Teórica completa — 28/28 aulas"
                     : `⏳ ${contagem.total}/28 aulas`;
 
-
             let posReprovacao =
                 "";
 
-
             if (aluno.dataReprovacao) {
 
-                if (contagem.posReprovacaoCompleta) {
+                if (
+                    contagem.posReprovacaoCompleta
+                ) {
 
                     posReprovacao = `
                         <p>
@@ -1125,8 +1114,8 @@ function mostrarAlunos() {
                             ✅ Obrigatórias completas
                         </p>
                     `;
-
                 }
+
                 else {
 
                     posReprovacao = `
@@ -1139,11 +1128,8 @@ function mostrarAlunos() {
                             ${contagem.faltamPosReprovacao}
                         </p>
                     `;
-
                 }
-
             }
-
 
             card.innerHTML = `
 
@@ -1272,15 +1258,11 @@ function mostrarAlunos() {
 
             `;
 
-
             lista.appendChild(card);
-
         }
     );
 
-
     configurarEventosAlunos();
-
 }
 
 
@@ -1290,164 +1272,71 @@ function mostrarAlunos() {
 
 function abrirRegistoAulaAluno(aluno) {
 
-    const overlay =
-        document.createElement("div");
+    const aulasDiretas =
+        Array.isArray(aluno.aulasDiretas)
+            ? aluno.aulasDiretas
+            : [];
 
-    overlay.className =
-        "modalOverlay";
+    const novaAula = {
+        numero: "",
+        materia: "Aula registada diretamente",
+        data: new Date().toISOString().split("T")[0],
+        hora: "",
+        cor: "",
+        criadaEm: new Date().toISOString()
+    };
 
+    const novasAulasDiretas = [
+        ...aulasDiretas,
+        novaAula
+    ];
 
-    const hoje =
-        new Date();
+    updateDoc(
+        doc(
+            db,
+            "alunos",
+            aluno.id
+        ),
+        {
+            aulasDiretas:
+                novasAulasDiretas
+        }
+    )
+    .then(function () {
 
-    const ano =
-        hoje.getFullYear();
+        aluno.aulasDiretas =
+            novasAulasDiretas;
 
-    const mes =
-        String(
-            hoje.getMonth() + 1
-        ).padStart(2, "0");
+        mostrarAlunos();
 
-    const dia =
-        String(
-            hoje.getDate()
-        ).padStart(2, "0");
+        atualizarDashboard();
 
+        mostrarNotificacao(
+            "Aula registada.",
+            "sucesso"
+        );
+    })
+    .catch(function (erro) {
 
-    const dataHoje =
-        `${ano}-${mes}-${dia}`;
+        console.error(
+            "Erro ao registar aula:",
+            erro
+        );
 
-
-    const contagem =
-        obterContagemAulas(aluno);
-
-
-    let proximaAula;
-
-
-    if (contagem.total < 24) {
-
-        proximaAula =
-            String(
-                contagem.total + 1
-            ).padStart(2, "0");
-
-    }
-    else {
-
-        proximaAula =
-            "24";
-
-    }
-
-
-    overlay.innerHTML = `
-
-        <div class="modal">
-
-            <h2>📚 Registar aula</h2>
-
-            <p>
-                <strong>
-                    ${escapeHTML(
-                        aluno.nome || ""
-                    )}
-                </strong>
-            </p>
-
-            <p>
-                Aulas realizadas:
-                <strong>
-                    ${contagem.total}
-                </strong>
-            </p>
-
-            <label>
-                Lesson
-            </label>
-
-            <select id="directLessonNumber">
-
-                <option value="">
-                    Selecionar Lesson
-                </option>
-
-                ${Object.keys(materias).map(
-                    function(numero) {
-
-                        return `
-                            <option
-                                value="${numero}"
-                                ${
-                                    numero === proximaAula
-                                        ? "selected"
-                                        : ""
-                                }
-                            >
-                                ${numero} -
-                                ${escapeHTML(
-                                    materias[numero]
-                                )}
-                            </option>
-                        `;
-
-                    }
-                ).join("")}
-
-            </select>
-
-            <label>
-                Data
-            </label>
-
-            <input
-                type="date"
-                id="directLessonDate"
-                value="${dataHoje}"
-            />
-
-            <label>
-                Hora
-            </label>
-
-            <input
-                type="time"
-                id="directLessonTime"
-            />
-
-            <div class="modalButtons">
-
-                <button
-                    type="button"
-                    id="saveDirectLessonButton"
-                >
-                    💾 Registar aula
-                </button>
-
-                <button
-                    type="button"
-                    id="cancelDirectLessonButton"
-                >
-                    Cancelar
-                </button>
-
-            </div>
-
-        </div>
-
-    `;
-
-
-    document.body.appendChild(overlay);
-
-overlay.style.display = "flex";
-
+        mostrarNotificacao(
+            "Erro ao registar a aula.",
+            "erro"
+        );
+    });
+}
+    // ========================================================
+    // CANCELAR
+    // ========================================================
 
     const cancelar =
         document.getElementById(
             "cancelDirectLessonButton"
         );
-
 
     if (cancelar) {
 
@@ -1455,17 +1344,18 @@ overlay.style.display = "flex";
             function () {
 
                 overlay.remove();
-
             };
-
     }
 
+
+    // ========================================================
+    // GUARDAR AULA DIRETA
+    // ========================================================
 
     const guardar =
         document.getElementById(
             "saveDirectLessonButton"
         );
-
 
     if (guardar) {
 
@@ -1477,12 +1367,10 @@ overlay.style.display = "flex";
                         "directLessonNumber"
                     ).value;
 
-
                 const data =
                     document.getElementById(
                         "directLessonDate"
                     ).value;
-
 
                 const hora =
                     document.getElementById(
@@ -1498,7 +1386,6 @@ overlay.style.display = "flex";
                     );
 
                     return;
-
                 }
 
 
@@ -1510,7 +1397,6 @@ overlay.style.display = "flex";
                     );
 
                     return;
-
                 }
 
 
@@ -1522,7 +1408,6 @@ overlay.style.display = "flex";
                     );
 
                     return;
-
                 }
 
 
@@ -1543,7 +1428,6 @@ overlay.style.display = "flex";
                                 aula.data === data &&
                                 aula.hora === hora
                             );
-
                         }
                     );
 
@@ -1556,7 +1440,6 @@ overlay.style.display = "flex";
                     );
 
                     return;
-
                 }
 
 
@@ -1579,7 +1462,6 @@ overlay.style.display = "flex";
 
                     criadaEm:
                         new Date().toISOString()
-
                 };
 
 
@@ -1590,6 +1472,15 @@ overlay.style.display = "flex";
 
 
                 try {
+
+                    /*
+                     * IMPORTANTE:
+                     *
+                     * Aqui NÃO é criada nenhuma aula
+                     * na coleção "aulas".
+                     *
+                     * Apenas atualizamos o aluno.
+                     */
 
                     await updateDoc(
                         doc(
@@ -1622,6 +1513,7 @@ overlay.style.display = "flex";
                     atualizarDashboard();
 
                 }
+
                 catch (erro) {
 
                     console.error(
@@ -1633,13 +1525,9 @@ overlay.style.display = "flex";
                         "Erro ao guardar a aula.",
                         "erro"
                     );
-
                 }
-
             };
-
     }
-
 }
 
 
@@ -1650,12 +1538,26 @@ overlay.style.display = "flex";
 function escapeHTML(valor) {
 
     return String(valor)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-
+        .replaceAll(
+            "&",
+            "&amp;"
+        )
+        .replaceAll(
+            "<",
+            "&lt;"
+        )
+        .replaceAll(
+            ">",
+            "&gt;"
+        )
+        .replaceAll(
+            '"',
+            "&quot;"
+        )
+        .replaceAll(
+            "'",
+            "&#039;"
+        );
 }
 
 
@@ -1671,39 +1573,41 @@ function configurarEventosAlunos() {
     // ========================================================
 
     document
-        .querySelectorAll(".editStudentButton")
-        .forEach(function (button) {
+        .querySelectorAll(
+            ".editStudentButton"
+        )
+        .forEach(
+            function (button) {
 
-            button.onclick =
-                function (event) {
+                button.onclick =
+                    function (event) {
 
-                    event.preventDefault();
-                    event.stopPropagation();
+                        event.preventDefault();
 
-                    const aluno =
-                        alunos.find(
-                            function (a) {
+                        event.stopPropagation();
 
-                                return (
-                                    String(a.id) ===
-                                    String(
-                                        button.dataset.id
-                                    )
-                                );
+                        const aluno =
+                            alunos.find(
+                                function (a) {
 
-                            }
-                        );
+                                    return (
+                                        String(a.id) ===
+                                        String(
+                                            button.dataset.id
+                                        )
+                                    );
+                                }
+                            );
 
+                        if (aluno) {
 
-                    if (aluno) {
-
-                        editarAluno(aluno);
-
-                    }
-
-                };
-
-        });
+                            editarAluno(
+                                aluno
+                            );
+                        }
+                    };
+            }
+        );
 
 
     // ========================================================
@@ -1711,39 +1615,41 @@ function configurarEventosAlunos() {
     // ========================================================
 
     document
-        .querySelectorAll(".qrStudentButton")
-        .forEach(function (button) {
+        .querySelectorAll(
+            ".qrStudentButton"
+        )
+        .forEach(
+            function (button) {
 
-            button.onclick =
-                function (event) {
+                button.onclick =
+                    function (event) {
 
-                    event.preventDefault();
-                    event.stopPropagation();
+                        event.preventDefault();
 
-                    const aluno =
-                        alunos.find(
-                            function (a) {
+                        event.stopPropagation();
 
-                                return (
-                                    String(a.id) ===
-                                    String(
-                                        button.dataset.id
-                                    )
-                                );
+                        const aluno =
+                            alunos.find(
+                                function (a) {
 
-                            }
-                        );
+                                    return (
+                                        String(a.id) ===
+                                        String(
+                                            button.dataset.id
+                                        )
+                                    );
+                                }
+                            );
 
+                        if (aluno) {
 
-                    if (aluno) {
-
-                        mostrarQRCodeAluno(aluno);
-
-                    }
-
-                };
-
-        });
+                            mostrarQRCodeAluno(
+                                aluno
+                            );
+                        }
+                    };
+            }
+        );
 
 
     // ========================================================
@@ -1751,14 +1657,68 @@ function configurarEventosAlunos() {
     // ========================================================
 
     document
-        .querySelectorAll(".examStudentButton")
-        .forEach(function (button) {
+        .querySelectorAll(
+            ".examStudentButton"
+        )
+        .forEach(
+            function (button) {
+
+                button.onclick =
+                    function (event) {
+
+                        event.preventDefault();
+
+                        event.stopPropagation();
+
+                        const aluno =
+                            alunos.find(
+                                function (a) {
+
+                                    return (
+                                        String(a.id) ===
+                                        String(
+                                            button.dataset.id
+                                        )
+                                    );
+                                }
+                            );
+
+                        if (aluno) {
+
+                            abrirModalExame(
+                                aluno
+                            );
+                        }
+                    };
+            }
+        );
+
+
+    // ========================================================
+    // REGISTAR AULA
+    // ========================================================
+
+    const botoesRegistarAula =
+        document.querySelectorAll(
+            ".registerLessonStudentButton"
+        );
+
+
+    botoesRegistarAula.forEach(
+        function (button) {
 
             button.onclick =
                 function (event) {
 
                     event.preventDefault();
+
                     event.stopPropagation();
+
+                    const idAluno =
+                        String(
+                            button.dataset.id || ""
+                        );
+
 
                     const aluno =
                         alunos.find(
@@ -1766,72 +1726,32 @@ function configurarEventosAlunos() {
 
                                 return (
                                     String(a.id) ===
-                                    String(
-                                        button.dataset.id
-                                    )
+                                    idAluno
                                 );
-
                             }
                         );
 
 
-                    if (aluno) {
+                    if (!aluno) {
 
-                        abrirModalExame(aluno);
+                        mostrarNotificacao(
+                            "Aluno não encontrado.",
+                            "erro"
+                        );
 
+                        return;
                     }
 
+
+                    abrirRegistoAulaAluno(
+                        aluno
+                    );
                 };
-
-        });
-
-
-// ========================================================
-// REGISTAR AULA
-// ========================================================
-
-const botoesRegistarAula =
-    document.querySelectorAll(
-        ".registerLessonStudentButton"
+        }
     );
 
-    alert("BOTÕES: " + botoesRegistarAula.length);
+}
 
-botoesRegistarAula.forEach(
-    function (button) {
-
-        button.onclick =
-            function (event) {
-
-                event.preventDefault();
-                event.stopPropagation();
-
-                const idAluno =
-                    String(
-                        button.dataset.id || ""
-                    );
-
-                const aluno =
-                    alunos.find(
-                        function (a) {
-                            return String(a.id) === idAluno;
-                        }
-                    );
-
-                if (!aluno) {
-                    mostrarNotificacao(
-                        "Aluno não encontrado.",
-                        "erro"
-                    );
-                    return;
-                }
-
-                abrirRegistoAulaAluno(aluno);
-            };
-    }
-);
-
-}    
 
 // ============================================================
 // QR CODE DO ALUNO
@@ -1841,7 +1761,6 @@ function mostrarQRCodeAluno(aluno) {
 
     const caixa =
         $("qr-" + aluno.id);
-
 
     if (!caixa) {
         return;
@@ -1860,7 +1779,6 @@ function mostrarQRCodeAluno(aluno) {
             "<p>QR Code library not loaded.</p>";
 
         return;
-
     }
 
 
@@ -1876,7 +1794,6 @@ function mostrarQRCodeAluno(aluno) {
             "";
 
         return;
-
     }
 
 
@@ -1892,7 +1809,6 @@ function mostrarQRCodeAluno(aluno) {
     new QRCode(
         caixa,
         {
-
             text:
                 String(codigo),
 
@@ -1901,7 +1817,6 @@ function mostrarQRCodeAluno(aluno) {
 
             height:
                 180
-
         }
     );
 
@@ -1922,7 +1837,8 @@ function mostrarQRCodeAluno(aluno) {
 
         <br>
 
-        Nº ${escapeHTML(
+        Nº
+        ${escapeHTML(
             aluno.numero || ""
         )}
 
@@ -1936,7 +1852,6 @@ function mostrarQRCodeAluno(aluno) {
 
     caixa.style.display =
         "block";
-
 }
 
 
@@ -1949,7 +1864,6 @@ function configurarPesquisa() {
     const campo =
         $("searchStudent");
 
-
     if (!campo) {
         return;
     }
@@ -1960,10 +1874,8 @@ function configurarPesquisa() {
         function () {
 
             mostrarAlunos();
-
         }
     );
-
 }
 
 
@@ -1978,10 +1890,8 @@ function editarAluno(aluno) {
             "div"
         );
 
-
     overlay.className =
         "lesson-editor-overlay";
-
 
     overlay.style.display =
         "flex";
@@ -1991,7 +1901,6 @@ function editarAluno(aluno) {
         document.createElement(
             "div"
         );
-
 
     modal.className =
         "lesson-editor-modal";
@@ -2120,36 +2029,48 @@ function editarAluno(aluno) {
     `;
 
 
-    overlay.appendChild(modal);
+    overlay.appendChild(
+        modal
+    );
 
-    document.body.appendChild(overlay);
+    document.body.appendChild(
+        overlay
+    );
 
 
     $("editStudentNumber").value =
         aluno.numero || "";
 
+
     $("editStudentName").value =
         aluno.nome || "";
 
+
     $("editStudentState").value =
         aluno.estado || "Ativo";
+
 
     $("editStudentQR").value =
         aluno.qrCode ||
         aluno.numero ||
         "";
 
+
     $("editLicenseValidity").value =
         aluno.validadeLicenca || "";
+
 
     $("editCodeValidity").value =
         aluno.validadeCodigo || "";
 
+
     $("editExamResult").value =
         aluno.estadoExame || "";
 
+
     $("editExamDate").value =
         aluno.dataExame || "";
+
 
     $("editFailureDate").value =
         aluno.dataReprovacao || "";
@@ -2159,7 +2080,6 @@ function editarAluno(aluno) {
         function () {
 
             overlay.remove();
-
         };
 
 
@@ -2206,7 +2126,6 @@ function editarAluno(aluno) {
                 dataReprovacao:
                     $("editFailureDate")
                         .value
-
             };
 
 
@@ -2221,31 +2140,28 @@ function editarAluno(aluno) {
                 );
 
                 return;
-
             }
 
 
             if (
                 dados.estadoExame ===
-                "Reprovado" &&
+                    "Reprovado" &&
                 !dados.dataReprovacao &&
                 dados.dataExame
             ) {
 
                 dados.dataReprovacao =
                     dados.dataExame;
-
             }
 
 
             if (
                 dados.estadoExame ===
-                "Aprovado"
+                    "Aprovado"
             ) {
 
                 dados.dataReprovacao =
                     "";
-
             }
 
 
@@ -2280,6 +2196,7 @@ function editarAluno(aluno) {
                 );
 
             }
+
             catch (erro) {
 
                 console.error(
@@ -2290,11 +2207,8 @@ function editarAluno(aluno) {
                     "Erro ao guardar a ficha.",
                     "erro"
                 );
-
             }
-
         };
-
 }
 
 
@@ -2324,7 +2238,6 @@ function abrirModalExame(aluno) {
     $("examResult").value =
         aluno.estadoExame ||
         "Aprovado";
-
 }
 
 
@@ -2344,9 +2257,7 @@ function configurarExame() {
 
                 alunoResultadoExame =
                     null;
-
             };
-
     }
 
 
@@ -2372,7 +2283,10 @@ function configurarExame() {
                         : "";
 
 
-                if (!data || !resultado) {
+                if (
+                    !data ||
+                    !resultado
+                ) {
 
                     mostrarNotificacao(
                         "Preenche a data e o resultado.",
@@ -2380,7 +2294,6 @@ function configurarExame() {
                     );
 
                     return;
-
                 }
 
 
@@ -2394,10 +2307,9 @@ function configurarExame() {
 
                     dataReprovacao:
                         resultado ===
-                        "Reprovado"
+                            "Reprovado"
                             ? data
                             : ""
-
                 };
 
 
@@ -2437,6 +2349,7 @@ function configurarExame() {
                         null;
 
                 }
+
                 catch (erro) {
 
                     console.error(
@@ -2447,13 +2360,9 @@ function configurarExame() {
                         "Erro ao guardar o resultado.",
                         "erro"
                     );
-
                 }
-
             };
-
     }
-
 }
 
 
@@ -2461,7 +2370,9 @@ function configurarExame() {
 // CRIAR / EDITAR AULA
 // ============================================================
 
-function abrirEditorAula(aula = null) {
+function abrirEditorAula(
+    aula = null
+) {
 
     aulaEmEdicao =
         aula;
@@ -2514,18 +2425,16 @@ function abrirEditorAula(aula = null) {
             )
                 ? [...aula.alunos]
                 : [];
-
     }
+
     else {
 
         window.alunosDaAula =
             [];
-
     }
 
 
     mostrarAlunosDaAula();
-
 }
 
 
@@ -2539,7 +2448,6 @@ function fecharEditorAula() {
 
         $("lessonEditorOverlay").style.display =
             "none";
-
     }
 
 
@@ -2549,8 +2457,8 @@ function fecharEditorAula() {
 
     window.alunosDaAula =
         [];
-
 }
+
 
 // ============================================================
 // MATÉRIA AUTOMÁTICA
@@ -2574,10 +2482,8 @@ function configurarMaterias() {
             $("lessonSubject").value =
                 materias[numero] ||
                 "";
-
         }
     );
-
 }
 
 
@@ -2603,7 +2509,6 @@ function adicionarAlunoAula(
         );
 
         return;
-
     }
 
 
@@ -2616,7 +2521,6 @@ function adicionarAlunoAula(
                         a.numero || ""
                     ) === numero
                 );
-
             }
         );
 
@@ -2629,7 +2533,6 @@ function adicionarAlunoAula(
         );
 
         return;
-
     }
 
 
@@ -2641,20 +2544,17 @@ function adicionarAlunoAula(
 
         window.alunosDaAula =
             [];
-
     }
 
 
     if (
-        window.alunosDaAula
-            .some(
-                function (n) {
+        window.alunosDaAula.some(
+            function (n) {
 
-                    return String(n) ===
-                        numero;
-
-                }
-            )
+                return String(n) ===
+                    numero;
+            }
+        )
     ) {
 
         mostrarNotificacao(
@@ -2663,7 +2563,6 @@ function adicionarAlunoAula(
         );
 
         return;
-
     }
 
 
@@ -2679,9 +2578,7 @@ function adicionarAlunoAula(
 
         $("lessonStudentNumber").value =
             "";
-
     }
-
 }
 
 
@@ -2693,6 +2590,7 @@ function mostrarAlunosDaAula() {
 
     const lista =
         $("lessonStudents");
+
 
     if (!lista) {
         return;
@@ -2710,7 +2608,6 @@ function mostrarAlunosDaAula() {
             "Nenhum aluno adicionado.";
 
         return;
-
     }
 
 
@@ -2729,7 +2626,6 @@ function mostrarAlunosDaAula() {
                             a.numero || ""
                         ) ===
                             String(numero);
-
                     }
                 );
 
@@ -2743,20 +2639,26 @@ function mostrarAlunosDaAula() {
             linha.style.display =
                 "flex";
 
+
             linha.style.justifyContent =
                 "space-between";
+
 
             linha.style.alignItems =
                 "center";
 
+
             linha.style.padding =
                 "8px";
+
 
             linha.style.marginBottom =
                 "5px";
 
+
             linha.style.border =
                 "1px solid #ddd";
+
 
             linha.style.borderRadius =
                 "6px";
@@ -2802,7 +2704,6 @@ function mostrarAlunosDaAula() {
             lista.appendChild(
                 linha
             );
-
         }
     );
 
@@ -2827,18 +2728,14 @@ function mostrarAlunosDaAula() {
 
                                     return String(n) !==
                                         String(numero);
-
                                 }
                             );
 
 
                         mostrarAlunosDaAula();
-
                     };
-
             }
         );
-
 }
 
 
@@ -2851,8 +2748,10 @@ function abrirSelecaoMultipla() {
     const box =
         $("multipleStudentsBox");
 
+
     const button =
         $("addSelectedStudents");
+
 
     if (!box || !button) {
         return;
@@ -2871,7 +2770,6 @@ function abrirSelecaoMultipla() {
             "none";
 
         return;
-
     }
 
 
@@ -2885,7 +2783,6 @@ function abrirSelecaoMultipla() {
 
                 return aluno.estado !==
                     "Inativo";
-
             }
         )
         .sort(
@@ -2902,7 +2799,6 @@ function abrirSelecaoMultipla() {
                         numeric: true
                     }
                 );
-
             }
         )
         .forEach(
@@ -2917,6 +2813,7 @@ function abrirSelecaoMultipla() {
                 label.style.display =
                     "block";
 
+
                 label.style.padding =
                     "5px";
 
@@ -2925,15 +2822,15 @@ function abrirSelecaoMultipla() {
                     Array.isArray(
                         window.alunosDaAula
                     ) &&
-                    window.alunosDaAula
-                        .some(
-                            function (n) {
+                    window.alunosDaAula.some(
+                        function (n) {
 
-                                return String(n) ===
-                                    String(aluno.numero);
-
-                            }
-                        );
+                            return String(n) ===
+                                String(
+                                    aluno.numero
+                                );
+                        }
+                    );
 
 
                 label.innerHTML = `
@@ -2961,7 +2858,6 @@ function abrirSelecaoMultipla() {
                 box.appendChild(
                     label
                 );
-
             }
         );
 
@@ -2969,9 +2865,9 @@ function abrirSelecaoMultipla() {
     box.style.display =
         "block";
 
+
     button.style.display =
         "inline-block";
-
 }
 
 
@@ -2989,7 +2885,6 @@ function adicionarSelecionados() {
 
         window.alunosDaAula =
             [];
-
     }
 
 
@@ -3005,23 +2900,19 @@ function adicionarSelecionados() {
 
 
                 if (
-                    !window.alunosDaAula
-                        .some(
-                            function (n) {
+                    !window.alunosDaAula.some(
+                        function (n) {
 
-                                return String(n) ===
-                                    String(numero);
-
-                            }
-                        )
+                            return String(n) ===
+                                String(numero);
+                        }
+                    )
                 ) {
 
                     window.alunosDaAula.push(
                         numero
                     );
-
                 }
-
             }
         );
 
@@ -3033,7 +2924,6 @@ function adicionarSelecionados() {
 
         $("multipleStudentsBox").style.display =
             "none";
-
     }
 
 
@@ -3041,9 +2931,7 @@ function adicionarSelecionados() {
 
         $("addSelectedStudents").style.display =
             "none";
-
     }
-
 }
 
 
@@ -3058,15 +2946,18 @@ async function guardarAula() {
             ? $("lessonId").value
             : "";
 
+
     const materia =
         $("lessonSubject")
             ? $("lessonSubject").value
             : "";
 
+
     const data =
         $("lessonDate")
             ? $("lessonDate").value
             : "";
+
 
     const hora =
         $("lessonTime")
@@ -3086,7 +2977,6 @@ async function guardarAula() {
         );
 
         return;
-
     }
 
 
@@ -3121,7 +3011,6 @@ async function guardarAula() {
 
         alunos:
             alunosDaAula
-
     };
 
 
@@ -3142,8 +3031,8 @@ async function guardarAula() {
             mostrarNotificacao(
                 "Aula atualizada com sucesso."
             );
-
         }
+
         else {
 
             await addDoc(
@@ -3152,12 +3041,10 @@ async function guardarAula() {
                     "aulas"
                 ),
                 {
-
                     ...dados,
 
                     criadaEm:
                         new Date().toISOString()
-
                 }
             );
 
@@ -3166,14 +3053,11 @@ async function guardarAula() {
                 alunosDaAula.length === 0
                     ? "Aula criada sem alunos. Podes adicioná-los mais tarde."
                     : "Aula guardada com sucesso."
-
             );
-
         }
 
 
         fecharEditorAula();
-
 
         mostrarAulas();
 
@@ -3182,6 +3066,7 @@ async function guardarAula() {
         atualizarDashboard();
 
     }
+
     catch (erro) {
 
         console.error(
@@ -3192,9 +3077,7 @@ async function guardarAula() {
             "Erro ao guardar a aula.",
             "erro"
         );
-
     }
-
 }
 
 
@@ -3206,6 +3089,7 @@ function mostrarAulas() {
 
     const lista =
         $("lessonsList");
+
 
     if (!lista) {
         return;
@@ -3220,7 +3104,6 @@ function mostrarAulas() {
             "Ainda não existem aulas.";
 
         return;
-
     }
 
 
@@ -3236,6 +3119,7 @@ function mostrarAulas() {
                         a.hora || ""
                     );
 
+
                 const dataB =
                     String(
                         b.data || ""
@@ -3248,7 +3132,6 @@ function mostrarAulas() {
                 return dataB.localeCompare(
                     dataA
                 );
-
             }
         );
 
@@ -3296,7 +3179,8 @@ function mostrarAulas() {
             card.innerHTML = `
 
                 <h3>
-                    📚 Lesson ${escapeHTML(
+                    📚 Lesson
+                    ${escapeHTML(
                         aula.numero || ""
                     )}
                 </h3>
@@ -3310,11 +3194,15 @@ function mostrarAulas() {
                 </p>
 
                 <p>
-                    📅 ${formatarData(
+                    📅
+                    ${formatarData(
                         aula.data
                     )}
+
                     &nbsp;
-                    ⏰ ${escapeHTML(
+
+                    ⏰
+                    ${escapeHTML(
                         aula.hora || ""
                     )}
                 </p>
@@ -3359,13 +3247,11 @@ function mostrarAulas() {
             lista.appendChild(
                 card
             );
-
         }
     );
 
 
     configurarEventosAulas();
-
 }
 
 
@@ -3393,7 +3279,6 @@ function configurarEventosAulas() {
                                         a.id ===
                                         button.dataset.id
                                     );
-
                                 }
                             );
 
@@ -3403,11 +3288,8 @@ function configurarEventosAulas() {
                             abrirEditorAula(
                                 aula
                             );
-
                         }
-
                     };
-
             }
         );
 
@@ -3430,7 +3312,6 @@ function configurarEventosAulas() {
                                         a.id ===
                                         button.dataset.id
                                     );
-
                                 }
                             );
 
@@ -3467,6 +3348,7 @@ function configurarEventosAulas() {
                             );
 
                         }
+
                         catch (erro) {
 
                             console.error(
@@ -3477,14 +3359,10 @@ function configurarEventosAulas() {
                                 "Erro ao apagar a aula.",
                                 "erro"
                             );
-
                         }
-
                     };
-
             }
         );
-
 }
 
 
@@ -3499,6 +3377,7 @@ async function iniciarScannerQR() {
 
     const reader =
         $("reader");
+
 
     if (!reader) {
         return;
@@ -3516,7 +3395,6 @@ async function iniciarScannerQR() {
         );
 
         return;
-
     }
 
 
@@ -3549,7 +3427,6 @@ async function iniciarScannerQR() {
 
                 qrbox:
                     250
-
             },
 
             function (codigo) {
@@ -3568,11 +3445,11 @@ async function iniciarScannerQR() {
                                 String(
                                     a.qrCode || ""
                                 ) === codigo ||
+
                                 String(
                                     a.numero || ""
                                 ) === codigo
                             );
-
                         }
                     );
 
@@ -3585,7 +3462,6 @@ async function iniciarScannerQR() {
                     );
 
                     return;
-
                 }
 
 
@@ -3595,34 +3471,32 @@ async function iniciarScannerQR() {
 
 
                 pararScannerQR();
-
             },
 
             function () {
 
                 // Erros de leitura contínua
                 // não precisam de mensagem.
-
             }
-
         );
 
     }
+
     catch (erro) {
 
         console.error(
             erro
         );
 
+
         mostrarNotificacao(
             "Não foi possível abrir a câmara.",
             "erro"
         );
 
+
         pararScannerQR();
-
     }
-
 }
 
 
@@ -3639,12 +3513,12 @@ async function pararScannerQR() {
             await scannerQR.stop();
 
         }
+
         catch (erro) {
 
             console.warn(
                 erro
             );
-
         }
 
 
@@ -3653,18 +3527,17 @@ async function pararScannerQR() {
             scannerQR.clear();
 
         }
+
         catch (erro) {
 
             console.warn(
                 erro
             );
-
         }
 
 
         scannerQR =
             null;
-
     }
 
 
@@ -3672,9 +3545,7 @@ async function pararScannerQR() {
 
         $("reader").style.display =
             "none";
-
     }
-
 }
 
 
@@ -3692,9 +3563,7 @@ function configurarEditorAula() {
                 pararScannerQR();
 
                 fecharEditorAula();
-
             };
-
     }
 
 
@@ -3708,9 +3577,7 @@ function configurarEditorAula() {
                         ? $("lessonStudentNumber").value
                         : ""
                 );
-
             };
-
     }
 
 
@@ -3728,18 +3595,17 @@ function configurarEditorAula() {
 
                         event.preventDefault();
 
-                        if ($("addStudentToLesson")) {
+
+                        if (
+                            $("addStudentToLesson")
+                        ) {
 
                             $("addStudentToLesson")
                                 .click();
-
                         }
-
                     }
-
                 }
             );
-
     }
 
 
@@ -3747,7 +3613,6 @@ function configurarEditorAula() {
 
         $("selectMultipleStudents").onclick =
             abrirSelecaoMultipla;
-
     }
 
 
@@ -3755,7 +3620,6 @@ function configurarEditorAula() {
 
         $("addSelectedStudents").onclick =
             adicionarSelecionados;
-
     }
 
 
@@ -3767,16 +3631,13 @@ function configurarEditorAula() {
                 if (scannerQR) {
 
                     pararScannerQR();
-
                 }
+
                 else {
 
                     iniciarScannerQR();
-
                 }
-
             };
-
     }
 
 
@@ -3784,14 +3645,11 @@ function configurarEditorAula() {
 
         $("saveLesson").onclick =
             guardarAula;
-
     }
 
 
     configurarMaterias();
-
 }
-
 
 // ============================================================
 // ADICIONAR NOVO MÊS
