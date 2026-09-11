@@ -1440,6 +1440,8 @@ function abrirRegistoAulaAluno(aluno) {
 
     document.body.appendChild(overlay);
 
+overlay.style.display = "flex";
+
 
     const cancelar =
         document.getElementById(
