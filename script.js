@@ -1280,6 +1280,8 @@ function mostrarAlunos() {
 
 
     configurarEventosAlunos();
+    
+    alert("EVENTOS CONFIGURADOS");
 
 }
 
