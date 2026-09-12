@@ -170,7 +170,12 @@ const utilizadores = [
     {
         username: "joaof",
         password: "lumiar2026"
-    }
+    },
+
+        {
+        username: "secretaria",
+        password: "lumiaringles2026"
+        }
 
 ];
 
