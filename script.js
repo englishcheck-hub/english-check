@@ -4408,17 +4408,29 @@ function imprimirHorario(wrapper) {
                 }
 
                 .lesson-green {
-                    background: #b7e1b0 !important;
-                }
+    background-color: #b7e1b0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+}
 
-                .lesson-yellow {
-                    background: #ffe680 !important;
-                }
+.lesson-yellow {
+    background-color: #ffe680 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+}
 
-                .lesson-red {
-                    background: #ff9999 !important;
-                }
+.lesson-red {
+    background-color: #ff9999 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+}
 
+@media print {
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+}
             </style>
 
         </head>
